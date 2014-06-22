@@ -87,6 +87,10 @@ public class InteractionController implements ActionListener{
                 String retType = returnType == null ? "vazio" : returnType.getName();
                 System.out.println("- "+retType+"       "+((JavaClass) javaAbstract).getMethods().get(i).getMethodSignature());
                 System.out.println("Diff (in - out): "+((JavaClass) javaAbstract).getMethods().get(i).getDiff());
+                System.out.println("Modifie internal state: "+((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
+                System.out.println("Modifie internal state by call method: "+((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
+                System.out.println("Size: "+((JavaClass) javaAbstract).getMethods().get(i).getSizeInChars());
+                System.out.println("Cyclomatic complexity: "+((JavaClass) javaAbstract).getMethods().get(i).getCyclomaticComplexity());
                 methods[i] = ((JavaClass) javaAbstract).getMethods().get(i).getMethodSignature();
                 for(JavaMethodInvocation jmi : ((JavaClass) javaAbstract).getMethods().get(i).getMethodInvocations()){
                     //System.out.println("------ "+jmi.getJavaAbstract().getFullQualifiedName()+":"+jmi.getJavaMethod().getMethodSignature());

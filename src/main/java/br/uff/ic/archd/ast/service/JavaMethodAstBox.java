@@ -22,7 +22,6 @@ public class JavaMethodAstBox {
     private boolean isPrivate;
     private boolean isPublic;
     private boolean isProtected;
-    private int sizeInChars;
     private int cyclomaticComplexity;
     private Block block;
     
@@ -37,6 +36,7 @@ public class JavaMethodAstBox {
         isPrivate = false;
         isPublic = false;
         isProtected = true;
+        cyclomaticComplexity = 0;
     }
 
     /**
@@ -185,5 +185,19 @@ public class JavaMethodAstBox {
      */
     public Block getBlock() {
         return block;
+    }
+
+    /**
+     * @return the cyclomaticComplexity
+     */
+    public int getCyclomaticComplexity() {
+        return cyclomaticComplexity;
+    }
+
+    /**
+     * @param cyclomaticComplexity the cyclomaticComplexity to set
+     */
+    public void setCyclomaticComplexity(int cyclomaticComplexity) {
+        this.cyclomaticComplexity = cyclomaticComplexity;
     }
 }

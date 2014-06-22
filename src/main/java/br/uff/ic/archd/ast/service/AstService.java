@@ -4,9 +4,9 @@
  */
 package br.uff.ic.archd.ast.service;
 
-
 import br.uff.ic.archd.javacode.JavaAbstract;
 import br.uff.ic.archd.javacode.JavaAbstractExternal;
+import br.uff.ic.archd.javacode.JavaAttribute;
 import br.uff.ic.archd.javacode.JavaClass;
 import br.uff.ic.archd.javacode.JavaData;
 import br.uff.ic.archd.javacode.JavaInterface;
@@ -20,10 +20,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import javancss.FunctionMetric;
+import javancss.Javancss;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -39,13 +43,16 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
@@ -95,7 +102,7 @@ public class AstService {
             return ((TypeDeclaration) compilationUnit.types().get(0)).isInterface();
 
         } catch (Exception e) {
-            System.out.println("Erro getClass Name: " + e.getMessage());
+            System.out.println("Erro isinterface Name: " + e.getMessage());
         }
         return false;
 
@@ -130,7 +137,7 @@ public class AstService {
 
 
         } catch (Exception e) {
-            System.out.println("Erro getClass Name: " + e.getMessage());
+            System.out.println("Erro getClass Name: " + path + "     " + e.getMessage());
         }
         return null;
 
@@ -149,7 +156,7 @@ public class AstService {
 
 
         } catch (Exception e) {
-            System.out.println("Erro getClass Name: " + e.getMessage());
+            System.out.println("Erro package Name: " + e.getMessage());
         }
         return null;
     }
@@ -179,7 +186,7 @@ public class AstService {
 
 
         } catch (Exception e) {
-            System.out.println("Erro getMethodsReturnType Name: " + e.getMessage());
+            System.out.println("Erro getImports Name: " + e.getMessage());
         }
         return null;
     }
@@ -205,7 +212,7 @@ public class AstService {
 
 
         } catch (Exception e) {
-            System.out.println("Erro getMethodsReturnType Name: " + e.getMessage());
+            System.out.println("Erro getsuperclass Name: " + e.getMessage());
         }
         return null;
     }
@@ -221,9 +228,14 @@ public class AstService {
             CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 
             for (int i = 0; i < ((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().size(); i++) {
-                Name name = ((SimpleType) ((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().get(i)).getName();
-                String interfaceName = name.getFullyQualifiedName();
-                list.add(interfaceName);
+                if (((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().get(i).getClass() == org.eclipse.jdt.core.dom.ParameterizedType.class) {
+                    //((ParameterizedType) ((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().get(i)).
+                } else if (((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().get(i).getClass() == org.eclipse.jdt.core.dom.SimpleType.class) {
+                    //System.out.println("interface: "+((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().get(i));
+                    Name name = ((SimpleType) ((TypeDeclaration) compilationUnit.types().get(0)).superInterfaceTypes().get(i)).getName();
+                    String interfaceName = name.getFullyQualifiedName();
+                    list.add(interfaceName);
+                }
             }
 
             return list;
@@ -231,7 +243,7 @@ public class AstService {
 
 
         } catch (Exception e) {
-            System.out.println("Erro getMethodsReturnType Name: " + e.getMessage());
+            System.out.println("Erro getImplementedInterfaces " + classPath + "  Name: " + e.getMessage());
         }
         return list;
     }
@@ -308,7 +320,7 @@ public class AstService {
             return list;
 
         } catch (Exception e) {
-            System.out.println("Erro getMethodsReturnType Name: " + e.getMessage());
+            System.out.println("Erro getAttributes Name: " + e.getMessage());
         }
         return list;
     }
@@ -318,10 +330,25 @@ public class AstService {
         try {
             String content = readFile(classPath);
             //System.out.println("Path: "+path);
+            
             org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document(content);
             ASTParser parser = ASTParser.newParser(AST.JLS3);
             parser.setSource(doc.get().toCharArray());
             CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+            
+            List functionMetrics = new ArrayList();
+            Reader reader = new StringReader(content);
+            try{
+                Javancss javancss = new Javancss(reader);
+                functionMetrics =  javancss.getFunctionMetrics();
+//                for(Object object : functionMetrics){
+//                    FunctionMetric functionMetric = (FunctionMetric) object;
+//                    System.out.println("Name: "+functionMetric.toString());
+//                }
+                
+            }catch(Exception e){
+                System.out.println("Error javancss: "+e.getMessage());
+            }
 
             MethodDeclaration methods[] = ((TypeDeclaration) compilationUnit.types().get(0)).getMethods();
             for (int i = 0; i < methods.length; i++) {
@@ -367,6 +394,10 @@ public class AstService {
                         javaMethodAstBox.setProtected(true);
                     }
                 }
+                
+                if(functionMetrics.size() > i){
+                    javaMethodAstBox.setCyclomaticComplexity(((FunctionMetric) functionMetrics.get(i)).ccn);
+                }
 
                 list.add(javaMethodAstBox);
 
@@ -377,7 +408,7 @@ public class AstService {
             return list;
 
         } catch (Exception e) {
-            System.out.println("Erro getMethodsReturnType Name: " + e.getMessage());
+            System.out.println("Erro getMethods Name: " + e.getMessage());
         }
         return list;
     }
@@ -386,52 +417,117 @@ public class AstService {
         try {
 
             for (JavaMethod javaMethod : javaClass.getMethods()) {
-                //System.out.println("Classe: "+javaClass.getFullQualifiedName());
+                //System.out.println("Classe: "+javaClass.getFullQualifiedName()+":"+javaMethod.getMethodSignature());
                 Block block = javaMethod.getBlock();
-                //System.out.println("Classe: "+javaClass.getFullQualifiedName());
-                javaMethod.setSizeInChars(block.getLength());
-                BlockVariablesBox blockVariablesBox = getVariableDeclarations(block, javaClass, javaProject);
-                MethodInvocationVisitor miv = new MethodInvocationVisitor();
-                block.accept(miv);
-                List<MethodInvocation> listmi = miv.getMethods();
-                for (MethodInvocation methinv : listmi) {
-
-                    //System.out.println("METHOD INVOCATION: " + methinv.toString());
-                    //System.out.println("MI EXPRESSSION: " + methinv.getExpression());
-                    JavaData returnClassType = getClassReturnType(methinv.getExpression(), javaClass, javaMethod,blockVariablesBox);
-                    if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
-                        System.out.println("method: "+javaMethod.getName()+" expression: "+methinv.getExpression()+"    return type: "+(returnClassType == null? "nulo" : returnClassType.getName()));
-                    }
-                    if (returnClassType != null && (returnClassType.getClass() == JavaClass.class || returnClassType.getClass() == JavaInterface.class)) {
-                        JavaMethod javaMethodCall = null;
-                        JavaAbstract javaAbstract = (JavaAbstract) returnClassType;
-                        List<JavaData> arguments = new ArrayList();
-                        
-                        for(int i =0; i < methinv.arguments().size(); i++){
-                            Expression argument = (Expression) methinv.arguments().get(i);
-                            JavaData javaData = getClassReturnType(argument, javaClass, javaMethod,blockVariablesBox);
-                            if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
-                                System.out.println("javadataClass: "+(argument.getClass())+"   argument: "+argument);
-                                System.out.println("javaData: "+(javaData ==null ? "nulo" : javaData.getName()));
+                if (block != null) {
+                    //System.out.println("Classe: "+javaClass.getFullQualifiedName());
+                    javaMethod.setSizeInChars(block.getLength());
+                    BlockVariablesBox blockVariablesBox = getVariableDeclarations(block, javaClass, javaProject);
+                    MethodInvocationVisitor miv = new MethodInvocationVisitor();
+                    block.accept(miv);
+                    List<Assignment> assignments = miv.getAssignments();
+                    for (Assignment assignment : assignments) {
+                        boolean changeInternalState = false;
+                        if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.SimpleName.class) {
+                            if (blockVariablesBox.getJavaDataByVariableName(((SimpleName) assignment.getLeftHandSide()).toString(), assignment.getLeftHandSide().getParent()) == null) {
+                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+                                    if (javaAttribute.getName().equals(((SimpleName) assignment.getLeftHandSide()).toString())) {
+                                        changeInternalState = true;
+                                    }
+                                }
                             }
-                            arguments.add(javaData);
+                        } else if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.FieldAccess.class) {
+                            if (((FieldAccess) assignment.getLeftHandSide()).getExpression().toString().equals("this")) {
+                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+                                    if (javaAttribute.getName().equals(((SimpleName) ((FieldAccess) assignment.getLeftHandSide()).getName()).toString())) {
+                                        changeInternalState = true;
+                                    }
+                                }
+                            }
+                        } else if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.ArrayAccess.class) {
+                            String arrayName = assignment.getLeftHandSide().toString().substring(0, assignment.getLeftHandSide().toString().indexOf("["));
+                            if (blockVariablesBox.getJavaDataByVariableName(arrayName, assignment.getLeftHandSide().getParent()) == null) {
+                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+                                    if (javaAttribute.getName().equals(arrayName)) {
+                                        changeInternalState = true;
+                                    }
+                                }
+                            }
                         }
-                        
-                        
-                        if (returnClassType.getClass() == JavaClass.class) {
-                            javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
+                        if (assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.SimpleName.class
+                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.FieldAccess.class
+                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.ArrayAccess.class
+                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.QualifiedName.class) {
+                            System.out.println("Assignment: class: " + javaClass.getFullQualifiedName() + "     " + assignment.getLeftHandSide() + "    class: " + assignment.getLeftHandSide().getClass());
+                        }
+                        if (changeInternalState) {
+                            javaMethod.setChangeInternalState(true);
+                        }
+                    }
 
-                        } else if (returnClassType.getClass() == JavaInterface.class) {
-                            javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
-                        }
-                        
-                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
-                        if(javaMethodCall == null){
-                            javaMethoInvocation.setUnknowMethodName(methinv.getName().toString()+"()");
-                            //System.out.println("Java METHOD call : "+javaAbstract.getFullQualifiedName()+"   "+methinv.getName().toString()+"   _ "+methinv.arguments().size());
-                        }
-                        javaMethod.addMethodInvocation(javaMethoInvocation);
+                    List<MethodInvocation> listmi = miv.getMethods();
+                    for (MethodInvocation methinv : listmi) {
 
+                        //System.out.println("METHOD INVOCATION: " + methinv.toString());
+                        //System.out.println("MI EXPRESSSION: " + methinv.getExpression());
+                        if (methinv.getExpression() != null && !methinv.getExpression().toString().equals("this")) {
+                            JavaData returnClassType = getClassReturnType(methinv.getExpression(), javaClass, javaMethod, blockVariablesBox);
+//                    if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
+//                        System.out.println("method: "+javaMethod.getName()+" expression: "+methinv.getExpression()+"    return type: "+(returnClassType == null? "nulo" : returnClassType.getName()));
+//                    }
+                            if (returnClassType != null && (returnClassType.getClass() == JavaClass.class || returnClassType.getClass() == JavaInterface.class)) {
+                                JavaMethod javaMethodCall = null;
+                                JavaAbstract javaAbstract = (JavaAbstract) returnClassType;
+                                List<JavaData> arguments = new ArrayList();
+
+                                for (int i = 0; i < methinv.arguments().size(); i++) {
+                                    Expression argument = (Expression) methinv.arguments().get(i);
+                                    JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
+//                            if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
+//                                System.out.println("javadataClass: "+(argument.getClass())+"   argument: "+argument);
+//                                System.out.println("javaData: "+(javaData ==null ? "nulo" : javaData.getName()));
+//                            }
+                                    arguments.add(javaData);
+                                }
+
+
+
+                                if (returnClassType.getClass() == JavaClass.class) {
+                                    javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
+
+                                } else if (returnClassType.getClass() == JavaInterface.class) {
+                                    javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
+                                }
+
+
+
+                                JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
+                                if (javaMethodCall == null) {
+                                    javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
+                                    //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+                                }
+                                javaMethod.addMethodInvocation(javaMethoInvocation);
+
+                                //System.out.println("AQUI PASSOU");
+
+                            }
+                        } else {
+                            JavaMethod javaMethodCall = null;
+                            List<JavaData> arguments = new ArrayList();
+
+                            for (int i = 0; i < methinv.arguments().size(); i++) {
+                                Expression argument = (Expression) methinv.arguments().get(i);
+                                JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
+                                arguments.add(javaData);
+                            }
+
+
+                            javaMethodCall = javaClass.getJavaMethod(methinv.getName().toString(), arguments.size(), arguments);
+                            if (javaMethodCall == null) {
+                                javaMethod.addInternalMethodInvocation(javaMethod);
+                            }
+
+                        }
                     }
                 }
 
@@ -439,7 +535,7 @@ public class AstService {
 
 
         } catch (Exception e) {
-            System.out.println("Erro getMethodInvocations "+javaClass.getFullQualifiedName()+" Name: " + e.getMessage());
+            System.out.println("Erro getMethodInvocations " + javaClass.getFullQualifiedName() + " Name: " + e.getMessage());
         }
     }
 
@@ -456,25 +552,25 @@ public class AstService {
 
                 String classReturnType = ((CastExpression) expression).getType().toString();
                 JavaData javaAbstract = javaClass.getJavaAbstractImportByName(classReturnType);
-                if(javaAbstract == null){
+                if (javaAbstract == null) {
 
                     return new JavaAbstractExternal(classReturnType);
-                    
-                }else{
+
+                } else {
                     return javaAbstract;
                 }
 
             } else if (expression.getClass() == org.eclipse.jdt.core.dom.SimpleName.class) {
                 //JavaData classReturnType = hashMethodDeclarations.get(((SimpleName) expression).toString());
                 JavaData classReturnType = blockVariablesBox.getJavaDataByVariableName(((SimpleName) expression).toString(), expression.getParent());
-                if(classReturnType == null){
-                    for(Parameter parameter : javaMethod.getParameters()){
-                        if(parameter.getName().equals(((SimpleName) expression).toString())){
+                if (classReturnType == null) {
+                    for (Parameter parameter : javaMethod.getParameters()) {
+                        if (parameter.getName().equals(((SimpleName) expression).toString())) {
                             classReturnType = parameter.getType();
                             break;
                         }
                     }
-                        
+
                 }
                 if (classReturnType == null) {
                     classReturnType = javaClass.getJavaTypeByVariableName(((SimpleName) expression).toString());
@@ -482,55 +578,117 @@ public class AstService {
                 return classReturnType;
             } else if (expression.getClass() == org.eclipse.jdt.core.dom.MethodInvocation.class) {
                 return getClassReturnType(((MethodInvocation) expression).getExpression(), javaClass, javaMethod, blockVariablesBox);
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.NullLiteral.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.NullLiteral.class) {
                 return new JavaNull();
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.NumberLiteral.class) {
-                if(expression.toString().contains(".")){
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.NumberLiteral.class) {
+                if (expression.toString().contains(".")) {
                     return new JavaPrimitiveType(JavaPrimitiveType.getType("double"));
-                }else if(expression.toString().endsWith("l")){
+                } else if (expression.toString().endsWith("l")) {
                     return new JavaPrimitiveType(JavaPrimitiveType.getType("long"));
-                }else if(expression.toString().endsWith("f")){
+                } else if (expression.toString().endsWith("f")) {
                     return new JavaPrimitiveType(JavaPrimitiveType.getType("float"));
-                }else{
+                } else {
                     return new JavaPrimitiveType(JavaPrimitiveType.getType("int"));
                 }
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.ArrayAccess.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.ArrayAccess.class) {
                 return getClassReturnType(((ArrayAccess) expression).getArray(), javaClass, javaMethod, blockVariablesBox);
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.ArrayCreation.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.ArrayCreation.class) {
                 String classReturnType = ((ArrayCreation) expression).getType().toString();
-                if(JavaPrimitiveType.getType(classReturnType) != 0 ){
+                if (JavaPrimitiveType.getType(classReturnType) != 0) {
                     return new JavaPrimitiveType(JavaPrimitiveType.getType(classReturnType));
                 }
                 JavaData javaAbstract = javaClass.getJavaAbstractImportByName(classReturnType);
                 return javaAbstract;
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.BooleanLiteral.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.BooleanLiteral.class) {
                 return new JavaPrimitiveType(JavaPrimitiveType.getType("boolean"));
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.CharacterLiteral.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.CharacterLiteral.class) {
                 return new JavaPrimitiveType(JavaPrimitiveType.getType("char"));
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.ClassInstanceCreation.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.ClassInstanceCreation.class) {
                 String classReturnType = ((ClassInstanceCreation) expression).getType().toString();
                 JavaData javaAbstract = javaClass.getJavaAbstractImportByName(classReturnType);
                 return javaAbstract;
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.TypeLiteral.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.TypeLiteral.class) {
                 String classReturnType = ((TypeLiteral) expression).getType().toString();
                 JavaData javaAbstract = javaClass.getJavaAbstractImportByName(classReturnType);
                 return javaAbstract;
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.StringLiteral.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.StringLiteral.class) {
                 //System.out.println("String literal");
                 JavaAbstractExternal javaAbstractExternal = new JavaAbstractExternal("String");
                 //System.out.println("String literal: "+javaAbstractExternal.getName());
                 return javaAbstractExternal;
-            }else if (expression.getClass() == org.eclipse.jdt.core.dom.InfixExpression.class) {
+            } else if (expression.getClass() == org.eclipse.jdt.core.dom.InfixExpression.class) {
                 //System.out.println("Left: "+((InfixExpression) expression).getLeftOperand().getClass());
                 return getClassReturnType(((InfixExpression) expression).getLeftOperand(), javaClass, javaMethod, blockVariablesBox);
             }
-            
+
         }
         return null;
     }
-    
-    
-    
+
+    public void setAttributeModificationMethod(JavaClass javaClass, JavaProject javaProject) {
+        try {
+
+            List<JavaMethod> completeMethods = new ArrayList();
+            List<JavaMethod> incompleteMethods = new ArrayList();
+
+            for (JavaMethod javaMethod : javaClass.getMethods()) {
+                if (javaMethod.isChangeInternalState() || javaMethod.getInternalMethodInvocations().isEmpty()) {
+                    completeMethods.add(javaMethod);
+                } else {
+                    incompleteMethods.add(javaMethod);
+                }
+            }
+            boolean flag = true;
+            while (flag) {
+                List<JavaMethod> listToRemove = new ArrayList();
+                for (JavaMethod javaMethod : incompleteMethods) {
+                    int completeCalls = 0;
+                    boolean change = false;
+                    for(JavaMethod methodCall : javaMethod.getInternalMethodInvocations()){
+                        if(completeMethods.contains(methodCall)){
+                            completeCalls++;
+                            if(methodCall.isChangeInternalState() || methodCall.isChangeInternalStateByMethodInvocations()){
+                                change = true;
+                                System.out.println("Chnage "+javaClass.getFullQualifiedName()+"   method: "+javaMethod.getMethodSignature());
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if(completeCalls == javaMethod.getInternalMethodInvocations().size() || change){
+                        listToRemove.add(javaMethod);
+                        completeMethods.add(javaMethod);
+                        javaMethod.setChangeInternalStateByMethodInvocations(change);
+                    }
+                }
+                if(listToRemove.isEmpty()){
+                    flag = false;
+                }
+                incompleteMethods.remove(listToRemove);
+            }
+
+
+//            for (JavaMethod javaMethod : javaClass.getMethods()) {
+//                if(javaMethod)
+//                Block block = javaMethod.getBlock();
+//                if (block != null) {
+//                    MethodInvocationVisitor miv = new MethodInvocationVisitor();
+//                    block.accept(miv);
+//                    List<Assignment> assignments = miv.getAssignments();
+//                    for (Assignment assignment : assignments) {
+//                        if (assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.SimpleName.class
+//                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.FieldAccess.class
+//                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.ArrayAccess.class
+//                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.QualifiedName.class) {
+//                            System.out.println("Assignment: class: " + javaClass.getFullQualifiedName() + "     " + assignment.getLeftHandSide() + "    class: " + assignment.getLeftHandSide().getClass());
+//                        }
+//                    }
+//                }
+//            }
+        } catch (Exception e) {
+            System.out.println("Erro setAttributeModificationMethod " + e.getMessage());
+        }
+    }
 
     private BlockVariablesBox getVariableDeclarations(Block block, JavaClass javaClass, JavaProject javaProject) {
         BlockVariablesBox blockVariablesBox = new BlockVariablesBox(block);
@@ -567,7 +725,7 @@ public class AstService {
                         //create new external class and add to the projetc
                         javaAbstractExternal = new JavaAbstractExternal(typeFullName);
                         javaProject.addExternalClass(javaAbstractExternal);
-                        
+
                     }
                     javaData = javaAbstractExternal;
                 }
@@ -575,9 +733,9 @@ public class AstService {
             List<VariableDeclarationFragment> frags = var.fragments();
             for (VariableDeclarationFragment frag : frags) {
 
-                Variable variable = new Variable(frag.getName().toString(),javaData);
+                Variable variable = new Variable(frag.getName().toString(), javaData);
                 blockVariablesBox.addVariable(variable, var.getParent());
-                
+
 
 
             }
@@ -602,7 +760,7 @@ public class AstService {
                         //create new external class and add to the projetc
                         javaAbstractExternal = new JavaAbstractExternal(typeFullName);
                         javaProject.addExternalClass(javaAbstractExternal);
-                        
+
                     }
                     javaData = javaAbstractExternal;
                 }
@@ -611,9 +769,9 @@ public class AstService {
             for (VariableDeclarationFragment frag : frags) {
 
 
-                Variable variable = new Variable(frag.getName().toString(),javaData);
+                Variable variable = new Variable(frag.getName().toString(), javaData);
                 blockVariablesBox.addVariable(variable, var.getParent());
-                
+
 
             }
         }
@@ -639,18 +797,18 @@ public class AstService {
                         //create new external class and add to the projetc
                         javaAbstractExternal = new JavaAbstractExternal(typeFullName);
                         javaProject.addExternalClass(javaAbstractExternal);
-                        
+
                     }
                     javaData = javaAbstractExternal;
                 }
             }
 
-            Variable variable = new Variable(var.getName().toString(),javaData);
+            Variable variable = new Variable(var.getName().toString(), javaData);
             blockVariablesBox.addVariable(variable, var.getParent());
-            
+
 
         }
-        
+
         return blockVariablesBox;
     }
 }

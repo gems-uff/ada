@@ -17,6 +17,7 @@ public class JavaMethod {
     private JavaData returnType;
     private List<Parameter> parameters;
     private List<JavaMethodInvocation> methodInvocations;
+    private List<JavaMethod> internalMethodInvocations;
     private int cyclomaticComplexity;
     private int sizeInChars;
     private boolean isFinal;
@@ -27,11 +28,13 @@ public class JavaMethod {
     private boolean isPublic;
     private boolean isProtected;
     private Block block;
+    private boolean changeInternalState;
+    private boolean changeInternalStateByMethodInvocations;
     
     
 
     JavaMethod(String name, JavaData returnType, boolean isFinal, boolean isStatic, boolean isAbstract, boolean isSynchronized,
-            boolean isPrivate, boolean isPublic, boolean isProtected, Block block){
+            boolean isPrivate, boolean isPublic, boolean isProtected,int cyclomaticComplexity, Block block){
         this.name = name;
         this.returnType = returnType;
         this.isFinal = isFinal;
@@ -43,7 +46,11 @@ public class JavaMethod {
         this.isProtected = isProtected;
         parameters = new ArrayList();
         methodInvocations = new ArrayList();
+        internalMethodInvocations = new ArrayList();
+        this.cyclomaticComplexity = cyclomaticComplexity;
         this.block = block;
+        this.changeInternalState = false;
+        this.changeInternalStateByMethodInvocations = false;
     }
 
     /**
@@ -138,6 +145,10 @@ public class JavaMethod {
         getMethodInvocations().add(javaMethodInvocation);
     }
     
+    public void addInternalMethodInvocation(JavaMethod javaMethod){
+        getInternalMethodInvocations().add(javaMethod);
+    }
+    
     public String getMethodSignature(){
         String methodSignature = name+"(";
         if(!parameters.isEmpty()){
@@ -187,6 +198,41 @@ public class JavaMethod {
      */
     public List<JavaMethodInvocation> getMethodInvocations() {
         return methodInvocations;
+    }
+
+    /**
+     * @return the changeInternalState
+     */
+    public boolean isChangeInternalState() {
+        return changeInternalState;
+    }
+
+    /**
+     * @param changeInternalState the changeInternalState to set
+     */
+    public void setChangeInternalState(boolean changeInternalState) {
+        this.changeInternalState = changeInternalState;
+    }
+
+    /**
+     * @return the changeInternalStateByMethodInvocations
+     */
+    public boolean isChangeInternalStateByMethodInvocations() {
+        return changeInternalStateByMethodInvocations;
+    }
+
+    /**
+     * @param changeInternalStateByMethodInvocations the changeInternalStateByMethodInvocations to set
+     */
+    public void setChangeInternalStateByMethodInvocations(boolean changeInternalStateByMethodInvocations) {
+        this.changeInternalStateByMethodInvocations = changeInternalStateByMethodInvocations;
+    }
+
+    /**
+     * @return the internalMethodInvocations
+     */
+    public List<JavaMethod> getInternalMethodInvocations() {
+        return internalMethodInvocations;
     }
     
 }

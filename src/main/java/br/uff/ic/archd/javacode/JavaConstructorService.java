@@ -4,7 +4,6 @@
  */
 package br.uff.ic.archd.javacode;
 
-
 import br.uff.ic.archd.ast.service.AstService;
 import br.uff.ic.archd.ast.service.JavaMethodAstBox;
 import br.uff.ic.archd.ast.service.ParameterAst;
@@ -23,23 +22,25 @@ public class JavaConstructorService {
         //create java classes and interfaces
         for (String classPath : pathList) {
             JavaAbstract javaAbstract = null;
-            boolean isInterface = astService.isInterface(classPath);
-            if (isInterface) {
-                javaAbstract = new JavaInterface(classPath);
-            } else {
-                javaAbstract = new JavaClass(classPath);
-            }
             String className = astService.getClassName(classPath);
-            javaAbstract.setName(className);
-            String packageName = astService.getPackage(classPath);
-            JavaPackage javaPackage = javaProject.getPackageByName(packageName);
-            if (javaPackage == null) {
-                javaPackage = new JavaPackage(packageName);
-                javaProject.addPackage(javaPackage);
+            if (className != null) {
+                boolean isInterface = astService.isInterface(classPath);
+                if (isInterface) {
+                    javaAbstract = new JavaInterface(classPath);
+                } else {
+                    javaAbstract = new JavaClass(classPath);
+                }
+                javaAbstract.setName(className);
+                String packageName = astService.getPackage(classPath);
+                JavaPackage javaPackage = javaProject.getPackageByName(packageName);
+                if (javaPackage == null) {
+                    javaPackage = new JavaPackage(packageName);
+                    javaProject.addPackage(javaPackage);
+                }
+                javaAbstract.setJavaPackage(javaPackage);
+                javaPackage.addJavaAbstract(javaAbstract);
+                javaProject.addClass(javaAbstract);
             }
-            javaAbstract.setJavaPackage(javaPackage);
-            javaPackage.addJavaAbstract(javaAbstract);
-            javaProject.addClass(javaAbstract);
         }
 
         //complete the java abstract with imports, attributes, implements, superclasses and methods
@@ -120,10 +121,15 @@ public class JavaConstructorService {
                 astService.getMethodInvocations((JavaClass) javaAbstract, javaProject);
             }
         }
-        
-        
-        
-        //get 
+
+
+
+        //get the assignments
+        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+            if (javaAbstract.getClass() == JavaClass.class) {
+                astService.setAttributeModificationMethod((JavaClass) javaAbstract, javaProject);
+            }
+        }
 
         return javaProject;
 
@@ -157,7 +163,7 @@ public class JavaConstructorService {
                     // the attribute is a external class
                     //get the complete name of the class
                     String externalClassName = getClassName(importList, returnTypeString);
-                    
+
                     //get external class from javaproject
                     JavaAbstractExternal javaAbstractExternal = javaProject.getJavaExternalClassByName(externalClassName);
                     if (javaAbstractExternal == null) {
@@ -174,7 +180,7 @@ public class JavaConstructorService {
             }
 
             JavaMethod javaMethod = new JavaMethod(javaMethodAstBox.getName(), javaDataReturnType, javaMethodAstBox.isFinal(), javaMethodAstBox.isStatic(),
-                    javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getBlock());
+                    javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getCyclomaticComplexity(), javaMethodAstBox.getBlock());
 
 
             for (ParameterAst parameterAst : javaMethodAstBox.getParameters()) {

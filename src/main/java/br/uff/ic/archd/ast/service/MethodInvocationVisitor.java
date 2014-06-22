@@ -7,6 +7,7 @@ package br.uff.ic.archd.ast.service;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -23,6 +24,7 @@ public class MethodInvocationVisitor extends ASTVisitor {
         private List<VariableDeclarationExpression> declarations = new ArrayList<VariableDeclarationExpression>();
         private List<SingleVariableDeclaration> singleDeclarations = new ArrayList<SingleVariableDeclaration>();
         private List<VariableDeclarationStatement> variableDeclarations = new ArrayList<VariableDeclarationStatement>();
+        private List<Assignment> assignments = new ArrayList<Assignment>();
 
 	@Override
 	public boolean visit(MethodInvocation node) {
@@ -47,6 +49,11 @@ public class MethodInvocationVisitor extends ASTVisitor {
         
         public boolean visit(VariableDeclarationStatement node){
             variableDeclarations.add(node);
+            return super.visit(node);
+        }
+        
+        public boolean visit(Assignment node) {
+            getAssignments().add(node);
             return super.visit(node);
         }
 
@@ -74,6 +81,13 @@ public class MethodInvocationVisitor extends ASTVisitor {
     
     public List<VariableDeclarationExpression> getDeclarations(){
         return declarations;
+    }
+
+    /**
+     * @return the assignments
+     */
+    public List<Assignment> getAssignments() {
+        return assignments;
     }
         
 }
