@@ -138,14 +138,42 @@ public class JavaConstructorService {
         long fim = System.currentTimeMillis();
         System.out.println("Tempo para gerar: " + (fim - inicio));
         /*inicio = System.currentTimeMillis();
-        XMLService xmlService = new XMLService();
-        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
-            xmlService.setXML(javaAbstract, "1");
+         XMLService xmlService = new XMLService();
+         for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+         xmlService.setXML(javaAbstract, "1");
+         }
+
+         fim = System.currentTimeMillis();
+         System.out.println("Tempo para salva em XML: " + (fim - inicio));*/
+        //pegando as classes lideres
+        int numberOfClasses = 0;
+        int numberOfInterfaces = 0;
+        List<JavaAbstract> classes = javaProject.getAllClasses();
+        for (JavaAbstract javaClazz : classes) {
+            if (javaClazz.getClass() == JavaClass.class) {
+                numberOfClasses++;
+                List<JavaClass> classesThatCall = javaProject.getClassesThatCall(javaClazz);
+                List<JavaAbstract> classesThatUsing = javaProject.getClassesThatUsing(javaClazz);
+                if (classesThatCall.isEmpty() && classesThatUsing.isEmpty()) {
+                    List<JavaInterface> implementedInterfaces = ((JavaClass) javaClazz).getImplementedInterfaces();
+                    for(JavaInterface implementedInterface : implementedInterfaces){
+                        classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
+                        classesThatUsing.addAll(javaProject.getClassesThatUsing(implementedInterface));
+                    }
+                    if(classesThatCall.isEmpty() && classesThatUsing.isEmpty()){
+                        javaProject.addLeaderClass(javaClazz);
+                    }else{
+                        javaProject.addPossibleLeaderClass(javaClazz);
+                    }
+                }
+            }else{
+                numberOfInterfaces++;
+            }
         }
-
-        fim = System.currentTimeMillis();
-        System.out.println("Tempo para salva em XML: " + (fim - inicio));*/
-
+        javaProject.setNumberOfClasses(numberOfClasses);
+        javaProject.setNumberOfInterfaces(numberOfInterfaces);
+        
+        
         return javaProject;
 
 
@@ -376,7 +404,7 @@ public class JavaConstructorService {
                             JavaAbstract javaAbstractInvocation = javaProject.getClassByName(classInvocation);
                             if (methodInvocationArray[1].matches("[+-]?\\d*(\\.\\d+)?")) {
                                 int methodInternalId = Integer.valueOf(methodInvocationArray[1]);
-                                
+
                                 if (javaAbstractInvocation != null) {
                                     if (javaAbstractInvocation.getClass() == JavaClass.class) {
                                         JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, ((JavaClass) javaAbstractInvocation).getMethodByInternalId(methodInternalId));
@@ -387,7 +415,7 @@ public class JavaConstructorService {
                                     }
 
                                 }
-                            }else{
+                            } else {
                                 JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, null);
                                 javaMethoInvocation.setUnknowMethodName(methodInvocationArray[1]);
                             }

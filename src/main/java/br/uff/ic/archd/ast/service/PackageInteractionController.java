@@ -36,7 +36,7 @@ public class PackageInteractionController implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE)) {
+        if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE_CLASS)) {
             showClassFunctions(packageInteractionViewer.getClassSelected());
         }
     }

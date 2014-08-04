@@ -33,19 +33,45 @@ public class InteractionController implements ActionListener{
         javaConstructorService = new JavaConstructorService();
         javaProject = javaConstructorService.createProjects(projectPath);
         //javaProject = javaConstructorService.createProjectsFromXML("/home/wallace/.archd/HISTORY/1/");
-        String classesString[] = new String[javaProject.getAllClasses().size()];
-        for(int i = 0; i < javaProject.getAllClasses().size(); i++){
-            classesString[i] = javaProject.getAllClasses().get(i).getFullQualifiedName();
+        String classesString[] = new String[javaProject.getClasses().size()];
+        for(int i = 0; i < javaProject.getClasses().size(); i++){
+            classesString[i] = javaProject.getClasses().get(i).getFullQualifiedName();
         }
-        interactionViewer = new InteractionViewer(classesString);
+        String InterfacesString[] = new String[javaProject.getInterfaces().size()];
+        for(int i = 0; i < javaProject.getInterfaces().size(); i++){
+            InterfacesString[i] = javaProject.getInterfaces().get(i).getFullQualifiedName();
+        }
+        
+        interactionViewer = new InteractionViewer(classesString, InterfacesString);
         interactionViewer.setController(this);
+        
+        
+        interactionViewer.appendDadosText("******************* Número total de classes: "+classesString.length);
+        interactionViewer.appendDadosText("******************* Número total de interfaces: "+InterfacesString.length);
+        interactionViewer.appendDadosText("******************* Número total de classes externas chamadas diretamente: "+javaProject.getNumberOfViewExternalClasses());
+        interactionViewer.appendDadosText("");
+        interactionViewer.appendDadosText("************ Classes Mestres ************** numero: "+javaProject.getLeaderClasses().size()+"");
+        for(JavaAbstract javaClazz : javaProject.getLeaderClasses()){
+            interactionViewer.appendDadosText(javaClazz.getFullQualifiedName());
+        }
+        
+        interactionViewer.appendDadosText("");
+        interactionViewer.appendDadosText("");
+        interactionViewer.appendDadosText("************ Classes Possivelmente Mestres ************** numero: "+javaProject.getPossibleLeaderClasses().size()+"");
+        for(JavaAbstract javaClazz : javaProject.getPossibleLeaderClasses()){
+            interactionViewer.appendDadosText(javaClazz.getFullQualifiedName());
+        }
+
+        
         interactionViewer.setVisible(true);
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE)) {
+        if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE_CLASS)) {
             showClassFunctions(interactionViewer.getClassSelected());
+        }else if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE_INTERFACE)) {
+            showClassFunctions(interactionViewer.getInterfaceSelected());
         }
     }
     
