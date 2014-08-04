@@ -5,6 +5,7 @@
 package br.uff.ic.archd.ast.service;
 
 
+import br.uff.ic.archd.gui.view.InteractionViewer;
 import br.uff.ic.archd.javacode.JavaConstructorService;
 import br.uff.ic.archd.javacode.JavaPackage;
 import br.uff.ic.archd.javacode.JavaProject;

@@ -19,7 +19,7 @@ public class ParameterAst {
     private boolean isProtected;
     
     
-    ParameterAst(String name, String type){
+    public ParameterAst(String name, String type){
         this.name = name;
         this.type = type;
         isFinal = false;

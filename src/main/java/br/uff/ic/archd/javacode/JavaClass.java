@@ -14,14 +14,11 @@ import java.util.List;
 public class JavaClass extends JavaAbstract {
 
     private List<JavaInterface> implementedInterfaces;
-    private List<JavaAttribute> inheritedAttributes;
     private List<JavaAttribute> attributes;
     private List<JavaMethod> methods;
-    private List<JavaMethod> inheritedMethods;
-    private List<JavaMethod> overridingMethods;
     private JavaClass superClass;
 
-    JavaClass(String path) {
+    public JavaClass(String path) {
         super(path);
         implementedInterfaces = new ArrayList();
         attributes = new ArrayList();
@@ -47,12 +44,6 @@ public class JavaClass extends JavaAbstract {
         return implementedInterfaces;
     }
 
-    /**
-     * @return the inheritedAttributes
-     */
-    public List<JavaAttribute> getInheritedAttributes() {
-        return inheritedAttributes;
-    }
 
     /**
      * @return the attributes
@@ -68,19 +59,7 @@ public class JavaClass extends JavaAbstract {
         return methods;
     }
 
-    /**
-     * @return the inheritedMethods
-     */
-    public List<JavaMethod> getInheritedMethods() {
-        return inheritedMethods;
-    }
 
-    /**
-     * @return the overridingMethods
-     */
-    public List<JavaMethod> getOverridingMethods() {
-        return overridingMethods;
-    }
 
     /**
      * @return the superClass
@@ -215,5 +194,18 @@ public class JavaClass extends JavaAbstract {
 
     public void addMethod(JavaMethod javaMethod) {
         methods.add(javaMethod);
+        javaMethod.setInternalID(methods.size());
     }
+    
+    public JavaMethod getMethodByInternalId(int internalId){
+        JavaMethod javaMethod = null;
+        for(JavaMethod aux : methods){
+            if(aux.getInternalID() == internalId){
+                javaMethod = aux;
+                break;
+            }
+        }
+        return javaMethod;
+    }
+    
 }

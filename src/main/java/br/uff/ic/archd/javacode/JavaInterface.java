@@ -16,7 +16,7 @@ public class JavaInterface extends JavaAbstract {
     private List<JavaMethod> methods;
     private List<JavaInterface> interfaceExtends;
 
-    JavaInterface(String path) {
+    public JavaInterface(String path) {
         super(path);
         interfaceExtends = new ArrayList();
         methods = new ArrayList();
@@ -102,5 +102,17 @@ public class JavaInterface extends JavaAbstract {
 
     public void addJavaMethod(JavaMethod javaMethod) {
         methods.add(javaMethod);
+        javaMethod.setInternalID(methods.size());
+    }
+    
+    public JavaMethod getMethodByInternalId(int internalId){
+        JavaMethod javaMethod = null;
+        for(JavaMethod aux : methods){
+            if(aux.getInternalID() == internalId){
+                javaMethod = aux;
+                break;
+            }
+        }
+        return javaMethod;
     }
 }

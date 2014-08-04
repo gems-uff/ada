@@ -30,6 +30,7 @@ public class JavaMethod {
     private Block block;
     private boolean changeInternalState;
     private boolean changeInternalStateByMethodInvocations;
+    private int internalID;
     
     
 
@@ -233,6 +234,20 @@ public class JavaMethod {
      */
     public List<JavaMethod> getInternalMethodInvocations() {
         return internalMethodInvocations;
+    }
+
+    /**
+     * @return the internalID
+     */
+    public int getInternalID() {
+        return internalID;
+    }
+
+    /**
+     * @param internalID the internalID to set
+     */
+    public void setInternalID(int internalID) {
+        this.internalID = internalID;
     }
     
 }

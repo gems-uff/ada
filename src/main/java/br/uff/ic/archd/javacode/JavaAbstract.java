@@ -84,13 +84,13 @@ public class JavaAbstract extends JavaData{
     }
     
     public void addExternalImport(String externalImport){
-        externalImports.add(externalImport);
+        getExternalImports().add(externalImport);
     }
     
     public String getExternalImportByLastName(String name){
         String externalImportFullName = name;
         String javaAbstractName2 = name.contains(".") ? name : "."+name;
-        for(String externalImport : externalImports){
+        for(String externalImport : getExternalImports()){
             if(externalImport.endsWith(javaAbstractName2)){
                 externalImportFullName = externalImport;
                 break;
@@ -104,6 +104,13 @@ public class JavaAbstract extends JavaData{
      */
     public List<JavaAbstract> getClassesImports() {
         return classesImports;
+    }
+
+    /**
+     * @return the externalImports
+     */
+    public List<String> getExternalImports() {
+        return externalImports;
     }
     
     

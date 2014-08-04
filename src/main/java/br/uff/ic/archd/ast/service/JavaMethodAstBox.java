@@ -14,6 +14,8 @@ import org.eclipse.jdt.core.dom.Block;
 public class JavaMethodAstBox {
     private String name;
     private List<ParameterAst> parameters;
+    private List<String> methodInternalInvocations;
+    private List<String> methodInvocations;
     private String returnType;
     private boolean isFinal;
     private boolean isStatic;
@@ -24,8 +26,12 @@ public class JavaMethodAstBox {
     private boolean isProtected;
     private int cyclomaticComplexity;
     private Block block;
+    private int sizeInChars;
+    private int methodInternalId;
+    private boolean changeInternalState;
+    private boolean changeInternalStateByMethodInvocation;
     
-    JavaMethodAstBox(String name, String returnType, Block block){
+    public JavaMethodAstBox(String name, String returnType, Block block){
         this.name = name;
         this.returnType = returnType;
         this.block = block;
@@ -199,5 +205,89 @@ public class JavaMethodAstBox {
      */
     public void setCyclomaticComplexity(int cyclomaticComplexity) {
         this.cyclomaticComplexity = cyclomaticComplexity;
+    }
+
+    /**
+     * @return the sizeInChars
+     */
+    public int getSizeInChars() {
+        return sizeInChars;
+    }
+
+    /**
+     * @param sizeInChars the sizeInChars to set
+     */
+    public void setSizeInChars(int sizeInChars) {
+        this.sizeInChars = sizeInChars;
+    }
+
+    /**
+     * @return the methodInternalId
+     */
+    public int getMethodInternalId() {
+        return methodInternalId;
+    }
+
+    /**
+     * @param methodInternalId the methodInternalId to set
+     */
+    public void setMethodInternalId(int methodInternalId) {
+        this.methodInternalId = methodInternalId;
+    }
+
+    /**
+     * @return the changeInternalState
+     */
+    public boolean isChangeInternalState() {
+        return changeInternalState;
+    }
+
+    /**
+     * @param changeInternalState the changeInternalState to set
+     */
+    public void setChangeInternalState(boolean changeInternalState) {
+        this.changeInternalState = changeInternalState;
+    }
+
+    /**
+     * @return the changeInternalStateByMethodInvocation
+     */
+    public boolean isChangeInternalStateByMethodInvocation() {
+        return changeInternalStateByMethodInvocation;
+    }
+
+    /**
+     * @param changeInternalStateByMethodInvocation the changeInternalStateByMethodInvocation to set
+     */
+    public void setChangeInternalStateByMethodInvocation(boolean changeInternalStateByMethodInvocation) {
+        this.changeInternalStateByMethodInvocation = changeInternalStateByMethodInvocation;
+    }
+
+    /**
+     * @return the methodInternalInvocations
+     */
+    public List<String> getMethodInternalInvocations() {
+        return methodInternalInvocations;
+    }
+
+    /**
+     * @param methodInternalInvocations the methodInternalInvocations to set
+     */
+    public void setMethodInternalInvocations(List<String> methodInternalInvocations) {
+        this.methodInternalInvocations = methodInternalInvocations;
+    }
+
+    /**
+     * @return the methodInvocations
+     */
+    public List<String> getMethodInvocations() {
+        return methodInvocations;
+    }
+
+    /**
+     * @param methodInvocations the methodInvocations to set
+     */
+    public void setMethodInvocations(List<String> methodInvocations) {
+        this.methodInvocations = methodInvocations;
     }
 }

@@ -9,15 +9,74 @@
 
     <name>ArchitectureDegradation</name>
     <url>http://maven.apache.org</url>
-  
-    <build>
+    
+    
+      <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+            </resource>
+            <resource>
+                <targetPath>META-INF</targetPath>
+                <directory>src</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <id>create-executable-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>
+                                    jar-with-dependencies
+                                </descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>br.uff.ic.archd.gui.controller.MainController</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>            
+        </plugins>
+
+    </build>
+    
+<!--    <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>webstart-maven-plugin</artifactId>
                     <version>1.0-beta-3</version>
-                    <!-- do not bind to install phase
+                     do not bind to install phase
                     <executions>
                      <execution>
                        <goals>
@@ -25,10 +84,10 @@
                        </goals>
                      </execution>
                     </executions>
-                    -->
+                    
                     <configuration>
                         <jnlp>
-                            <mainClass>br.uff.ic.dyevc.application.DyeVC</mainClass>
+                            <mainClass>br.uff.ic.archd.gui.controller.MainController</mainClass>
                         </jnlp>
                         <sign>
                             <keystore>${project.basedir}/keystore/dyevc.jks</keystore>
@@ -62,13 +121,13 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <mainClass>br.uff.ic.dyevc.application.DyeVC</mainClass>
+                            <mainClass>br.uff.ic.archd.gui.controller.MainController</mainClass>
                         </manifest>
-                        <!--<manifestEntries>
+                        <manifestEntries>
                             <Permissions>all-permissions</Permissions>
                             <Codebase>http://www.ic.uff.br/~ccesario/DyeVC</Codebase>
                             <Application-Name>DyeVC</Application-Name>
-                        </manifestEntries> -->
+                        </manifestEntries> 
                     </archive>
                 </configuration>
             </plugin>
@@ -79,7 +138,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <mainClass>br.uff.ic.dyevc.application.DyeVC</mainClass>
+                            <mainClass>br.uff.ic.archd.gui.controller.MainController</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -92,7 +151,7 @@
                 <artifactId>webstart-maven-plugin</artifactId>
             </plugin>
         </plugins>
-    </build>
+    </build>-->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -109,6 +168,46 @@
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>core</artifactId>
             <version>3.3.0-v_771</version>
+        </dependency>
+        <dependency>
+            <groupId>JavaNCSS</groupId>
+            <artifactId>JavaNCSS</artifactId>
+            <version>33.54</version>    
+        </dependency>
+        <dependency>
+            <groupId>ccl</groupId>
+            <artifactId>ccl</artifactId>
+            <version>33.54</version>    
+        </dependency>
+        <dependency>
+            <groupId>javacc</groupId>
+            <artifactId>javacc</artifactId>
+            <version>33.54</version>    
+        </dependency>
+        <dependency>
+            <groupId>jhbasic</groupId>
+            <artifactId>jhbasic</artifactId>
+            <version>33.54</version>    
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>        
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>2.3.1.201302201838-r</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>DyeVC</groupId>
+            <artifactId>DyeVC</artifactId>
+            <version>0.1.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.2</version>
         </dependency>
     </dependencies>
     
