@@ -4,12 +4,15 @@
  */
 package br.uff.ic.archd.git.service;
 
+import br.uff.ic.archd.model.Project;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,15 +54,26 @@ public class JavaProjectsService {
         return stringBuilder.toString();
     }
 
-    public void addProject(String projectName, String projectPath) {
+    public void addProject(int projectId, String projectName, String projectPath, List<String> codeDirs) {
         NodeList projectsList = myDoc.getElementsByTagName("projects");
         Node node = myDoc.createElement("project");
         Node projectNameNode = myDoc.createElement("project_name");
         Node projectPathNode = myDoc.createElement("project_path");
+        Node projectIdNode = myDoc.createElement("project_id");
         projectNameNode.appendChild(myDoc.createTextNode(projectName));
         projectPathNode.appendChild(myDoc.createTextNode(projectPath));
+        projectIdNode.appendChild(myDoc.createTextNode(String.valueOf(projectId)));
+        Node codeDirsNode = myDoc.createElement("code_dirs");
+        for(String codeDir : codeDirs){
+            Node codeDirNode = myDoc.createElement("code_dir");
+            codeDirNode.appendChild(myDoc.createTextNode(codeDir));
+            codeDirsNode.appendChild(codeDirNode);
+        }
+        
         node.appendChild(projectNameNode);
         node.appendChild(projectPathNode);
+        node.appendChild(projectIdNode);
+        node.appendChild(codeDirsNode);
         projectsList.item(0).appendChild(node);
         saveXML();
     }
@@ -93,9 +107,9 @@ public class JavaProjectsService {
         }
     }
 
-    public String[][] getProjects() {
+    public List<Project> getProjects() {
         String superClassName = null;
-        String projects[][] = null;
+        List<Project> projects = new LinkedList();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         try {
@@ -110,16 +124,30 @@ public class JavaProjectsService {
 
                 NodeList projectsList = myDoc.getElementsByTagName("project");
                 if (projectsList.getLength() != 0) {
-                    projects = new String[projectsList.getLength()][2];
                     for (int i = 0; i < projectsList.getLength(); i++) {
                         Node projectNode = projectsList.item(i);
+                        List<String> codeDirs = new LinkedList();
+                        String projectName = null;
+                        String projectPath = null;
+                        int projectId = 0;
                         for (int j = 0; j < projectNode.getChildNodes().getLength(); j++) {
                             if (projectNode.getChildNodes().item(j).getNodeName().equals("project_name")) {
-                                projects[i][0] = projectNode.getChildNodes().item(j).getChildNodes().item(0).getNodeValue();
+                                projectName = projectNode.getChildNodes().item(j).getChildNodes().item(0).getNodeValue();
                             } else if (projectNode.getChildNodes().item(j).getNodeName().equals("project_path")) {
-                                projects[i][1] = projectNode.getChildNodes().item(j).getChildNodes().item(0).getNodeValue();
+                                projectPath = projectNode.getChildNodes().item(j).getChildNodes().item(0).getNodeValue();
+                            } else if (projectNode.getChildNodes().item(j).getNodeName().equals("project_id")) {
+                                projectId = Integer.valueOf(projectNode.getChildNodes().item(j).getChildNodes().item(0).getNodeValue());
+                            } else if(projectNode.getChildNodes().item(j).getNodeName().equals("code_dirs")){
+                                Node dirsNode = projectNode.getChildNodes().item(j);
+                                for(int k = 0; k < dirsNode.getChildNodes().getLength(); k++){
+                                    if (dirsNode.getChildNodes().item(k).getNodeName().equals("code_dir")) {
+                                        codeDirs.add(dirsNode.getChildNodes().item(k).getChildNodes().item(0).getNodeValue());
+                                    }
+                                }
                             }
                         }
+                        Project project = new Project(projectId, projectPath, projectName, codeDirs);
+                        projects.add(project);
                     }
                 }
 

@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.Block;
  * @author wallace
  */
 public class JavaMethod {
+    private long id;
     private String name;
     private JavaData returnType;
     private List<Parameter> parameters;
@@ -34,7 +35,7 @@ public class JavaMethod {
     
     
 
-    JavaMethod(String name, JavaData returnType, boolean isFinal, boolean isStatic, boolean isAbstract, boolean isSynchronized,
+    public JavaMethod(String name, JavaData returnType, boolean isFinal, boolean isStatic, boolean isAbstract, boolean isSynchronized,
             boolean isPrivate, boolean isPublic, boolean isProtected,int cyclomaticComplexity, Block block){
         this.name = name;
         this.returnType = returnType;
@@ -163,6 +164,19 @@ public class JavaMethod {
         return methodSignature;
     }
     
+    public String getParametersSignature(){
+        String methodSignature = "";
+        if(!parameters.isEmpty()){
+            methodSignature = methodSignature+(parameters.get(0).getType().getClass() == JavaClass.class || parameters.get(0).getType().getClass() == JavaInterface.class ? (((JavaAbstract) parameters.get(0).getType()).getFullQualifiedName()) : parameters.get(0).getType().getName());
+            methodSignature = methodSignature+":"+parameters.get(0).getName();
+            int i = 1;
+            for(i=1; i < parameters.size();i++){
+                methodSignature = methodSignature+";"+(parameters.get(i).getType().getClass() == JavaClass.class || parameters.get(i).getType().getClass() == JavaInterface.class ? (((JavaAbstract) parameters.get(i).getType()).getFullQualifiedName()) : parameters.get(i).getType().getName())+":"+parameters.get(i).getName();
+            }
+        }
+        return methodSignature;
+    }
+    
     public int getDiff(){
         int returnSize = 0;
         int parametersSize = 0;
@@ -248,6 +262,20 @@ public class JavaMethod {
      */
     public void setInternalID(int internalID) {
         this.internalID = internalID;
+    }
+
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
     }
     
 }

@@ -16,7 +16,7 @@ public class JavaPackage {
     private String name;
     private List<JavaAbstract> classes;
 
-    JavaPackage(String name) {
+    public JavaPackage(String name) {
         this.name = name;
         classes = new LinkedList();
     }

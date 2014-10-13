@@ -327,29 +327,43 @@ public class AstService {
 
     public List<JavaMethodAstBox> getMethods(String classPath) {
         List<JavaMethodAstBox> list = new ArrayList();
+        String contentForJavancss = null;
         try {
             String content = readFile(classPath);
-            //System.out.println("Path: "+path);
-            
+            //System.out.println("Path: "+classPath);
+
             org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document(content);
             ASTParser parser = ASTParser.newParser(AST.JLS3);
             parser.setSource(doc.get().toCharArray());
             CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
-            
+
             List functionMetrics = new ArrayList();
-            Reader reader = new StringReader(content);
-            try{
+            contentForJavancss = content.replace("<>", "");
+            if (contentForJavancss.contains("try")) {
+                contentForJavancss = removeComments(contentForJavancss);
+                //System.out.println("Foi removecomments");
+                contentForJavancss = removeLiteralStrings(contentForJavancss);
+                //System.out.println("Foi removeLiteralStrings");
+                contentForJavancss = removeTryWithResources(contentForJavancss);
+                //System.out.println("Foi removeTryWithResources");
+                contentForJavancss = removeMultipleCatch(contentForJavancss);
+                //System.out.println("Foi removeMultipleCatch");
+            }
+            Reader reader = new StringReader(contentForJavancss);
+            
+            try {
                 Javancss javancss = new Javancss(reader);
-                functionMetrics =  javancss.getFunctionMetrics();
+                functionMetrics = javancss.getFunctionMetrics();
 //                for(Object object : functionMetrics){
 //                    FunctionMetric functionMetric = (FunctionMetric) object;
 //                    System.out.println("Name: "+functionMetric.toString());
 //                }
-                
-            }catch(Exception e){
-                System.out.println("Error javancss: "+e.getMessage());
+
+            } catch (Exception e) {
+                System.out.println("Error javancss: " + e.getMessage());
             }
 
+            //System.out.println("Passou: "+classPath);
             MethodDeclaration methods[] = ((TypeDeclaration) compilationUnit.types().get(0)).getMethods();
             for (int i = 0; i < methods.length; i++) {
 
@@ -394,8 +408,8 @@ public class AstService {
                         javaMethodAstBox.setProtected(true);
                     }
                 }
-                
-                if(functionMetrics.size() > i){
+
+                if (functionMetrics.size() > i) {
                     javaMethodAstBox.setCyclomaticComplexity(((FunctionMetric) functionMetrics.get(i)).ccn);
                 }
 
@@ -408,7 +422,9 @@ public class AstService {
             return list;
 
         } catch (Exception e) {
-            System.out.println("Erro getMethods Name: " + e.getMessage());
+            System.out.println("Erro getMethods Name: " + e.getMessage() + "    - " + classPath);
+            e.printStackTrace();
+            //System.out.println(contentForJavancss);
         }
         return list;
     }
@@ -644,24 +660,24 @@ public class AstService {
                 for (JavaMethod javaMethod : incompleteMethods) {
                     int completeCalls = 0;
                     boolean change = false;
-                    for(JavaMethod methodCall : javaMethod.getInternalMethodInvocations()){
-                        if(completeMethods.contains(methodCall)){
+                    for (JavaMethod methodCall : javaMethod.getInternalMethodInvocations()) {
+                        if (completeMethods.contains(methodCall)) {
                             completeCalls++;
-                            if(methodCall.isChangeInternalState() || methodCall.isChangeInternalStateByMethodInvocations()){
+                            if (methodCall.isChangeInternalState() || methodCall.isChangeInternalStateByMethodInvocations()) {
                                 change = true;
-                                System.out.println("Chnage "+javaClass.getFullQualifiedName()+"   method: "+javaMethod.getMethodSignature());
+                                System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
                                 break;
                             }
                         }
                     }
-                    
-                    if(completeCalls == javaMethod.getInternalMethodInvocations().size() || change){
+
+                    if (completeCalls == javaMethod.getInternalMethodInvocations().size() || change) {
                         listToRemove.add(javaMethod);
                         completeMethods.add(javaMethod);
                         javaMethod.setChangeInternalStateByMethodInvocations(change);
                     }
                 }
-                if(listToRemove.isEmpty()){
+                if (listToRemove.isEmpty()) {
                     flag = false;
                 }
                 incompleteMethods.remove(listToRemove);
@@ -810,5 +826,176 @@ public class AstService {
         }
 
         return blockVariablesBox;
+    }
+
+    private String removeTryWithResources(String content) {
+        String newContent = null;
+        char[] contentChars = content.toCharArray();
+        List<Character> chars = new LinkedList();
+        int i = 0;
+        while (i < contentChars.length) {
+            if (contentChars[i] == 't') {
+                if ((i + 3) < contentChars.length && i > 0 && (!Character.isAlphabetic(contentChars[i - 1]))) {
+
+                    if (contentChars[i + 1] == 'r' && contentChars[i + 2] == 'y' && (contentChars[i + 3] == ' ' || contentChars[i + 3] == '{' || contentChars[i + 3] == '(')) {
+                        chars.add(contentChars[i]);
+                        chars.add(contentChars[i + 1]);
+                        chars.add(contentChars[i + 2]);
+                        int j = i + 3;
+                        while (j < contentChars.length && contentChars[j] != '{') {
+                            j++;
+                        }
+                        chars.add(contentChars[j]);
+                        i = j + 1;
+
+                    } else {
+                        chars.add(contentChars[i]);
+                        i++;
+                    }
+                } else {
+                    chars.add(contentChars[i]);
+                    i++;
+                }
+            } else {
+                chars.add(contentChars[i]);
+                i++;
+            }
+        }
+        char[] tmp = new char[chars.size()];
+        for (i = 0; i < tmp.length; i++) {
+            tmp[i] = chars.get(i);
+        }
+        newContent = new String(tmp);
+        return newContent;
+    }
+
+    private String removeComments(String content) {
+        String newContent = null;
+        char[] contentChars = content.toCharArray();
+        List<Character> chars = new LinkedList();
+        int i = 0;
+        while (i < contentChars.length) {
+            if (contentChars[i] == '/' && (i + 1) < contentChars.length) {
+                if (contentChars[i + 1] == '/') {
+                    int j = i + 2;
+                    while (j < contentChars.length && contentChars[j] != '\n') {
+                        j++;
+                    }
+                    i = j + 1;
+
+                }else if (contentChars[i + 1] == '*') {
+                    int j = i + 2;
+                    while ((j + 1) < contentChars.length && !(contentChars[j] == '*' && contentChars[j + 1] == '/')) {
+                        j++;
+                    }
+                    i = j + 2;
+                } else {
+                    chars.add(contentChars[i]);
+                    i++;
+                }
+            } else {
+                chars.add(contentChars[i]);
+                i++;
+            }
+        }
+        char[] tmp = new char[chars.size()];
+        for (i = 0; i < tmp.length; i++) {
+            tmp[i] = chars.get(i);
+        }
+        newContent = new String(tmp);
+        return newContent;
+    }
+
+    private String removeLiteralStrings(String content) {
+        String newContent = null;
+        char[] contentChars = content.toCharArray();
+        List<Character> chars = new LinkedList();
+        int i = 0;
+        while (i < contentChars.length) {
+            if (contentChars[i] == '"') {
+                chars.add(contentChars[i]);
+                int j = i + 1;
+                boolean exit = false;
+                while (j < contentChars.length && !exit) {
+                    if (contentChars[j] == '"' && contentChars[j - 1] != '\\') {
+                        exit = true;
+                    } else {
+                        j++;
+                    }
+                }
+                if (j < contentChars.length) {
+                    chars.add(contentChars[j]);
+                }
+                i = j + 1;
+            } else {
+                chars.add(contentChars[i]);
+                i++;
+            }
+        }
+        char[] tmp = new char[chars.size()];
+        for (i = 0; i < tmp.length; i++) {
+            tmp[i] = chars.get(i);
+        }
+        newContent = new String(tmp);
+        return newContent;
+    }
+    
+
+    
+    private String removeMultipleCatch(String content){
+        String newContent = null;
+        char[] contentChars = content.toCharArray();
+        List<Character> chars = new LinkedList();
+        int i = 0;
+        while (i < contentChars.length) {
+            if ((i+5) < contentChars.length && i > 0) {
+                if (contentChars[i]=='c' && contentChars[i+1]=='a' && contentChars[i+2]=='t' && contentChars[i+3]=='c' &&
+                       contentChars[i+4]=='h'&& (!Character.isAlphabetic(contentChars[i - 1]))  && (!Character.isAlphabetic(contentChars[i + 5]))) {
+                    chars.add(contentChars[i]);
+                    chars.add(contentChars[i+1]);
+                    chars.add(contentChars[i+2]);
+                    chars.add(contentChars[i+3]);
+                    chars.add(contentChars[i+4]);
+                    int j = i + 5;
+                    
+                    while(j < contentChars.length && contentChars[j] != '('){
+                        j++;       
+                    }
+                    if(j < contentChars.length){
+                        chars.add(contentChars[j]);
+                        while(j < contentChars.length && contentChars[j] != ')'){
+                            j++;       
+                        }
+                        if(j < contentChars.length){                            
+                            chars.add('E');
+                            chars.add('x');
+                            chars.add('c');
+                            chars.add('e');
+                            chars.add('p');
+                            chars.add('t');
+                            chars.add('i');
+                            chars.add('o');
+                            chars.add('n');
+                            chars.add(' ');
+                            chars.add('e');
+                            chars.add(contentChars[j]);
+                        }
+                    }
+                    i = j + 1;
+                } else {
+                    chars.add(contentChars[i]);
+                    i++;
+                }
+            } else {
+                chars.add(contentChars[i]);
+                i++;
+            }
+        }
+        char[] tmp = new char[chars.size()];
+        for (i = 0; i < tmp.length; i++) {
+            tmp[i] = chars.get(i);
+        }
+        newContent = new String(tmp);
+        return newContent;
     }
 }

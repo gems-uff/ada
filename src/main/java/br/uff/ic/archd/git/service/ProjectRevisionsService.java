@@ -34,24 +34,33 @@ import org.eclipse.jgit.lib.Ref;
  *
  * @author wallace
  */
-public class ProjectService {
+public class ProjectRevisionsService {
     
-    private String BRANCHES_HISTORY_PATH = System.getProperty("user.home")+"/.dyevc/BRANCHES_HISTORY/";
+    private String BRANCHES_HISTORY_PATH = System.getProperty("user.home")+"/.archd/BRANCHES_HISTORY/";
     
     public ProjectRevisions getProject(String path, String projectName) throws Exception{
         RevisionsBucket revisionsBucket = new RevisionsBucket();
+        String novoPath = BRANCHES_HISTORY_PATH+projectName;
+        //System.out.println("AQUI");
         
-        File file = new File(BRANCHES_HISTORY_PATH+projectName);
+        
+        File file = new File(novoPath);
         FileUtils.deleteDirectory(file);
         
+        Runtime.getRuntime().exec("git clone "+path+" "+novoPath);
         
+        //createDirectory(projectName);
         
-        createDirectory(projectName);
-        
-        FileUtils.copyDirectory(new File(path), new File(BRANCHES_HISTORY_PATH+projectName));
-        
+        System.out.println("NOVO PATH: "+novoPath);
+        //FileUtils.copyDirectory(new File(novoPath), new File(BRANCHES_HISTORY_PATH+projectName));
+        System.out.println("COPIA COMPLETADA");
+        System.out.println("Terminou o clone");
+        try{
+            Thread.sleep(5000);
+        }catch(Exception e){
+            
+        }
         //GitConnector gitConnector = new GitConnector(path,projectName);
-        
         //Git git = new Git(gitConnector.getRepository());
         
         //List<Ref> branchRefList = git.branchList().call();
@@ -61,15 +70,16 @@ public class ProjectService {
         
         //gitConnector = gitConnector.cloneRepository(path, BRANCHES_HISTORY_PATH+projectName,projectName);
         
-        GitConnector gitConnector = new GitConnector(BRANCHES_HISTORY_PATH+projectName,projectName);
+        GitConnector gitConnector = new GitConnector(path,projectName);
+        System.out.println("AQUI");
         GitCommitHistory gitCommitHistory = GitCommitHistory.getInstance(gitConnector);
-            
+        System.out.println("AQUI");
         Git git = new Git(gitConnector.getRepository());
-        
+        System.out.println("AQUI");
         List<Ref> branchRefList = git.branchList().call();
-        
+        System.out.println("AQUI4");
         List<BranchRevisions> branches = new LinkedList<BranchRevisions>();
-            
+        System.out.println("AQUI 5");
         ProjectRevisions project = new ProjectRevisions(projectName);
         //System.out.println("BRANCHES: "+branchRefList.size());
         for (Ref branchRef : branchRefList) {
@@ -87,6 +97,7 @@ public class ProjectService {
         Iterator<CommitRelationship> commitRelationshipIt = commitRelationships.iterator();
         HashMap<String, String> hash = new HashMap<String, String>();
         int linhas = 1;
+        System.out.println("AQUI U");
         while(commitRelationshipIt.hasNext()){
             CommitRelationship commitRelationship = commitRelationshipIt.next();
             String child = commitRelationship.getChild().getId();
@@ -117,12 +128,12 @@ public class ProjectService {
                 
             //System.out.println(commitRelationship.getChild().getId()+"  --> "+commitRelationship.getParent().getId());
         }
-        //System.out.println("Terminou branches: "+branches.size()+"     linhas: "+linhas);
-        //System.out.println("Revisoes: "+revisionsBucket.getRevisionCollection().size());
+        System.out.println("Terminou branches: "+branches.size()+"     linhas: "+linhas);
+        System.out.println("Revisoes: "+revisionsBucket.getRevisionCollection().size());
         for (BranchRevisions branch : branches) {
                 
             setHistoryOfBranch(branch, revisionsBucket);    
-            //System.out.println("Terminou uma branche");
+            System.out.println("Terminou uma branche");
         }
             
         project.setBranchesRevisions(branches);
@@ -276,10 +287,9 @@ public class ProjectService {
     
     public static void main(String args[]){
         try{
-            ProjectService projectService = new ProjectService();
-            ProjectRevisions pr = projectService.getProject("/home/wallace/mestrado/projetos_alvos/neo4j/neo4j", "neo4j");
+            br.uff.ic.dyevc.application.branchhistory.view.ProjectService projectService = new br.uff.ic.dyevc.application.branchhistory.view.ProjectService();
+            ProjectRevisions pr = projectService.getProject("/home/wallace/projetos/teste/projeto", "projeto");
             System.out.println("branches: "+pr.getBranchesRevisions().size());
-            System.out.println("Revisions: "+pr.getRevisionsBucket().getRevisionCollection().size());
             System.out.println("TERMINOU");
         }catch(Exception e){
             System.out.println("ERRO: "+e.getMessage());

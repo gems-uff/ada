@@ -115,4 +115,15 @@ public class JavaInterface extends JavaAbstract {
         }
         return javaMethod;
     }
+    
+    public JavaMethod getMethodById(long id){
+        JavaMethod javaMethod = null;
+        for(JavaMethod aux : methods){
+            if(aux.getId() == id){
+                javaMethod = aux;
+                break;
+            }
+        }
+        return javaMethod;
+    }
 }

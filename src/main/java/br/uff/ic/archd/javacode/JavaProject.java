@@ -23,9 +23,13 @@ public class JavaProject {
     private List<JavaAbstractExternal> externalClasses;
     private List<JavaAbstract> leaderClasses;
     private List<JavaAbstract> possibleLeaderClasses;
+    private List<JavaClass> simpleSmartClasses;
+    private List<JavaClass> fullSmartClasses;
+    private List<JavaClass> foolClasses;
     private int numberOfClasses;
     private int numberOfInterfaces;
     private int numberOfViewExternalClasses;
+    private String revisionId;
 
     JavaProject(String name) {
         this.name = name;
@@ -34,6 +38,11 @@ public class JavaProject {
         externalClasses = new ArrayList();
         leaderClasses = new ArrayList();
         possibleLeaderClasses = new ArrayList();
+        
+        simpleSmartClasses = new ArrayList();
+        fullSmartClasses = new ArrayList();
+        foolClasses = new ArrayList();
+        
         numberOfClasses = 0;
         numberOfInterfaces = 0;
         numberOfViewExternalClasses = 0;
@@ -57,6 +66,28 @@ public class JavaProject {
         }
         return javaClasses;
     }
+    
+    public JavaClass getClassById(long id){
+        JavaClass ja = null;
+        for(JavaAbstract javaAbstract : getClasses()){
+            if(javaAbstract.getId() == id){
+                ja = (JavaClass) javaAbstract;
+                break;
+            }
+        }
+        return ja;
+    }
+    
+    public JavaInterface getInterfaceById(long id){
+        JavaInterface ja = null;
+        for(JavaAbstract javaAbstract : getInterfaces()){
+            if(javaAbstract.getId() == id){
+                ja = (JavaInterface) javaAbstract;
+                break;
+            }
+        }
+        return ja;
+    } 
 
     public List<JavaAbstract> getClasses() {
         List<JavaAbstract> javaClasses = new LinkedList();
@@ -94,6 +125,18 @@ public class JavaProject {
 
     public void addClass(JavaAbstract javaAbstract) {
         classes.put(javaAbstract.getFullQualifiedName(), javaAbstract);
+    }
+    
+    public void addSimpleSmartClass(JavaClass javaClass){
+        simpleSmartClasses.add(javaClass);
+    }
+    
+    public void addFullSmartClass(JavaClass javaClass){
+        fullSmartClasses.add(javaClass);
+    }
+    
+    public void addFoolClass(JavaClass javaClass){
+        foolClasses.add(javaClass);
     }
 
     public JavaPackage getPackageByName(String name) {
@@ -309,5 +352,40 @@ public class JavaProject {
      */
     public int getNumberOfViewExternalClasses() {
         return numberOfViewExternalClasses;
+    }
+
+    /**
+     * @return the simpleSmartClasses
+     */
+    public List<JavaClass> getSimpleSmartClasses() {
+        return simpleSmartClasses;
+    }
+
+    /**
+     * @return the fullSmartClasses
+     */
+    public List<JavaClass> getFullSmartClasses() {
+        return fullSmartClasses;
+    }
+
+    /**
+     * @return the foolClasses
+     */
+    public List<JavaClass> getFoolClasses() {
+        return foolClasses;
+    }
+
+    /**
+     * @return the revisionId
+     */
+    public String getRevisionId() {
+        return revisionId;
+    }
+
+    /**
+     * @param revisionId the revisionId to set
+     */
+    public void setRevisionId(String revisionId) {
+        this.revisionId = revisionId;
     }
 }

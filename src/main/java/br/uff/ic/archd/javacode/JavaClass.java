@@ -25,6 +25,14 @@ public class JavaClass extends JavaAbstract {
         superClass = null;
         methods = new ArrayList();
     }
+    
+    public JavaClass(){
+        super();
+        implementedInterfaces = new ArrayList();
+        attributes = new ArrayList();
+        superClass = null;
+        methods = new ArrayList();
+    }
 
     public int getSize() {
         //int size = 0;
@@ -206,6 +214,28 @@ public class JavaClass extends JavaAbstract {
             }
         }
         return javaMethod;
+    }
+    
+    public JavaMethod getMethodById(long id){
+        JavaMethod javaMethod = null;
+        for(JavaMethod aux : methods){
+            if(aux.getId() == id){
+                javaMethod = aux;
+                break;
+            }
+        }
+        return javaMethod;
+    }
+    
+    public JavaMethod getMethodBySignature(String signature){
+        JavaMethod javaMethod = null;
+        for(JavaMethod aux : methods){
+            if(aux.getMethodSignature().equals(signature)){
+                javaMethod = aux;
+                break;
+            }
+        }
+        return javaMethod;   
     }
     
 }

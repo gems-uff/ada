@@ -19,7 +19,7 @@ public class JavaAttribute {
     private boolean isProtected;
     
     
-    JavaAttribute(JavaData type, String name, boolean isFinal, boolean isStatic, boolean isVolatile, boolean isPrivate, boolean isPublic, boolean isProtected){
+    public JavaAttribute(JavaData type, String name, boolean isFinal, boolean isStatic, boolean isVolatile, boolean isPrivate, boolean isPublic, boolean isProtected){
         this.type = type;
         this.name = name;
         this.isFinal = isFinal;

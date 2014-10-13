@@ -18,6 +18,10 @@ public class JavaData {
         return name;
     }
     
+    public String getFullQualifiedName(){
+        return name;
+    }
+    
     public void setName(String name) {
         this.name = name;
     }

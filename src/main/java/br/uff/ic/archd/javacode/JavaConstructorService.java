@@ -7,10 +7,28 @@ package br.uff.ic.archd.javacode;
 import br.uff.ic.archd.ast.service.AstService;
 import br.uff.ic.archd.ast.service.JavaMethodAstBox;
 import br.uff.ic.archd.ast.service.ParameterAst;
+import br.uff.ic.archd.db.dao.ClassesDao;
+import br.uff.ic.archd.db.dao.DataBaseFactory;
+import br.uff.ic.archd.db.dao.ExternalImportsDao;
+import br.uff.ic.archd.db.dao.ImplementedInterfacesDao;
+import br.uff.ic.archd.db.dao.InterfaceDao;
+import br.uff.ic.archd.db.dao.InternalImportsDao;
+import br.uff.ic.archd.db.dao.JavaAttributeDao;
+import br.uff.ic.archd.db.dao.JavaMethodDao;
+import br.uff.ic.archd.db.dao.MethodInvocationsDao;
+import br.uff.ic.archd.db.dao.TerminatedDao;
 import br.uff.ic.archd.xml.service.XMLService;
+import br.uff.ic.dyevc.application.branchhistory.model.ProjectRevisions;
+import br.uff.ic.dyevc.application.branchhistory.model.Revision;
+import br.uff.ic.dyevc.tools.vcs.git.GitConnector;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.Git;
 
 /**
  *
@@ -18,32 +36,195 @@ import java.util.List;
  */
 public class JavaConstructorService {
 
-    public JavaProject createProjects(String path) {
+    private String BRANCHES_HISTORY_PATH = System.getProperty("user.home") + "/.archd/BRANCHES_HISTORY/";
+
+    public List<JavaProject> getAllProjectsRevision(String projectName, List<String> codeDirs, String path, ProjectRevisions projectRevisions) {
+        List<JavaProject> javaProjects = new LinkedList();
+        Iterator<Revision> it = projectRevisions.getRevisionsBucket().getRevisionCollection().iterator();
+
+        try {
+
+
+
+
+            GitConnector gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
+            Git git = new Git(gitConnector.getRepository());
+            CheckoutCommand checkoutCommand = null;
+
+
+            List<String> newCodeDirs = new LinkedList();
+            for (String codeDir : codeDirs) {
+                String newCodeDir = codeDir.substring(path.length(), codeDir.length());
+                if (newCodeDir.startsWith("/")) {
+                    newCodeDir = newCodeDir.substring(1);
+                }
+                newCodeDir = BRANCHES_HISTORY_PATH + projectName + "/" + newCodeDir;
+                newCodeDirs.add(newCodeDir);
+            }
+            while (it.hasNext()) {
+
+
+                //criando nova pasta
+                /*File file = new File(BRANCHES_HISTORY_PATH + projectRevisions.getName());
+                FileUtils.deleteDirectory(file);
+                file = new File(BRANCHES_HISTORY_PATH + projectRevisions.getName());
+                System.out.println("Foi deletado aguardando");
+                System.out.println("Vai criar");
+                file.mkdirs();
+                FileUtils.copyDirectory(new File(path), new File(BRANCHES_HISTORY_PATH + projectRevisions.getName()));*/
+                //******** fim criar nova pasta
+
+
+
+                
+                gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
+                git = new Git(gitConnector.getRepository());
+                
+                
+
+                Revision revision = it.next();
+
+
+                checkoutCommand = git.checkout();
+                checkoutCommand.setName(revision.getId());
+                checkoutCommand.call();
+
+
+                JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisions.getName(), revision.getId());
+                javaProjects.add(javaProject);
+                System.out.println("Salvo revisão: " + revision.getId() + "      Número: " + javaProjects.size());
+            }
+        } catch (Exception e) {
+            System.out.println("Exception getAllProjectsRevision: " + e.getMessage()+"             class: "+e.getClass());
+        }
+
+        return javaProjects;
+    }
+
+    public JavaProject getProjectByRevision(String projectName, List<String> codeDirs, String path, String revisionId) {
+        TerminatedDao terminatedDao = DataBaseFactory.getInstance().getTerminatedDao();
+        JavaProject javaProject = null;
+        ClassesDao classesDao = DataBaseFactory.getInstance().getClassesDao();
+        InterfaceDao interfaceDao = DataBaseFactory.getInstance().getInterfaceDao();
+        JavaMethodDao javaMethodDao = DataBaseFactory.getInstance().getJavaMethodDao();
+        JavaAttributeDao javaAttributeDao = DataBaseFactory.getInstance().getJavaAttributeDao();
+        ImplementedInterfacesDao implementedInterfacesDao = DataBaseFactory.getInstance().getImplementedInterfacesDao();
+        InternalImportsDao internalImportsDao = DataBaseFactory.getInstance().getInternalImportsDao();
+        ExternalImportsDao externalImportsDao = DataBaseFactory.getInstance().getExternalImportsDao();
+        MethodInvocationsDao methodInvocationDao = DataBaseFactory.getInstance().getMethodInvocationsDao();
+        if (terminatedDao.isTerminated(projectName, revisionId)) {
+            System.out.println("Vai pegar do banco");
+            javaProject = new JavaProject(path);
+            classesDao.getJavaClassesByRevisionId(javaProject, revisionId);
+            interfaceDao.getJavaInterfacesByRevisionId(javaProject, revisionId);
+            //complete the java abstract with imports, attributes, implements, superclasses and methods
+            for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+                internalImportsDao.getInternalImports(javaAbstract, javaProject);
+                externalImportsDao.getExternalImports(javaAbstract, javaProject);
+                System.out.println("Nome: " + javaAbstract.getFullQualifiedName());
+                if (javaAbstract.getClass() == JavaClass.class) {
+                    List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByClassId(javaProject, javaAbstract.getId());
+                    for (JavaMethod javaMethod : javaMethods) {
+                        ((JavaClass) javaAbstract).addMethod(javaMethod);
+                    }
+                    implementedInterfacesDao.setImplementedInterfacesDao((JavaClass) javaAbstract, javaProject);
+                    javaAttributeDao.getJavaAttributesFromClass((JavaClass) javaAbstract, javaProject);
+
+                } else {
+                    List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByInterfaceId(javaProject, javaAbstract.getId());
+                    for (JavaMethod javaMethod : javaMethods) {
+                        ((JavaInterface) javaAbstract).addJavaMethod(javaMethod);
+                    }
+                }
+            }
+            for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+                if (javaAbstract.getClass() == JavaClass.class) {
+                    for (JavaMethod javaMethod : ((JavaClass) javaAbstract).getMethods()) {
+                        methodInvocationDao.getInvocatedMethods(javaMethod, (JavaClass) javaAbstract, javaProject);
+                    }
+                }
+            }
+
+            setProjectProperties(javaProject);
+
+        } else {
+            javaProject = this.createProjects(codeDirs, path, revisionId);
+
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                JavaClass javaClass = (JavaClass) javaAbstract;
+                classesDao.save(javaClass);
+
+                for (String externalImport : javaClass.getExternalImports()) {
+                    externalImportsDao.save(javaAbstract, externalImport);
+                }
+                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+                    javaAttributeDao.save(javaAttribute, javaClass.getId());
+                }
+                for (JavaMethod javaMethod : javaClass.getMethods()) {
+                    javaMethodDao.save(javaMethod, true, javaClass.getId());
+                }
+
+            }
+            for (JavaAbstract javaAbstract : javaProject.getInterfaces()) {
+                JavaInterface javaInterface = (JavaInterface) javaAbstract;
+                interfaceDao.save(javaInterface);
+                for (JavaMethod javaMethod : javaInterface.getMethods()) {
+                    javaMethodDao.save(javaMethod, false, javaInterface.getId());
+                }
+            }
+
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                JavaClass javaClass = (JavaClass) javaAbstract;
+                for (JavaInterface javaInterface : javaClass.getImplementedInterfaces()) {
+                    implementedInterfacesDao.saveImplementedInterface(javaClass, javaInterface);
+                }
+                for (JavaAbstract javaAbstractImport : javaClass.getClassesImports()) {
+                    internalImportsDao.saveInternalImport(javaClass, javaAbstractImport);
+                }
+                for (JavaMethod javaMethod : javaClass.getMethods()) {
+                    methodInvocationDao.saveMethodInvocations(javaMethod, javaClass);
+                }
+            }
+            terminatedDao.save(projectName, revisionId);
+
+        }
+        javaProject.setRevisionId(revisionId);
+        return javaProject;
+    }
+
+    public JavaProject createProjects(List<String> codeDirs, String path, String revisionId) {
         long inicio = System.currentTimeMillis();
         AstService astService = new AstService();
         JavaProject javaProject = new JavaProject(path);
-        List<String> pathList = astService.getAllJavaClassesPath(path);
-        //create java classes and interfaces
-        for (String classPath : pathList) {
-            JavaAbstract javaAbstract = null;
-            String className = astService.getClassName(classPath);
-            if (className != null) {
-                boolean isInterface = astService.isInterface(classPath);
-                if (isInterface) {
-                    javaAbstract = new JavaInterface(classPath);
-                } else {
-                    javaAbstract = new JavaClass(classPath);
+        if (codeDirs.isEmpty()) {
+            codeDirs.add(path);
+        }
+        for (String codeDir : codeDirs) {
+            System.out.println("CodeDir: " + codeDir);
+            List<String> pathList = astService.getAllJavaClassesPath(codeDir);
+            //create java classes and interfaces
+            for (String classPath : pathList) {
+                JavaAbstract javaAbstract = null;
+                String className = astService.getClassName(classPath);
+                if (className != null) {
+                    boolean isInterface = astService.isInterface(classPath);
+                    if (isInterface) {
+                        javaAbstract = new JavaInterface(classPath);
+                    } else {
+                        javaAbstract = new JavaClass(classPath);
+                    }
+                    javaAbstract.setName(className);
+                    javaAbstract.setRevisionId(revisionId);
+                    String packageName = astService.getPackage(classPath);
+                    JavaPackage javaPackage = javaProject.getPackageByName(packageName);
+                    if (javaPackage == null) {
+                        javaPackage = new JavaPackage(packageName);
+                        javaProject.addPackage(javaPackage);
+                    }
+                    javaAbstract.setJavaPackage(javaPackage);
+                    javaPackage.addJavaAbstract(javaAbstract);
+                    javaProject.addClass(javaAbstract);
                 }
-                javaAbstract.setName(className);
-                String packageName = astService.getPackage(classPath);
-                JavaPackage javaPackage = javaProject.getPackageByName(packageName);
-                if (javaPackage == null) {
-                    javaPackage = new JavaPackage(packageName);
-                    javaProject.addPackage(javaPackage);
-                }
-                javaAbstract.setJavaPackage(javaPackage);
-                javaPackage.addJavaAbstract(javaAbstract);
-                javaProject.addClass(javaAbstract);
             }
         }
 
@@ -145,7 +326,80 @@ public class JavaConstructorService {
 
          fim = System.currentTimeMillis();
          System.out.println("Tempo para salva em XML: " + (fim - inicio));*/
-        //pegando as classes lideres
+        setProjectProperties(javaProject);
+        /*int numberOfClasses = 0;
+         int numberOfInterfaces = 0;
+         List<JavaAbstract> classes = javaProject.getAllClasses();
+         for (JavaAbstract javaClazz : classes) {
+         if (javaClazz.getClass() == JavaClass.class) {
+         numberOfClasses++;
+         List<JavaClass> classesThatCall = javaProject.getClassesThatCall(javaClazz);
+         List<JavaAbstract> classesThatUsing = javaProject.getClassesThatUsing(javaClazz);
+         if (classesThatCall.isEmpty() && classesThatUsing.isEmpty()) {
+         List<JavaInterface> implementedInterfaces = ((JavaClass) javaClazz).getImplementedInterfaces();
+         for (JavaInterface implementedInterface : implementedInterfaces) {
+         classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
+         classesThatUsing.addAll(javaProject.getClassesThatUsing(implementedInterface));
+         }
+         JavaClass JavaSuperClazz = ((JavaClass) javaClazz).getSuperClass();
+         while (JavaSuperClazz != null) {
+         implementedInterfaces = JavaSuperClazz.getImplementedInterfaces();
+         for (JavaInterface implementedInterface : implementedInterfaces) {
+         classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
+         classesThatUsing.addAll(javaProject.getClassesThatUsing(implementedInterface));
+         }
+         JavaSuperClazz = JavaSuperClazz.getSuperClass();
+         }
+         if (classesThatCall.isEmpty() && classesThatUsing.isEmpty()) {
+         javaProject.addLeaderClass(javaClazz);
+         } else {
+         javaProject.addPossibleLeaderClass(javaClazz);
+         }
+         }
+
+
+         //vendo a inteligencia
+         boolean containSmartMethod = false;
+         boolean containFoolMethod = false;
+         for (JavaMethod javaMethod : ((JavaClass) javaClazz).getMethods()) {
+         if (javaMethod.getCyclomaticComplexity() <= 1) {
+         containFoolMethod = true;
+         } else {
+         containSmartMethod = true;
+         }
+         if (containSmartMethod && containFoolMethod) {
+         break;
+         }
+         }
+         if (containSmartMethod && containFoolMethod) {
+         javaProject.addSimpleSmartClass((JavaClass) javaClazz);
+         } else if (containSmartMethod) {
+         javaProject.addFullSmartClass((JavaClass) javaClazz);
+         } else if (containFoolMethod) {
+         javaProject.addFoolClass((JavaClass) javaClazz);
+         }
+
+
+
+         } else {
+         numberOfInterfaces++;
+         }
+         }
+         javaProject.setNumberOfClasses(numberOfClasses);
+         javaProject.setNumberOfInterfaces(numberOfInterfaces);
+
+         //verificar as classes burras e inteligentes*/
+
+
+
+        return javaProject;
+
+
+    }
+
+    public void setProjectProperties(JavaProject javaProject) {
+        //pegando as classes lideres        
+        //pegando tambem as classes inteligentes, burras e parcialmente inteligentes
         int numberOfClasses = 0;
         int numberOfInterfaces = 0;
         List<JavaAbstract> classes = javaProject.getAllClasses();
@@ -156,27 +410,56 @@ public class JavaConstructorService {
                 List<JavaAbstract> classesThatUsing = javaProject.getClassesThatUsing(javaClazz);
                 if (classesThatCall.isEmpty() && classesThatUsing.isEmpty()) {
                     List<JavaInterface> implementedInterfaces = ((JavaClass) javaClazz).getImplementedInterfaces();
-                    for(JavaInterface implementedInterface : implementedInterfaces){
+                    for (JavaInterface implementedInterface : implementedInterfaces) {
                         classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
                         classesThatUsing.addAll(javaProject.getClassesThatUsing(implementedInterface));
                     }
-                    if(classesThatCall.isEmpty() && classesThatUsing.isEmpty()){
+                    JavaClass JavaSuperClazz = ((JavaClass) javaClazz).getSuperClass();
+                    while (JavaSuperClazz != null) {
+                        implementedInterfaces = JavaSuperClazz.getImplementedInterfaces();
+                        for (JavaInterface implementedInterface : implementedInterfaces) {
+                            classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
+                            classesThatUsing.addAll(javaProject.getClassesThatUsing(implementedInterface));
+                        }
+                        JavaSuperClazz = JavaSuperClazz.getSuperClass();
+                    }
+                    if (classesThatCall.isEmpty() && classesThatUsing.isEmpty()) {
                         javaProject.addLeaderClass(javaClazz);
-                    }else{
+                    } else {
                         javaProject.addPossibleLeaderClass(javaClazz);
                     }
                 }
-            }else{
+
+
+                //vendo a inteligencia
+                boolean containSmartMethod = false;
+                boolean containFoolMethod = false;
+                for (JavaMethod javaMethod : ((JavaClass) javaClazz).getMethods()) {
+                    if (javaMethod.getCyclomaticComplexity() <= 1) {
+                        containFoolMethod = true;
+                    } else {
+                        containSmartMethod = true;
+                    }
+                    if (containSmartMethod && containFoolMethod) {
+                        break;
+                    }
+                }
+                if (containSmartMethod && containFoolMethod) {
+                    javaProject.addSimpleSmartClass((JavaClass) javaClazz);
+                } else if (containSmartMethod) {
+                    javaProject.addFullSmartClass((JavaClass) javaClazz);
+                } else if (containFoolMethod) {
+                    javaProject.addFoolClass((JavaClass) javaClazz);
+                }
+
+
+
+            } else {
                 numberOfInterfaces++;
             }
         }
         javaProject.setNumberOfClasses(numberOfClasses);
         javaProject.setNumberOfInterfaces(numberOfInterfaces);
-        
-        
-        return javaProject;
-
-
     }
 
     private String getClassName(List<String> importList, String name) {

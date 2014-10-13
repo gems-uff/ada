@@ -13,7 +13,7 @@ public class Parameter {
     private JavaData type;
     private String name;
     
-    Parameter(JavaData type, String name){
+    public Parameter(JavaData type, String name){
         this.type = type;
         this.name = name;
     }

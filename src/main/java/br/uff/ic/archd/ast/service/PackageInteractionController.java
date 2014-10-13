@@ -11,6 +11,7 @@ import br.uff.ic.archd.javacode.JavaPackage;
 import br.uff.ic.archd.javacode.JavaProject;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 
 /**
  *
@@ -24,7 +25,7 @@ public class PackageInteractionController implements ActionListener {
 
     PackageInteractionController() {
         javaConstructorService = new JavaConstructorService();
-        javaProject = javaConstructorService.createProjects("/home/wallace/mestrado/jEdit");
+        javaProject = javaConstructorService.createProjects(new LinkedList(), "/home/wallace/mestrado/jEdit", "revision");
         String packagesString[] = new String[javaProject.getPackages().size()];
         for (int i = 0; i < javaProject.getPackages().size(); i++) {
             packagesString[i] = javaProject.getPackages().get(i).getName();

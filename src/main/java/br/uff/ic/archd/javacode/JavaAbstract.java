@@ -13,14 +13,19 @@ import java.util.List;
  */
 public class JavaAbstract extends JavaData{
 
-    
+    private long id;
     private String path;
     private JavaPackage javaPackage;
     private List<JavaAbstract> classesImports;
     private List<String> externalImports;
-
+    private String revisionId;
     JavaAbstract(String path) {
         this.path = path;
+        classesImports = new LinkedList();
+        externalImports = new LinkedList();
+    }
+    
+    JavaAbstract(){
         classesImports = new LinkedList();
         externalImports = new LinkedList();
     }
@@ -112,6 +117,43 @@ public class JavaAbstract extends JavaData{
     public List<String> getExternalImports() {
         return externalImports;
     }
+
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    /**
+     * @return the revisionId
+     */
+    public String getRevisionId() {
+        return revisionId;
+    }
+
+    /**
+     * @param revisionId the revisionId to set
+     */
+    public void setRevisionId(String revisionId) {
+        this.revisionId = revisionId;
+    }
+
+    /**
+     * @param path the path to set
+     */
+    public void setPath(String path) {
+        this.path = path;
+    }
     
-    
+    public JavaMethod getMethodById(long id){
+        return null;
+    }
 }

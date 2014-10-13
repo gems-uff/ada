@@ -37,6 +37,8 @@ public class InteractionViewer extends JFrame{
     private JTextArea textArea;
     private JTextArea dadosProjetoTextArea;
     
+    private JLabel revisionLabel;
+    
     
     public InteractionViewer( String branchesItemsClasses[], String branchesItemsInterfaces[]){
         createWidgets(branchesItemsClasses, branchesItemsInterfaces);
