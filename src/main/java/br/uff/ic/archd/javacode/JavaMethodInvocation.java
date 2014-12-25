@@ -45,4 +45,12 @@ public class JavaMethodInvocation {
     public void setUnknowMethodName(String unknowMethodName) {
         this.unknowMethodName = unknowMethodName;
     }
+    
+    public String getMethodName(){
+        if(javaMethod != null){
+            return javaMethod.getMethodSignature();
+        }else{
+            return unknowMethodName;
+        }
+    }
 }

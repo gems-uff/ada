@@ -17,6 +17,7 @@ public class JavaClass extends JavaAbstract {
     private List<JavaAttribute> attributes;
     private List<JavaMethod> methods;
     private JavaClass superClass;
+    private int totalCyclomaticComplexity;
 
     public JavaClass(String path) {
         super(path);
@@ -24,6 +25,7 @@ public class JavaClass extends JavaAbstract {
         attributes = new ArrayList();
         superClass = null;
         methods = new ArrayList();
+        totalCyclomaticComplexity = 0;
     }
     
     public JavaClass(){
@@ -32,6 +34,7 @@ public class JavaClass extends JavaAbstract {
         attributes = new ArrayList();
         superClass = null;
         methods = new ArrayList();
+        totalCyclomaticComplexity = 0;
     }
 
     public int getSize() {
@@ -203,6 +206,7 @@ public class JavaClass extends JavaAbstract {
     public void addMethod(JavaMethod javaMethod) {
         methods.add(javaMethod);
         javaMethod.setInternalID(methods.size());
+        totalCyclomaticComplexity = totalCyclomaticComplexity + javaMethod.getCyclomaticComplexity();
     }
     
     public JavaMethod getMethodByInternalId(int internalId){
@@ -237,5 +241,12 @@ public class JavaClass extends JavaAbstract {
         }
         return javaMethod;   
     }
-    
+
+    /**
+     * @return the totalCyclomaticComplexity
+     */
+    public int getTotalCyclomaticComplexity() {
+        return totalCyclomaticComplexity;
+    }
+        
 }

@@ -25,8 +25,12 @@ import br.uff.ic.dyevc.application.branchhistory.model.Revision;
 import br.uff.ic.dyevc.application.branchhistory.model.RevisionsBucket;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 
 /**
  *
@@ -39,20 +43,29 @@ public class InteractionController implements ActionListener {
     private ProjectRevisionsService projectRevisionsService;
     private JavaProject javaProject;
     private ProjectRevisions projectRevisions;
+    private ProjectRevisions newProjectRevisions;
     List<JavaProject> javaProjects;
     private Project project;
+    private Revision currentRevision;
 
     InteractionController(Project project) {
+
+        long antTime = System.currentTimeMillis();
+
         projectRevisionsService = new ProjectRevisionsService();
         javaConstructorService = new JavaConstructorService();
-        ProjectRevisions newProjectRevisions = null;
+        newProjectRevisions = null;
         try {
             projectRevisions = projectRevisionsService.getProject(project.getPath(), project.getName());
+            System.out.println("ORIGINAL ROOT: " + projectRevisions.getRoot().getId());
+            System.out.println("ORIGINAL HEAD: " + projectRevisions.getBranchesRevisions().get(0).getHead().getId());
             System.out.println("Vai limpar");
-            newProjectRevisions = cleanProjectRevisionsLast(projectRevisions);
+            newProjectRevisions = cleanProjectRevisionsLine(projectRevisions);
             System.out.println("Limpou");
             System.out.println("Number of Revisions: " + newProjectRevisions.getRevisionsBucket().getRevisionCollection().size());
             System.out.println("Branches: " + newProjectRevisions.getBranchesRevisions().size());
+            System.out.println("ROOT: " + newProjectRevisions.getRoot().getId());
+            System.out.println("HEAD: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getId());
             System.out.println("Ultima revisão: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getId() + "    next: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getNext().size()
                     + "     prev: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getPrev().size());
             System.out.println("penultima revisão: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getPrev().get(0).getId());
@@ -73,13 +86,16 @@ public class InteractionController implements ActionListener {
          newCodeDirs.add(newCodeDir);
          }*/
         //javaProject = javaConstructorService.getProjectByRevision(project.getName(), project.getCodeDirs(), project.getPath(), "revisionteste");
-        javaProjects = javaConstructorService.getAllProjectsRevision(project.getName(), project.getCodeDirs(), project.getPath(), newProjectRevisions);
-        javaProject = javaProjects.get(javaProjects.size() - 1);
-        System.out.println("Revision do projeto: " + javaProject.getRevisionId());
+        //javaProjects = javaConstructorService.getAllProjectsRevision(project.getName(), project.getCodeDirs(), project.getPath(), newProjectRevisions);
+
+        //javaProject = javaProjects.get(javaProjects.size() - 1);
+        //System.out.println("Revision do projeto: " + javaProject.getRevisionId());
 
 
         this.project = project;
         //javaProject = javaConstructorService.createProjectsFromXML("/home/wallace/.archd/HISTORY/1/");
+        currentRevision = newProjectRevisions.getBranchesRevisions().get(0).getHead();
+        javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision, newProjectRevisions);
         String classesString[] = new String[javaProject.getClasses().size()];
         for (int i = 0; i < javaProject.getClasses().size(); i++) {
             classesString[i] = javaProject.getClasses().get(i).getFullQualifiedName();
@@ -92,9 +108,36 @@ public class InteractionController implements ActionListener {
         interactionViewer = new InteractionViewer(classesString, InterfacesString);
         interactionViewer.setController(this);
 
+        showDados();
 
-        interactionViewer.appendDadosText("******************* Número total de classes: " + classesString.length);
-        interactionViewer.appendDadosText("******************* Número total de interfaces: " + InterfacesString.length);
+
+        //showStatistics();
+        //******** parte de baixo comente e descometne a vontade
+        writeInFilesStatistics();
+
+
+
+
+
+
+
+        javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision, newProjectRevisions);
+        interactionViewer.setRevisionLabel(currentRevision.getId());
+
+
+        long proxTime = System.currentTimeMillis();
+        System.out.println("ROOT: " + newProjectRevisions.getRoot().getId());
+        System.out.println("HEAD: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getId());
+        System.out.println("TEMPO TOTAL: " + ((proxTime - antTime) / 1000));
+
+        interactionViewer.setVisible(true);
+    }
+
+    private void showDados() {
+        //interactionViewer
+        interactionViewer.cleanText();
+        interactionViewer.appendDadosText("******************* Número total de classes: " + javaProject.getClasses().size());
+        interactionViewer.appendDadosText("******************* Número total de interfaces: " + javaProject.getInterfaces().size());
         interactionViewer.appendDadosText("******************* Número total de classes externas chamadas diretamente: " + javaProject.getNumberOfViewExternalClasses());
         interactionViewer.appendDadosText("");
         interactionViewer.appendDadosText("************ Classes Mestres ************** numero: " + javaProject.getLeaderClasses().size() + "");
@@ -133,54 +176,23 @@ public class InteractionController implements ActionListener {
         for (JavaClass javaClazz : javaProject.getFoolClasses()) {
             interactionViewer.appendDadosText(javaClazz.getFullQualifiedName());
         }
+    }
 
-
-
+    private void showStatistics() {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n***************************8 ESTATISTICA ***************************");
         int count = 0;
 
-        /*for(int i=0; i < javaProjects.size(); i++){
-         JavaProject jp = javaProjects.get(i);
-         boolean flag = false;
-         for(JavaAbstract javaAbstract : jp.getClasses()){
-         boolean flag2 = false;
-         JavaClass jc = (JavaClass) javaAbstract;
-         for(JavaMethod jm : jc.getMethods()){
-         if(jm.getCyclomaticComplexity() > 10){
-         count++;
-         if(!flag){
-         flag = true;
-         System.out.println("\n\n*********** REVISION: "+jp.getRevisionId()+"\n");
-         }
-         if(!flag2){
-         flag2 = true;
-         System.out.println("\n************** CLASS: "+jc.getFullQualifiedName()+"\n");
-         }
-         System.out.println("Método: "+jm.getMethodSignature()+"     Complexity: "+jm.getCyclomaticComplexity()+"         size: "+jm.getSizeInChars());
-         }
-         }
-         }
-         }*/
-
-
-
-
-
 
         Revision rev = newProjectRevisions.getRoot();
+        JavaProject aux = null;
         int revs = 0;
         int k = 0;
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
             //System.out.println("REV ID: "+rev.getId());
-            for (int i = 0; i < javaProjects.size(); i++) {
-                //System.out.println("RevisonsID: "+javaProjects.get(i).getRevisionId());
-                if (javaProjects.get(i).getRevisionId().equals(rev.getId())) {
-                    jp = javaProjects.get(i);
-                    break;
-                }
-            }
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+
             k++;
             boolean flag = false;
             for (JavaAbstract javaAbstract : jp.getClasses()) {
@@ -191,11 +203,11 @@ public class InteractionController implements ActionListener {
                         count++;
                         if (!flag) {
                             flag = true;
-                            System.out.println("\n\n*********** REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                            System.out.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
                         }
                         if (!flag2) {
                             flag2 = true;
-                            System.out.println("\n************** CLASS: " + jc.getFullQualifiedName() + "\n");
+                            System.out.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
                         }
                         System.out.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars());
                     }
@@ -220,14 +232,8 @@ public class InteractionController implements ActionListener {
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
-            //System.out.println("REV ID: "+rev.getId());
-            for (int i = 0; i < javaProjects.size(); i++) {
-                //System.out.println("RevisonsID: "+javaProjects.get(i).getRevisionId());
-                if (javaProjects.get(i).getRevisionId().equals(rev.getId())) {
-                    jp = javaProjects.get(i);
-                    break;
-                }
-            }
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+
             k++;
             boolean flag = false;
             int methodCont = 0;
@@ -247,7 +253,7 @@ public class InteractionController implements ActionListener {
                 }
 
             }
-            System.out.println("\n\n*********** REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+            System.out.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
             System.out.println("Methods: " + methodCont + "     metodos complexos: " + mc);
             if (rev.getNext().size() == 0) {
                 rev = null;
@@ -266,14 +272,8 @@ public class InteractionController implements ActionListener {
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
-            //System.out.println("REV ID: "+rev.getId());
-            for (int i = 0; i < javaProjects.size(); i++) {
-                //System.out.println("RevisonsID: "+javaProjects.get(i).getRevisionId());
-                if (javaProjects.get(i).getRevisionId().equals(rev.getId())) {
-                    jp = javaProjects.get(i);
-                    break;
-                }
-            }
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+
             k++;
             boolean flag = false;
             int methodCont = 0;
@@ -286,7 +286,7 @@ public class InteractionController implements ActionListener {
                 if (ctc > 5 || ctu > 5) {
                     if (!flag) {
                         flag = true;
-                        System.out.println("\n\n*********** REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                        System.out.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
                     }
                     System.out.println("CLASS: " + jc.getFullQualifiedName() + "      Class using: " + ctu + "   class call: " + ctc);
                 }
@@ -315,14 +315,8 @@ public class InteractionController implements ActionListener {
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
-            //System.out.println("REV ID: "+rev.getId());
-            for (int i = 0; i < javaProjects.size(); i++) {
-                //System.out.println("RevisonsID: "+javaProjects.get(i).getRevisionId());
-                if (javaProjects.get(i).getRevisionId().equals(rev.getId())) {
-                    jp = javaProjects.get(i);
-                    break;
-                }
-            }
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+
             k++;
             boolean flag = false;
             for (JavaAbstract javaAbstract : jp.getClasses()) {
@@ -339,18 +333,18 @@ public class InteractionController implements ActionListener {
                             if (jm.getCyclomaticComplexity() != antMethod.getCyclomaticComplexity()) {
                                 if (!flag) {
                                     flag = true;
-                                    System.out.println("\n\n*********** REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                    System.out.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
                                 }
                                 if (!flag2) {
                                     flag2 = true;
-                                    System.out.println("\n************** CLASS: " + jc.getFullQualifiedName() + "\n");
+                                    System.out.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
                                 }
-                                System.out.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars() +
-                                        "     diff complexity: "+(jm.getCyclomaticComplexity() - antMethod.getCyclomaticComplexity())+"      diff size: "+(jm.getSizeInChars() - antMethod.getSizeInChars()));
+                                System.out.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars()
+                                        + "     diff complexity: " + (jm.getCyclomaticComplexity() - antMethod.getCyclomaticComplexity()) + "      diff size: " + (jm.getSizeInChars() - antMethod.getSizeInChars()));
                             }
                         }
                     }
-                    
+
                 }
             }
             if (rev.getNext().size() == 0) {
@@ -362,9 +356,59 @@ public class InteractionController implements ActionListener {
             revs++;
         }
 
+        System.out.println("***************************************************************************8");
 
+        rev = newProjectRevisions.getRoot();
+        revs = 0;
+        k = 0;
+        ant = null;
+        while (rev != null) {
+            //JavaProject jp = javaProjects.get(i);
+            JavaProject jp = null;
+            //System.out.println("REV ID: "+rev.getId());
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
 
-        interactionViewer.setVisible(true);
+            k++;
+            boolean flag = false;
+            for (JavaAbstract javaAbstract : jp.getClasses()) {
+                boolean flag2 = false;
+                JavaClass jc = (JavaClass) javaAbstract;
+                JavaClass antClass = null;
+                if (ant != null) {
+                    antClass = (JavaClass) ant.getClassByName(jc.getFullQualifiedName());
+                }
+                for (JavaMethod jm : jc.getMethods()) {
+                    if (antClass != null) {
+                        JavaMethod antMethod = antClass.getMethodBySignature(jm.getMethodSignature());
+                        if (antMethod != null) {
+                            if (jm.getCyclomaticComplexity() != antMethod.getCyclomaticComplexity()) {
+                                if (!flag) {
+                                    flag = true;
+                                    System.out.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                }
+                                if (!flag2) {
+                                    flag2 = true;
+                                    System.out.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                                }
+                                System.out.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars()
+                                        + "     diff complexity: " + (jm.getCyclomaticComplexity() - antMethod.getCyclomaticComplexity()) + "      diff size: " + (jm.getSizeInChars() - antMethod.getSizeInChars()));
+                            }
+                        }
+                    }
+
+                }
+            }
+            if (rev.getNext().size() == 0) {
+                rev = null;
+            } else {
+                rev = rev.getNext().get(0);
+            }
+            ant = jp;
+            revs++;
+        }
+
+        System.out.println("***************************************************************************8");
+
     }
 
     private ProjectRevisions cleanProjectRevisions(ProjectRevisions projectRevisions) {
@@ -454,7 +498,7 @@ public class InteractionController implements ActionListener {
             Revision prox = newRevision;
             newLineRevisions.addRevision(newRevision);
             revisionsBucket.addRevision(newRevision);
-            System.out.println("ID: " + newRevision.getId());
+            //System.out.println("ID: " + newRevision.getId());
             int i = 0;
             while (i < 50 && aux != null) {
                 i++;
@@ -513,13 +557,132 @@ public class InteractionController implements ActionListener {
         return newProjectRevisions;
     }
 
+    private ProjectRevisions cleanProjectRevisionsLine(ProjectRevisions projectRevisions) {
+        List<BranchRevisions> branches = new LinkedList();
+        ProjectRevisions newProjectRevisions = new ProjectRevisions(projectRevisions.getName());
+        RevisionsBucket revisionsBucket = new RevisionsBucket();
+        //Revision newRoot = new Revision(projectRevisions.getRoot().getId());
+        int count = 0;
+        //newProjectRevisions.setRoot(newRoot);
+        for (BranchRevisions branchRevisions : projectRevisions.getBranchesRevisions()) {
+            Revision newHead = revisionsBucket.getRevisionById(branchRevisions.getHead().getId());
+            if (newHead == null) {
+                newHead = new Revision(branchRevisions.getHead().getId());
+                revisionsBucket.addRevision(newHead);
+            }
+            BranchRevisions newBranchRevisions = new BranchRevisions(branchRevisions.getName(), newHead);
+            LineRevisions lineRevisions = branchRevisions.getLinesRevisions().get(0);
+            LineRevisions newLineRevisions = new LineRevisions(newHead);
+            Revision aux = lineRevisions.getHead();
+            Revision newRevision = revisionsBucket.getRevisionById(aux.getId());
+            if (newRevision == null) {
+                newRevision = new Revision(aux.getId());
+                revisionsBucket.addRevision(newRevision);
+            }
+            Revision prox = newRevision;
+            newLineRevisions.addRevision(newRevision);
+            revisionsBucket.addRevision(newRevision);
+            int i = 0;
+            while (aux != null) {
+                i++;
+                //System.out.println("I: "+i);
+                aux = aux.getPrev().get(aux.getPrev().size() - 1);
+                newRevision = revisionsBucket.getRevisionById(aux.getId());
+                if (newRevision == null) {
+                    newRevision = new Revision(aux.getId());
+                    revisionsBucket.addRevision(newRevision);
+                }
+                newRevision.addNext(prox);
+                prox.addPrev(newRevision);
+                prox = newRevision;
+                newLineRevisions.addRevision(newRevision);
+                revisionsBucket.addRevision(newRevision);
+                count++;
+                if (aux.getPrev().size() == 0) {
+                    aux = null;
+                }
+            }
+            newProjectRevisions.setRoot(prox);
+            newBranchRevisions.addLineRevisions(lineRevisions);
+            branches.add(newBranchRevisions);
+
+        }
+        System.out.println("Count: " + count);
+        newProjectRevisions.setBranchesRevisions(branches);
+        newProjectRevisions.setRevisionsBucket(revisionsBucket);
+        return newProjectRevisions;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE_CLASS)) {
             showClassFunctions(interactionViewer.getClassSelected());
         } else if (e.getActionCommand().equals(InteractionViewer.ACTION_UPDATE_INTERFACE)) {
             showClassFunctions(interactionViewer.getInterfaceSelected());
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_SEARCH_REVISION)) {
+            searchRevision(interactionViewer.getSearchRevision());
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_PROX_REVISION)) {
+            showProxRevision();
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_ANT_REVISION)) {
+            showAntRevision();
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_CODE_CLASS)) {
+            showCode(interactionViewer.getClassSelected());
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_CODE_INTERFACE)) {
+            showCode(interactionViewer.getInterfaceSelected());
         }
+    }
+
+    private void searchRevision(String revisionId) {
+        Revision aux = projectRevisions.getRevisionsBucket().getRevisionById(revisionId);
+        if (aux != null) {
+            javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), aux, newProjectRevisions);
+            currentRevision = aux;
+            interactionViewer.setRevisionLabel(revisionId);
+            showDados();
+            updateClassesAndInterfaces();
+            //mostrar os novos dados
+        }
+    }
+
+    private void showAntRevision() {
+        Revision aux = currentRevision.getPrev().get(0);
+        if (aux != null) {
+            searchRevision(aux.getId());
+        }
+    }
+
+    private void showProxRevision() {
+        Revision aux = currentRevision.getNext().get(0);
+        if (aux != null) {
+            searchRevision(aux.getId());
+        }
+    }
+
+    private void showCode(String className) {
+        JavaAbstract javaAbstract = javaProject.getClassByName(className);
+        if (javaAbstract != null) {
+            //File file = new File(javaAbstract.getPath());
+            try {
+                String text = IOUtils.toString(new FileReader(javaAbstract.getPath()));
+                interactionViewer.setCodeText(text);
+            } catch (Exception e) {
+            }
+            System.out.println("CLASS: " + javaAbstract.getPath());
+        }
+    }
+
+    private void updateClassesAndInterfaces() {
+        String classesString[] = new String[javaProject.getClasses().size()];
+        for (int i = 0; i < javaProject.getClasses().size(); i++) {
+            classesString[i] = javaProject.getClasses().get(i).getFullQualifiedName();
+        }
+        String InterfacesString[] = new String[javaProject.getInterfaces().size()];
+        for (int i = 0; i < javaProject.getInterfaces().size(); i++) {
+            InterfacesString[i] = javaProject.getInterfaces().get(i).getFullQualifiedName();
+        }
+
+        interactionViewer.setClassesAndInterfaces(classesString, InterfacesString);
+
     }
 
     private void showClassFunctions(String className) {
@@ -594,6 +757,7 @@ public class InteractionController implements ActionListener {
                 interactionViewer.appendText("Modifie internal state by call method: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
                 interactionViewer.appendText("Size: " + ((JavaClass) javaAbstract).getMethods().get(i).getSizeInChars());
                 interactionViewer.appendText("Cyclomatic complexity: " + ((JavaClass) javaAbstract).getMethods().get(i).getCyclomaticComplexity());
+
                 methods[i] = ((JavaClass) javaAbstract).getMethods().get(i).getMethodSignature();
                 for (JavaMethodInvocation jmi : ((JavaClass) javaAbstract).getMethods().get(i).getMethodInvocations()) {
                     //System.out.println("------ "+jmi.getJavaAbstract().getFullQualifiedName()+":"+jmi.getJavaMethod().getMethodSignature());
@@ -606,6 +770,10 @@ public class InteractionController implements ActionListener {
                         interactionViewer.appendText("----um " + jmi.getJavaAbstract().getFullQualifiedName() + ":" + jmi.getUnknowMethodName());
 
                     }
+                }
+                interactionViewer.appendText("Chnaging Methods: ");
+                for (JavaMethod changingMethod : ((JavaClass) javaAbstract).getMethods().get(i).getChangingMethods()) {
+                    interactionViewer.appendText(changingMethod.getJavaAbstract().getFullQualifiedName() + "  :   " + changingMethod.getMethodSignature());
                 }
                 System.out.println("");
                 interactionViewer.appendText("");
@@ -642,6 +810,243 @@ public class InteractionController implements ActionListener {
                 interactionViewer.appendText("- " + retType + "   " + ((JavaInterface) javaAbstract).getMethods().get(i).getMethodSignature());
                 methods[i] = ((JavaInterface) javaAbstract).getMethods().get(i).getMethodSignature();
             }
+        }
+
+
+    }
+
+    public void writeInFilesStatistics() {
+
+        try {
+            String path = System.getProperty("user.home") + "/.archd/";
+            PrintWriter writer1 = new PrintWriter(path + "complexity_methods.txt", "UTF-8");
+            PrintWriter writer2 = new PrintWriter(path + "complexity_methods_number.txt", "UTF-8");
+            PrintWriter writer3 = new PrintWriter(path + "classes_using.txt", "UTF-8");
+            PrintWriter writer4 = new PrintWriter(path + "diff_complexity.txt", "UTF-8");
+            PrintWriter writer5 = new PrintWriter(path + "classes_complexity.txt", "UTF-8");
+            PrintWriter writer6 = new PrintWriter(path + "shotgun_surgery.txt", "UTF-8");
+            PrintWriter writer7 = new PrintWriter(path + "changing_methods.txt", "UTF-8");
+            //PrintWriter writer8 = new PrintWriter(path + "changing_classes.txt", "UTF-8");
+
+            Revision rev = newProjectRevisions.getRoot();
+            JavaProject aux = null;
+            int revs = 0;
+            int k = 0;
+            JavaProject ant = null;
+            while (rev != null) {
+                //JavaProject jp = javaProjects.get(i);
+                JavaProject jp = null;
+                //System.out.println("REV ID: "+rev.getId());
+                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+
+                k++;
+                boolean flag = false;
+                int methodCont = 0;
+                int mc = 0;
+                boolean flag3 = false;
+                boolean flag4 = false;
+                boolean flag6 = false;
+                boolean changingMethodsRevisions = false;
+
+                int totalCyclomaticComplexity = 0;
+                writer5.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                for (JavaAbstract javaAbstract : jp.getClasses()) {
+                    boolean flag2 = false;
+                    boolean flag5 = false;
+                    boolean flag7 = false;
+                    boolean changingMethodsClasses = false;
+                    JavaClass jc = (JavaClass) javaAbstract;
+                    JavaClass antClass = null;
+                    if (ant != null) {
+                        JavaAbstract antAbstract = ant.getClassByName(jc.getFullQualifiedName());
+                        if (antAbstract != null) {
+                            if (antAbstract.getClass() == JavaClass.class) {
+                                antClass = (JavaClass) ant.getClassByName(jc.getFullQualifiedName());
+                            } else {
+                                System.out.println("ERA interface  em " + ant.getRevisionId() + "  num: " + (k - 1) + ",  virou classe em " + jp.getRevisionId() + " num: " + k + "  : " + antAbstract.getFullQualifiedName());
+                            }
+                        }
+                    }
+                    for (JavaMethod jm : jc.getMethods()) {
+                        
+                        boolean changingMethodsMethods = false;
+
+                        if (jm.getCyclomaticComplexity() > 20) {
+                            if (!flag4) {
+                                flag4 = true;
+                                writer1.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                System.out.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                            }
+                            if (!flag5) {
+                                flag5 = true;
+                                writer1.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                            }
+                            writer1.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars());
+                            mc++;
+                        }
+
+
+
+                        if (antClass != null) {
+                            JavaMethod antMethod = antClass.getMethodBySignature(jm.getMethodSignature());
+                            if (antMethod != null) {
+                                if (jm.getCyclomaticComplexity() != antMethod.getCyclomaticComplexity()) {
+                                    if (!flag) {
+                                        flag = true;
+                                        writer4.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                    }
+                                    if (!flag2) {
+                                        flag2 = true;
+                                        writer4.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                                    }
+                                    writer4.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars()
+                                            + "     diff complexity: " + (jm.getCyclomaticComplexity() - antMethod.getCyclomaticComplexity()) + "      diff size: " + (jm.getSizeInChars() - antMethod.getSizeInChars()));
+                                }
+
+
+                                //ver changes methods call
+                                //ver adição de métodos
+                                for (JavaMethodInvocation methodInvocation : jm.getMethodInvocations()) {
+                                    boolean adicionou = true;
+                                    for (JavaMethodInvocation methodInvocationAnt : antMethod.getMethodInvocations()) {
+                                        if (methodInvocation.getMethodName() != null) {
+                                            if (methodInvocation.getMethodName().equals(methodInvocationAnt.getMethodName())) {
+                                                adicionou = false;
+                                                break;
+                                            }
+                                        }else{
+                                            System.out.println("METHOD INVOCATION NULL: "+methodInvocation.getJavaAbstract().getFullQualifiedName());
+                                        }
+                                    }
+                                    if (adicionou) {
+                                        if (!changingMethodsRevisions) {
+                                            changingMethodsRevisions = true;
+                                            writer7.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                        }
+                                        if (!changingMethodsClasses) {
+                                            changingMethodsClasses = true;
+                                            writer7.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                                        }
+                                        if(!changingMethodsMethods){
+                                            changingMethodsMethods = true;
+                                            writer7.println("\n######## Method: " + jm.getMethodSignature());
+                                        }
+
+                                        writer7.println("+++++ " +methodInvocation.getJavaAbstract().getFullQualifiedName()+":" + methodInvocation.getMethodName());
+                                    }
+                                }
+
+                                for (JavaMethodInvocation methodInvocationAnt : antMethod.getMethodInvocations()) {
+                                    boolean removeu = true;
+                                    for (JavaMethodInvocation methodInvocation : jm.getMethodInvocations()) {
+                                        if (methodInvocationAnt.getMethodName() != null) {
+                                            if (methodInvocationAnt.getMethodName().equals(methodInvocation.getMethodName())) {
+                                                removeu = false;
+                                                break;
+                                            }
+                                        }else{
+                                            System.out.println("METHOD INVOCATION NULL: "+methodInvocation.getJavaAbstract().getFullQualifiedName());
+                                        }
+                                    }
+                                    if (removeu) {
+                                        if (!changingMethodsRevisions) {
+                                            changingMethodsRevisions = true;
+                                            writer7.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                        }
+                                        if (!changingMethodsClasses) {
+                                            changingMethodsClasses = true;
+                                            writer7.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                                        }
+                                        if(!changingMethodsMethods){
+                                            changingMethodsMethods = true;
+                                            writer7.println("\n######## Method: " + jm.getMethodSignature());
+                                        }
+
+                                        writer7.println("----- "+methodInvocationAnt.getJavaAbstract().getFullQualifiedName()+":" +methodInvocationAnt.getMethodName());
+                                    }
+                                }
+
+
+                            } else {
+                                if (!flag) {
+                                    flag = true;
+                                    writer4.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                }
+                                if (!flag2) {
+                                    flag2 = true;
+                                    writer4.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                                }
+                                writer1.println("############# Método novo criado: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars());
+
+                            }
+
+
+
+                        } else {
+                            if (!flag) {
+                                flag = true;
+                                writer4.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                            }
+                            if (!flag2) {
+                                flag2 = true;
+                                writer4.println("\n%%%%%%%%%%%% CLASSE NOVA CRIADA: " + jc.getFullQualifiedName() + "\n");
+                            }
+                        }
+                        methodCont++;
+
+                        if (jm.getChangingMethodsMetric() > 7 && jm.getChangingClassesMetric() > 5) {
+                            if (!flag6) {
+                                flag6 = true;
+                                writer6.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                            }
+                            if (!flag7) {
+                                flag7 = true;
+                                writer6.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                            }
+                            writer6.println("Método: " + jm.getMethodSignature() + "       CM: " + jm.getChangingMethodsMetric() + "       CC: " + jm.getChangingClassesMetric());
+                        }
+
+                    }
+                    int ctc = jp.getClassesThatCall(javaAbstract).size();
+                    int ctu = jp.getClassesThatUsing(javaAbstract).size();
+                    if (ctc > 5 || ctu > 5) {
+                        if (!flag3) {
+                            flag3 = true;
+                            writer3.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                        }
+                        writer3.println("CLASS: " + jc.getFullQualifiedName() + "      Class using: " + ctu + "   class call: " + ctc);
+                    }
+                    writer5.print("******* CLASS: " + jc.getFullQualifiedName() + "         Total Complexity: " + jc.getTotalCyclomaticComplexity());
+                    totalCyclomaticComplexity = totalCyclomaticComplexity + jc.getTotalCyclomaticComplexity();
+                }
+
+                writer5.println("TOTAL COMPLEXITY: " + totalCyclomaticComplexity);
+
+                writer2.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                writer2.println("Methods: " + methodCont + "     metodos complexos: " + mc);
+
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+                ant = jp;
+                revs++;
+            }
+
+            writer1.close();
+            writer2.close();
+            writer3.close();
+            writer4.close();
+            writer5.close();
+            writer6.close();
+            writer7.close();
+            //writer8.close();
+
+
+        } catch (Exception e) {
+            System.out.println("Exception writefile: " + e.getMessage());
+            e.printStackTrace();
         }
 
 

@@ -286,6 +286,20 @@ public class JavaProject {
         }
         return packagesThatCall;
     }
+    
+    public void setChangingMethodsAndClasses(){
+        for(JavaAbstract javaAbstract : getClasses()){
+            JavaClass javaClass = (JavaClass) javaAbstract;
+            for(JavaMethod javaMethod : javaClass.getMethods()){
+                List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();
+                for(JavaMethodInvocation javaMethodInvocation : listMethodInvocation){
+                    if(javaMethodInvocation.getJavaMethod() != null){
+                        javaMethodInvocation.getJavaMethod().addChangingMethod(javaMethod);
+                    }
+                }
+            }
+        }
+    }
 
     /*public List<JavaPackage> getPackagesThatUsing(JavaPackage javaPackage) {
      List<JavaPackage> packagesThatCall = new ArrayList();

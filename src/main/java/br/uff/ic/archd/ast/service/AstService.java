@@ -354,10 +354,11 @@ public class AstService {
             try {
                 Javancss javancss = new Javancss(reader);
                 functionMetrics = javancss.getFunctionMetrics();
-//                for(Object object : functionMetrics){
-//                    FunctionMetric functionMetric = (FunctionMetric) object;
-//                    System.out.println("Name: "+functionMetric.toString());
-//                }
+                System.out.println("Funcion metrics: "+functionMetrics.size());
+                for(Object object : functionMetrics){
+                    FunctionMetric functionMetric = (FunctionMetric) object;
+                    System.out.println("Name: "+functionMetric.toString());
+                }
 
             } catch (Exception e) {
                 System.out.println("Error javancss: " + e.getMessage());
@@ -997,5 +998,12 @@ public class AstService {
         }
         newContent = new String(tmp);
         return newContent;
+    }
+    
+    
+    public static void main(String args[]){
+        AstService astService = new AstService();
+        List<JavaMethodAstBox> list = astService.getMethods("/home/wallace/mestrado/Utils.java");
+        System.out.println("Tamanho: "+list.size());
     }
 }

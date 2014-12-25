@@ -5,6 +5,7 @@
 package br.uff.ic.archd.javacode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.eclipse.jdt.core.dom.Block;
 
@@ -19,6 +20,8 @@ public class JavaMethod {
     private List<Parameter> parameters;
     private List<JavaMethodInvocation> methodInvocations;
     private List<JavaMethod> internalMethodInvocations;
+    private List<JavaMethod> changingMethods;
+    private HashMap<String, JavaClass> changingClasses;
     private int cyclomaticComplexity;
     private int sizeInChars;
     private boolean isFinal;
@@ -29,6 +32,7 @@ public class JavaMethod {
     private boolean isPublic;
     private boolean isProtected;
     private Block block;
+    private JavaAbstract javaAbstract;
     private boolean changeInternalState;
     private boolean changeInternalStateByMethodInvocations;
     private int internalID;
@@ -53,6 +57,14 @@ public class JavaMethod {
         this.block = block;
         this.changeInternalState = false;
         this.changeInternalStateByMethodInvocations = false;
+        changingMethods = new ArrayList();
+        changingClasses = new HashMap();
+    }
+    
+    
+    public void addChangingMethod(JavaMethod javaMethod){
+        getChangingMethods().add(javaMethod);
+        changingClasses.put(javaMethod.getJavaAbstract().getFullQualifiedName(), (JavaClass) javaMethod.getJavaAbstract());
     }
 
     /**
@@ -276,6 +288,46 @@ public class JavaMethod {
      */
     public void setId(long id) {
         this.id = id;
+    }
+
+    /**
+     * @return the changingMethods
+     */
+    public int getChangingMethodsMetric() {
+        return getChangingMethods().size();
+    }
+
+
+    /**
+     * @return the changingClasses
+     */
+    public int getChangingClassesMetric() {
+        return changingClasses.size();
+    }
+
+    /**
+     * @param changingClasses the changingClasses to set
+     */
+
+    /**
+     * @return the javaAbstract
+     */
+    public JavaAbstract getJavaAbstract() {
+        return javaAbstract;
+    }
+
+    /**
+     * @param javaAbstract the javaAbstract to set
+     */
+    public void setJavaAbstract(JavaAbstract javaAbstract) {
+        this.javaAbstract = javaAbstract;
+    }
+
+    /**
+     * @return the changingMethods
+     */
+    public List<JavaMethod> getChangingMethods() {
+        return changingMethods;
     }
     
 }

@@ -232,7 +232,7 @@ public class HsqldbJavaMethodDao implements JavaMethodDao {
                 id = rs.getLong(1);
             }
             javaMethod.setId(id);
-            System.out.println("Method ID: " + javaMethod.getId());
+            //System.out.println("Method ID: " + javaMethod.getId());
         } catch (SQLException e) {
             System.out.println("ERRO method: " + e.getMessage());
         }
@@ -360,7 +360,7 @@ public class HsqldbJavaMethodDao implements JavaMethodDao {
             ResultSet rs = stm.executeQuery("select * from JAVA_METHODS where class_id=" + id + ";");
             int i = 0;
             while (rs.next()) {
-                System.out.println("Java method: " + rs.getString("name") + "   return type: " + rs.getString("return_type"));
+                //System.out.println("Java method: " + rs.getString("name") + "   return type: " + rs.getString("return_type"));
                 JavaData javaData = javaProject.getClassByName(rs.getString("return_type"));
                 if (javaData == null) {
                     if (JavaPrimitiveType.getType(rs.getString("return_type")) != 0) {
@@ -384,7 +384,7 @@ public class HsqldbJavaMethodDao implements JavaMethodDao {
                 javaMethod.setChangeInternalState(Boolean.valueOf(rs.getString("change_internal_state")));
                 javaMethod.setChangeInternalStateByMethodInvocations(Boolean.valueOf(rs.getString("change_internal_state_by_method_invocation")));
                 if (!parameterString.equals("")) {
-                    System.out.println("parameter string: "+parameterString);
+                    //System.out.println("parameter string: "+parameterString);
                     String parameters[] = parameterString.split(";");
                     for (int j = 0; j < parameters.length; j++) {
                         String parameter[] = parameters[j].split(":");

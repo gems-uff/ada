@@ -66,21 +66,21 @@ public class JavaConstructorService {
 
                 //criando nova pasta
                 /*File file = new File(BRANCHES_HISTORY_PATH + projectRevisions.getName());
-                FileUtils.deleteDirectory(file);
-                file = new File(BRANCHES_HISTORY_PATH + projectRevisions.getName());
-                System.out.println("Foi deletado aguardando");
-                System.out.println("Vai criar");
-                file.mkdirs();
-                FileUtils.copyDirectory(new File(path), new File(BRANCHES_HISTORY_PATH + projectRevisions.getName()));*/
+                 FileUtils.deleteDirectory(file);
+                 file = new File(BRANCHES_HISTORY_PATH + projectRevisions.getName());
+                 System.out.println("Foi deletado aguardando");
+                 System.out.println("Vai criar");
+                 file.mkdirs();
+                 FileUtils.copyDirectory(new File(path), new File(BRANCHES_HISTORY_PATH + projectRevisions.getName()));*/
                 //******** fim criar nova pasta
 
 
 
-                
+
                 gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
                 git = new Git(gitConnector.getRepository());
-                
-                
+
+
 
                 Revision revision = it.next();
 
@@ -92,13 +92,46 @@ public class JavaConstructorService {
 
                 JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisions.getName(), revision.getId());
                 javaProjects.add(javaProject);
-                System.out.println("Salvo revisão: " + revision.getId() + "      Número: " + javaProjects.size());
+                //System.out.println("Salvo revisão: " + revision.getId() + "      Número: " + javaProjects.size());
             }
         } catch (Exception e) {
-            System.out.println("Exception getAllProjectsRevision: " + e.getMessage()+"             class: "+e.getClass());
+            System.out.println("Exception getAllProjectsRevision: " + e.getMessage() + "             class: " + e.getClass());
         }
 
         return javaProjects;
+    }
+
+    public JavaProject getProjectByRevisionAndSetRevision(String projectName, List<String> codeDirs, String path, Revision revision, ProjectRevisions projectRevisions) {
+
+        try {
+            List<String> newCodeDirs = new LinkedList();
+            for (String codeDir : codeDirs) {
+                String newCodeDir = codeDir.substring(path.length(), codeDir.length());
+                if (newCodeDir.startsWith("/")) {
+                    newCodeDir = newCodeDir.substring(1);
+                }
+                newCodeDir = BRANCHES_HISTORY_PATH + projectName + "/" + newCodeDir;
+                newCodeDirs.add(newCodeDir);
+            }
+            
+            GitConnector gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
+            Git git = new Git(gitConnector.getRepository());
+            CheckoutCommand checkoutCommand = null;
+
+            gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
+            git = new Git(gitConnector.getRepository());
+
+
+            checkoutCommand = git.checkout();
+            checkoutCommand.setName(revision.getId());
+            checkoutCommand.call();
+            
+            JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisions.getName(), revision.getId());
+            return javaProject;
+        } catch (Exception e) {
+            System.out.println("Exception getProjectByRevisionAndSetRevision: " + e.getMessage() + "             class: " + e.getClass());
+        }
+        return null;
     }
 
     public JavaProject getProjectByRevision(String projectName, List<String> codeDirs, String path, String revisionId) {
@@ -121,11 +154,12 @@ public class JavaConstructorService {
             for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
                 internalImportsDao.getInternalImports(javaAbstract, javaProject);
                 externalImportsDao.getExternalImports(javaAbstract, javaProject);
-                System.out.println("Nome: " + javaAbstract.getFullQualifiedName());
+                //System.out.println("Nome: " + javaAbstract.getFullQualifiedName());
                 if (javaAbstract.getClass() == JavaClass.class) {
                     List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByClassId(javaProject, javaAbstract.getId());
                     for (JavaMethod javaMethod : javaMethods) {
                         ((JavaClass) javaAbstract).addMethod(javaMethod);
+                        javaMethod.setJavaAbstract(javaAbstract);
                     }
                     implementedInterfacesDao.setImplementedInterfacesDao((JavaClass) javaAbstract, javaProject);
                     javaAttributeDao.getJavaAttributesFromClass((JavaClass) javaAbstract, javaProject);
@@ -134,6 +168,7 @@ public class JavaConstructorService {
                     List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByInterfaceId(javaProject, javaAbstract.getId());
                     for (JavaMethod javaMethod : javaMethods) {
                         ((JavaInterface) javaAbstract).addJavaMethod(javaMethod);
+                        javaMethod.setJavaAbstract(javaAbstract);
                     }
                 }
             }
@@ -144,7 +179,7 @@ public class JavaConstructorService {
                     }
                 }
             }
-
+            System.out.println("Pegou do banco");
             setProjectProperties(javaProject);
 
         } else {
@@ -186,9 +221,13 @@ public class JavaConstructorService {
                 }
             }
             terminatedDao.save(projectName, revisionId);
+            System.out.println("Salvou a revisão: "+revisionId);
 
         }
         javaProject.setRevisionId(revisionId);
+        System.out.println("Vai setar changing methods");
+        javaProject.setChangingMethodsAndClasses();
+        System.out.println("Setou changing methods");
         return javaProject;
     }
 
@@ -554,11 +593,12 @@ public class JavaConstructorService {
 
 
             }
+            javaMethod.setJavaAbstract(javaAbstract);
             if (javaAbstract.getClass() == JavaClass.class) {
                 ((JavaClass) javaAbstract).addMethod(javaMethod);
                 if (fromXML) {
                     javaMethod.setInternalID(javaMethodAstBox.getMethodInternalId());
-                }
+                }                
             } else if (javaAbstract.getClass() == JavaInterface.class) {
                 ((JavaInterface) javaAbstract).addJavaMethod(javaMethod);
                 if (fromXML) {
