@@ -21,30 +21,29 @@ import java.util.List;
  */
 public class HsqldbJavaPackageDao implements JavaPackageDao{
 
-    private final static String DB_DIR = System.getProperty("user.home") + "/.archDB/METRIC_VALUE_DB_DIR/";
     private Connection connection;
     
     public HsqldbJavaPackageDao() {
         try {
-            File file = new File(DB_DIR);
+            File file = new File(Constants.DB_DIR);
             if(!file.exists()){
                 file.mkdirs();
                 
             }
             Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:" + DB_DIR, "archd", "123");
+            connection = DriverManager.getConnection("jdbc:hsqldb:file:" + Constants.DB_DIR, "archd", "123");
             DatabaseMetaData dbData = connection.getMetaData();
             ResultSet tables = dbData.getTables(null, null, "JAVA_PACKAGES", null);
             //System.out.println("NEXT "+tables.next());
             if (!tables.next()) {
 
 
-                System.out.println("NAO POSSUI TABELA");
+                System.out.println("NAO POSSUI TABELA JAVA_PACKAGES");
                 Statement stm = connection.createStatement();
 
                 stm.executeUpdate("create table JAVA_PACKAGES (package_signature varchar(1000));");
             }else{
-                System.out.println("TABELA JAH EXISTE");
+                System.out.println("TABELA JAH EXISTE JAVA_PACKAGES");
             }
 
             //stm.execute("SHUTDOWN");

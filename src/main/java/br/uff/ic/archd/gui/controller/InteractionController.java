@@ -15,6 +15,7 @@ import br.uff.ic.archd.javacode.JavaData;
 import br.uff.ic.archd.javacode.JavaInterface;
 import br.uff.ic.archd.javacode.JavaMethod;
 import br.uff.ic.archd.javacode.JavaMethodInvocation;
+import br.uff.ic.archd.javacode.JavaPackage;
 import br.uff.ic.archd.javacode.JavaPrimitiveType;
 import br.uff.ic.archd.javacode.JavaProject;
 import br.uff.ic.archd.model.Project;
@@ -826,6 +827,12 @@ public class InteractionController implements ActionListener {
             PrintWriter writer5 = new PrintWriter(path + "classes_complexity.txt", "UTF-8");
             PrintWriter writer6 = new PrintWriter(path + "shotgun_surgery.txt", "UTF-8");
             PrintWriter writer7 = new PrintWriter(path + "changing_methods.txt", "UTF-8");
+            PrintWriter writer8 = new PrintWriter(path + "add_methods.txt", "UTF-8");
+            PrintWriter writer9 = new PrintWriter(path + "feature_envy.txt", "UTF-8");
+            PrintWriter writer10 = new PrintWriter(path + "god_class.txt", "UTF-8");
+            PrintWriter writer11 = new PrintWriter(path + "god_method.txt", "UTF-8");
+            PrintWriter writer12 = new PrintWriter(path + "god_package.txt", "UTF-8");
+            PrintWriter writer13 = new PrintWriter(path + "misplaced_class.txt", "UTF-8");
             //PrintWriter writer8 = new PrintWriter(path + "changing_classes.txt", "UTF-8");
 
             Revision rev = newProjectRevisions.getRoot();
@@ -847,6 +854,9 @@ public class InteractionController implements ActionListener {
                 boolean flag4 = false;
                 boolean flag6 = false;
                 boolean changingMethodsRevisions = false;
+                boolean addMethodsRevisions = false;
+                boolean featureEnvyBoolean = false;
+                boolean godMethodBoolean = false;
 
                 int totalCyclomaticComplexity = 0;
                 writer5.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
@@ -855,6 +865,8 @@ public class InteractionController implements ActionListener {
                     boolean flag5 = false;
                     boolean flag7 = false;
                     boolean changingMethodsClasses = false;
+                    boolean addMethodsClasses = false;
+
                     JavaClass jc = (JavaClass) javaAbstract;
                     JavaClass antClass = null;
                     if (ant != null) {
@@ -866,9 +878,80 @@ public class InteractionController implements ActionListener {
                                 System.out.println("ERA interface  em " + ant.getRevisionId() + "  num: " + (k - 1) + ",  virou classe em " + jp.getRevisionId() + " num: " + k + "  : " + antAbstract.getFullQualifiedName());
                             }
                         }
+
+                        if (antClass != null) {
+                            List<JavaMethod> addMethods = new LinkedList();
+                            List<JavaMethod> removeMethods = new LinkedList();
+                            List<JavaMethod> changeMethodsSignatureBefore = new LinkedList();
+                            List<JavaMethod> changeMethodsSignatureAfter = new LinkedList();
+
+                            for (JavaMethod jm : jc.getMethods()) {
+                                boolean adicionou = true;
+                                for (JavaMethod antMethod : antClass.getMethods()) {
+
+                                    if (antMethod.getMethodSignature().equals(jm.getMethodSignature())) {
+                                        adicionou = false;
+                                        break;
+                                    }
+
+                                }
+                                if (adicionou) {
+
+                                    addMethods.add(jm);
+
+                                    //writer8.println("+++++ " + jm.getMethodSignature());
+                                }
+                            }
+                            for (JavaMethod antMethod : antClass.getMethods()) {
+                                boolean removeu = true;
+                                for (JavaMethod jm : jc.getMethods()) {
+
+                                    if (antMethod.getMethodSignature().equals(jm.getMethodSignature())) {
+                                        removeu = false;
+                                        break;
+                                    }
+
+                                }
+                                if (removeu) {
+
+                                    boolean change = false;
+                                    for (JavaMethod jm : addMethods) {
+                                        if (antMethod.getName().equals(jm.getName())) {
+                                            change = true;
+                                            changeMethodsSignatureBefore.add(antMethod);
+                                            changeMethodsSignatureAfter.add(jm);
+                                            addMethods.remove(jm);
+                                            break;
+                                        }
+                                    }
+                                    if (!change) {
+                                        removeMethods.add(antMethod);
+                                    }
+
+
+                                    //writer8.println("----- " + antMethod.getMethodSignature());
+                                }
+                            }
+
+                            if (!addMethods.isEmpty() || !removeMethods.isEmpty() || !changeMethodsSignatureBefore.isEmpty()) {
+                                writer8.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "\n");
+                                writer8.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                                for (int i = 0; i < changeMethodsSignatureBefore.size(); i++) {
+                                    writer8.println("change :  " + changeMethodsSignatureBefore.get(i).getMethodSignature() + "  --->  " + changeMethodsSignatureAfter.get(i).getMethodSignature());
+                                }
+                                for (JavaMethod jm : addMethods) {
+                                    writer8.println("+++++ " + jm.getMethodSignature());
+                                }
+                                for (JavaMethod jm : removeMethods) {
+                                    writer8.println("----- " + jm.getMethodSignature());
+                                }
+
+                            }
+                        }
+
                     }
                     for (JavaMethod jm : jc.getMethods()) {
-                        
+
                         boolean changingMethodsMethods = false;
 
                         if (jm.getCyclomaticComplexity() > 20) {
@@ -914,8 +997,8 @@ public class InteractionController implements ActionListener {
                                                 adicionou = false;
                                                 break;
                                             }
-                                        }else{
-                                            System.out.println("METHOD INVOCATION NULL: "+methodInvocation.getJavaAbstract().getFullQualifiedName());
+                                        } else {
+                                            System.out.println("METHOD INVOCATION NULL: " + methodInvocation.getJavaAbstract().getFullQualifiedName());
                                         }
                                     }
                                     if (adicionou) {
@@ -927,12 +1010,12 @@ public class InteractionController implements ActionListener {
                                             changingMethodsClasses = true;
                                             writer7.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
                                         }
-                                        if(!changingMethodsMethods){
+                                        if (!changingMethodsMethods) {
                                             changingMethodsMethods = true;
                                             writer7.println("\n######## Method: " + jm.getMethodSignature());
                                         }
 
-                                        writer7.println("+++++ " +methodInvocation.getJavaAbstract().getFullQualifiedName()+":" + methodInvocation.getMethodName());
+                                        writer7.println("+++++ " + methodInvocation.getJavaAbstract().getFullQualifiedName() + ":" + methodInvocation.getMethodName());
                                     }
                                 }
 
@@ -944,8 +1027,8 @@ public class InteractionController implements ActionListener {
                                                 removeu = false;
                                                 break;
                                             }
-                                        }else{
-                                            System.out.println("METHOD INVOCATION NULL: "+methodInvocation.getJavaAbstract().getFullQualifiedName());
+                                        } else {
+                                            System.out.println("METHOD INVOCATION NULL: " + methodInvocation.getJavaAbstract().getFullQualifiedName());
                                         }
                                     }
                                     if (removeu) {
@@ -957,12 +1040,12 @@ public class InteractionController implements ActionListener {
                                             changingMethodsClasses = true;
                                             writer7.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
                                         }
-                                        if(!changingMethodsMethods){
+                                        if (!changingMethodsMethods) {
                                             changingMethodsMethods = true;
                                             writer7.println("\n######## Method: " + jm.getMethodSignature());
                                         }
 
-                                        writer7.println("----- "+methodInvocationAnt.getJavaAbstract().getFullQualifiedName()+":" +methodInvocationAnt.getMethodName());
+                                        writer7.println("----- " + methodInvocationAnt.getJavaAbstract().getFullQualifiedName() + ":" + methodInvocationAnt.getMethodName());
                                     }
                                 }
 
@@ -1006,6 +1089,10 @@ public class InteractionController implements ActionListener {
                             writer6.println("Método: " + jm.getMethodSignature() + "       CM: " + jm.getChangingMethodsMetric() + "       CC: " + jm.getChangingClassesMetric());
                         }
 
+
+
+
+
                     }
                     int ctc = jp.getClassesThatCall(javaAbstract).size();
                     int ctu = jp.getClassesThatUsing(javaAbstract).size();
@@ -1018,7 +1105,311 @@ public class InteractionController implements ActionListener {
                     }
                     writer5.print("******* CLASS: " + jc.getFullQualifiedName() + "         Total Complexity: " + jc.getTotalCyclomaticComplexity());
                     totalCyclomaticComplexity = totalCyclomaticComplexity + jc.getTotalCyclomaticComplexity();
+
+
+                    //feature envy
+                    if (!jc.getMethods().isEmpty()) {
+                        List<JavaMethod> topValuesMethods = new LinkedList();
+                        List<JavaMethod> auxList = new LinkedList();
+                        List<JavaMethod> featureEnvyList = new LinkedList();
+                        auxList.add(jc.getMethods().get(0));
+                        for (int i = 1; i < jc.getMethods().size(); i++) {
+                            JavaMethod javaMethod = jc.getMethods().get(i);
+                            boolean inseriu = false;
+                            for (int j = 0; j < auxList.size(); j++) {
+                                JavaMethod jm2 = auxList.get(j);
+                                if (javaMethod.getAccessToForeignDataNumber() > jm2.getAccessToForeignDataNumber()) {
+                                    auxList.add(j, javaMethod);
+                                    inseriu = true;
+                                    break;
+                                }
+                            }
+                            if (!inseriu) {
+                                auxList.add(javaMethod);
+                            }
+                        }
+                        int topNumber = jc.getMethods().size() / 10;
+                        if (topNumber * 10 != jc.getMethods().size()) {
+                            topNumber++;
+                        }
+                        for (int i = 0; i < topNumber; i++) {
+                            topValuesMethods.add(auxList.get(i));
+                        }
+
+                        for (JavaMethod javaMethod : topValuesMethods) {
+                            if ((javaMethod.getAccessToForeignDataNumber() >= 4)
+                                    && (javaMethod.getAccessToLocalDataNumber() <= 3)
+                                    && (javaMethod.getForeignDataProviderNumber() <= 3)) {
+                                featureEnvyList.add(javaMethod);
+                            }
+                        }
+                        if (!featureEnvyList.isEmpty()) {
+                            if (!featureEnvyBoolean) {
+                                writer9.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                                featureEnvyBoolean = true;
+                            }
+                            writer9.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                            for (JavaMethod javaMethod : featureEnvyList) {
+                                writer9.println("########### " + javaMethod.getMethodSignature() + "        AFDN: " + javaMethod.getAccessToForeignDataNumber() + "    ALDN: " + javaMethod.getAccessToLocalDataNumber() + "     FDPN: " + javaMethod.getForeignDataProviderNumber());
+                            }
+                        }
+                        //apagar abaixo, esta apenas pra teste do feature envy
+//                        if (!jc.getMethods().isEmpty()) {
+//                            
+//                            writer9.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+//                            for (JavaMethod javaMethod : jc.getMethods()) {
+//                                writer9.println("########### " + javaMethod.getMethodSignature() + "        AFDN: " + javaMethod.getAccessToForeignDataNumber() + "    ALDN: " + javaMethod.getAccessToLocalDataNumber() + "     FDPN: " + javaMethod.getForeignDataProviderNumber()+"    acessor? "+javaMethod.isAnAcessorMethod()+(javaMethod.isAnAcessorMethod()? "       "+javaMethod.getAccessedAttribute() :""));
+//                            }
+//                        }
+
+                    }
+
+                    //god method
+                    if (!jc.getMethods().isEmpty()) {
+                        List<JavaMethod> topValuesMethods = new LinkedList();
+                        List<JavaMethod> auxList = new LinkedList();
+                        List<JavaMethod> godMethodList = new LinkedList();
+                        auxList.add(jc.getMethods().get(0));
+                        for (int i = 1; i < jc.getMethods().size(); i++) {
+                            JavaMethod javaMethod = jc.getMethods().get(i);
+                            boolean inseriu = false;
+                            for (int j = 0; j < auxList.size(); j++) {
+                                JavaMethod jm2 = auxList.get(j);
+                                if (javaMethod.getNumberOfLines() > jm2.getNumberOfLines()) {
+                                    auxList.add(j, javaMethod);
+                                    inseriu = true;
+                                    break;
+                                }
+                            }
+                            if (!inseriu) {
+                                auxList.add(javaMethod);
+                            }
+                        }
+                        int topNumber = jc.getMethods().size() / 5;
+                        if (topNumber * 5 != jc.getMethods().size()) {
+                            topNumber++;
+                        }
+                        for (int i = 0; i < topNumber; i++) {
+                            topValuesMethods.add(auxList.get(i));
+                        }
+
+                        for (JavaMethod javaMethod : topValuesMethods) {
+                            if ((javaMethod.getNumberOfLines() >= 70)
+                                    && (javaMethod.getParameters().size() >= 4 || javaMethod.getNumberOfLocalVariables() >= 4)
+                                    && (javaMethod.getCyclomaticComplexity() >= 4)) {
+                                godMethodList.add(javaMethod);
+                            }
+                        }
+                        if (!godMethodList.isEmpty()) {
+                            if (!godMethodBoolean) {
+                                writer11.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                                godMethodBoolean = true;
+                            }
+                            writer11.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
+                            for (JavaMethod javaMethod : godMethodList) {
+                                writer11.println("########### " + javaMethod.getMethodSignature() + "        LOC: " + javaMethod.getNumberOfLines() +"      NOLV: " +javaMethod.getNumberOfLocalVariables()+"    NOP: " + javaMethod.getParameters().size() + "     CYCLOCOMPLEXITY: " + javaMethod.getCyclomaticComplexity());
+                            }
+                        }
+
+
+                    }
+
+
                 }
+
+                //GOD CLass
+                if (!jp.getClasses().isEmpty()) {
+                    List<JavaClass> topValuesClasses = new LinkedList();
+                    List<JavaClass> auxList = new LinkedList();
+                    List<JavaClass> godClassList = new LinkedList();
+                    auxList.add((JavaClass) jp.getClasses().get(0));
+                    for (int i = 1; i < jp.getClasses().size(); i++) {
+                        JavaClass javaClass = (JavaClass) jp.getClasses().get(i);
+                        boolean inseriu = false;
+                        for (int j = 0; j < auxList.size(); j++) {
+                            JavaClass jc2 = auxList.get(j);
+                            if (javaClass.getAccessToForeignDataNumber() > jc2.getAccessToForeignDataNumber()) {
+                                auxList.add(j, javaClass);
+                                inseriu = true;
+                                break;
+                            }
+                        }
+                        if (!inseriu) {
+                            auxList.add(javaClass);
+                        }
+                    }
+                    int topNumber = jp.getClasses().size() / 5;
+                    if (topNumber * 5 != jp.getClasses().size()) {
+                        topNumber++;
+                    }
+                    for (int i = 0; i < topNumber; i++) {
+                        topValuesClasses.add(auxList.get(i));
+                    }
+
+                    for (JavaClass javaClass : topValuesClasses) {
+                        double tcc = javaClass.getNumberOfDirectConnections();
+                        int n = javaClass.getMethods().size();
+                        tcc = tcc / ((n * (n - 1)) / 2);
+                        if ((javaClass.getAccessToForeignDataNumber() >= 4)
+                                && (javaClass.getTotalCyclomaticComplexity() >= 20)
+                                && (tcc <= 0.33)) {
+                            godClassList.add(javaClass);
+                        }
+                    }
+                    if (!godClassList.isEmpty()) {
+                        writer10.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                        for (JavaClass javaClass : godClassList) {
+                            double tcc = javaClass.getNumberOfDirectConnections();
+                            int n = javaClass.getMethods().size();
+                            tcc = tcc / ((n * (n - 1)) / 2);
+                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
+                        }
+                    }
+
+                    //apagar abaixo, teste de god class
+//                    if (!jp.getClasses().isEmpty()) {
+//                        writer10.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+//                        for (JavaAbstract javaAbstract : jp.getClasses()) {
+//                            JavaClass javaClass = (JavaClass) javaAbstract;
+//                            double tcc = javaClass.getNumberOfDirectConnections();
+//                            int n = javaClass.getMethods().size();
+//                            tcc = tcc / ((n * (n - 1)) / 2);
+//                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
+//                        }
+//                    }
+
+
+
+                }
+
+                //GOD Package
+                if (!jp.getPackages().isEmpty()) {
+                    List<JavaPackage> topValuesPackages = new LinkedList();
+                    List<JavaPackage> auxList = new LinkedList();
+                    List<JavaPackage> godPackageList = new LinkedList();
+                    auxList.add(jp.getPackages().get(0));
+                    for (int i = 1; i < jp.getPackages().size(); i++) {
+                        JavaPackage javaPackage = jp.getPackages().get(i);
+                        boolean inseriu = false;
+                        for (int j = 0; j < auxList.size(); j++) {
+                            JavaPackage jp2 = auxList.get(j);
+                            if (javaPackage.getOnlyClasses().size() > jp2.getOnlyClasses().size()) {
+                                auxList.add(j, javaPackage);
+                                inseriu = true;
+                                break;
+                            }
+                        }
+                        if (!inseriu) {
+                            auxList.add(javaPackage);
+                        }
+                    }
+                    int topNumber = jp.getPackages().size() / 4;
+                    if (topNumber * 4 != jp.getPackages().size()) {
+                        topNumber++;
+                    }
+                    for (int i = 0; i < topNumber; i++) {
+                        topValuesPackages.add(auxList.get(i));
+                    }
+
+                    for (JavaPackage javaPackage : topValuesPackages) {
+                        double packageCohesion = javaPackage.getPackageCohesion();
+
+                        if ((javaPackage.getOnlyClasses().size() >= 20)
+                                && (javaPackage.getClientClasses().size() >= 20)
+                                && (javaPackage.getClientPackages().size() >= 3)) {
+                            godPackageList.add(javaPackage);
+                        }
+                    }
+                    if (!godPackageList.isEmpty()) {
+                        writer12.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                        for (JavaPackage javaPackage : godPackageList) {
+
+                            writer12.println("******* PACKAGE: " + javaPackage.getName() + "        PS: " + javaPackage.getOnlyClasses().size() + "    NOCC: " + javaPackage.getClientClasses().size() + "     NOCP: " + javaPackage.getClientPackages().size() + "      PC: " + javaPackage.getPackageCohesion());
+                        }
+                    }
+
+                    //apagar abaixo, teste de god class
+//                    if (!jp.getClasses().isEmpty()) {
+//                        writer10.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+//                        for (JavaAbstract javaAbstract : jp.getClasses()) {
+//                            JavaClass javaClass = (JavaClass) javaAbstract;
+//                            double tcc = javaClass.getNumberOfDirectConnections();
+//                            int n = javaClass.getMethods().size();
+//                            tcc = tcc / ((n * (n - 1)) / 2);
+//                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
+//                        }
+//                    }
+
+
+
+                }
+
+                //MisplacedClass
+                if (!jp.getClasses().isEmpty()) {
+                    List<JavaClass> topValuesClasses = new LinkedList();
+                    List<JavaClass> auxList = new LinkedList();
+                    List<JavaClass> misplacedClassList = new LinkedList();
+                    auxList.add((JavaClass) jp.getClasses().get(0));
+                    for (int i = 1; i < jp.getClasses().size(); i++) {
+                        JavaClass javaClass = (JavaClass) jp.getClasses().get(i);
+                        boolean inseriu = false;
+                        for (int j = 0; j < auxList.size(); j++) {
+                            JavaClass jc2 = auxList.get(j);
+                            if (javaClass.getExternalDependencyClasses().size() > jc2.getExternalDependencyClasses().size()) {
+                                auxList.add(j, javaClass);
+                                inseriu = true;
+                                break;
+                            }
+                        }
+                        if (!inseriu) {
+                            auxList.add(javaClass);
+                        }
+                    }
+                    int topNumber = jp.getClasses().size() / 4;
+                    if (topNumber * 4 != jp.getClasses().size()) {
+                        topNumber++;
+                    }
+                    for (int i = 0; i < topNumber; i++) {
+                        topValuesClasses.add(auxList.get(i));
+                    }
+
+                    for (JavaClass javaClass : topValuesClasses) {
+                        double classLocality = javaClass.getInternalDependencyClasses().size();
+                        classLocality = classLocality / (javaClass.getInternalDependencyClasses().size() + javaClass.getExternalDependencyClasses().size());
+                        if ((javaClass.getExternalDependencyClasses().size() >= 6)
+                                && (javaClass.getExternalDependencyPackages().size() <= 3)
+                                && (classLocality <= 0.33)) {
+                            misplacedClassList.add(javaClass);
+                        }
+                    }
+                    if (!misplacedClassList.isEmpty()) {
+                        writer13.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+                        for (JavaClass javaClass : misplacedClassList) {
+                            double classLocality = javaClass.getInternalDependencyClasses().size();
+                            classLocality = classLocality / (javaClass.getInternalDependencyClasses().size() + javaClass.getExternalDependencyClasses().size());
+                            writer13.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        NOED: " + javaClass.getExternalDependencyClasses().size() + "    DD: " + javaClass.getExternalDependencyPackages().size() + "     CL: " + classLocality);
+                        }
+                    }
+
+                    //apagar abaixo, teste de god class
+//                    if (!jp.getClasses().isEmpty()) {
+//                        writer10.println("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ REVISION: " + jp.getRevisionId() + "      num: " + k + "");
+//                        for (JavaAbstract javaAbstract : jp.getClasses()) {
+//                            JavaClass javaClass = (JavaClass) javaAbstract;
+//                            double tcc = javaClass.getNumberOfDirectConnections();
+//                            int n = javaClass.getMethods().size();
+//                            tcc = tcc / ((n * (n - 1)) / 2);
+//                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
+//                        }
+//                    }
+
+
+
+                }
+
+
+
+
 
                 writer5.println("TOTAL COMPLEXITY: " + totalCyclomaticComplexity);
 
@@ -1041,6 +1432,13 @@ public class InteractionController implements ActionListener {
             writer5.close();
             writer6.close();
             writer7.close();
+            writer8.close();
+            writer9.close();
+            writer10.close();
+
+            writer11.close();
+            writer12.close();
+            writer13.close();
             //writer8.close();
 
 

@@ -5,6 +5,10 @@
 package br.uff.ic.archd.javacode;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -16,8 +20,18 @@ public class JavaClass extends JavaAbstract {
     private List<JavaInterface> implementedInterfaces;
     private List<JavaAttribute> attributes;
     private List<JavaMethod> methods;
+    private HashMap<String, JavaClass> clientClasses;
+    private HashMap<String, JavaPackage> clientPackages; 
+    private HashMap<String, JavaClass> intraPackageDependentClass;
+    
+    private HashMap<String, JavaClass> internalDependencyClasses;
+    private HashMap<String, JavaClass> externalDependencyClasses;
+    private HashMap<String, JavaPackage> externalDependencyPackages; 
+    
     private JavaClass superClass;
     private int totalCyclomaticComplexity;
+    private int accessToForeignDataNumber;
+    private int numberOfDirectConnections;
 
     public JavaClass(String path) {
         super(path);
@@ -25,7 +39,16 @@ public class JavaClass extends JavaAbstract {
         attributes = new ArrayList();
         superClass = null;
         methods = new ArrayList();
+        clientClasses = new HashMap();
+        clientPackages = new HashMap();
+        intraPackageDependentClass = new HashMap();
+        
+        internalDependencyClasses = new HashMap();
+        externalDependencyClasses = new HashMap();
+        externalDependencyPackages = new HashMap();
+        
         totalCyclomaticComplexity = 0;
+        accessToForeignDataNumber = 0;
     }
     
     public JavaClass(){
@@ -34,7 +57,16 @@ public class JavaClass extends JavaAbstract {
         attributes = new ArrayList();
         superClass = null;
         methods = new ArrayList();
+        clientClasses = new HashMap();
+        clientPackages = new HashMap();
+        intraPackageDependentClass = new HashMap();
+        
+        internalDependencyClasses = new HashMap();
+        externalDependencyClasses = new HashMap();
+        externalDependencyPackages = new HashMap();
+        
         totalCyclomaticComplexity = 0;
+        accessToForeignDataNumber = 0;
     }
 
     public int getSize() {
@@ -45,7 +77,7 @@ public class JavaClass extends JavaAbstract {
         //}
         //}
 
-        return attributes.size();
+        return getAttributes().size();
     }
 
     /**
@@ -91,12 +123,36 @@ public class JavaClass extends JavaAbstract {
     }
 
     public void addAttribute(JavaAttribute javaAttribute) {
-        attributes.add(javaAttribute);
+        getAttributes().add(javaAttribute);
+    }
+    
+    public void addClientClass(JavaClass javaClass){
+        clientClasses.put(javaClass.getFullQualifiedName(), javaClass);
+    }
+    
+    public void addClientPackage(JavaPackage javaPackage) {
+        clientPackages.put(javaPackage.getName(), javaPackage);
+    }
+    
+    public void addIntraPackageDependentClass(JavaClass javaClass){
+        intraPackageDependentClass.put(javaClass.getFullQualifiedName(), javaClass);
+    }
+    
+    public void addInternalDependencyClass(JavaClass javaClass){
+        internalDependencyClasses.put(javaClass.getFullQualifiedName(), javaClass);
+    }
+    
+    public void addExternalDependencyClass(JavaClass javaClass){
+        externalDependencyClasses.put(javaClass.getFullQualifiedName(), javaClass);
+    }
+    
+    public void addExternalDependencyPackage(JavaPackage javaPackage) {
+        externalDependencyPackages.put(javaPackage.getName(), javaPackage);
     }
 
     public JavaData getJavaTypeByVariableName(String name) {
         JavaData javaData = null;
-        for (JavaAttribute javaAttribute : attributes) {
+        for (JavaAttribute javaAttribute : getAttributes()) {
             if (javaAttribute.getName().equals(name)) {
                 javaData = javaAttribute.getType();
                 break;
@@ -248,5 +304,136 @@ public class JavaClass extends JavaAbstract {
     public int getTotalCyclomaticComplexity() {
         return totalCyclomaticComplexity;
     }
+
+    /**
+     * @return the accessToForeignDataNumber
+     */
+    public int getAccessToForeignDataNumber() {
+        return accessToForeignDataNumber;
+    }
+
+    /**
+     * @param accessToForeignDataNumber the accessToForeignDataNumber to set
+     */
+    public void setAccessToForeignDataNumber(int accessToForeignDataNumber) {
+        this.accessToForeignDataNumber = accessToForeignDataNumber;
+    }
+
+    /**
+     * @return the numberOfDirectConnections
+     */
+    public int getNumberOfDirectConnections() {
+        return numberOfDirectConnections;
+    }
+
+    /**
+     * @param numberOfDirectConnections the numberOfDirectConnections to set
+     */
+    public void setNumberOfDirectConnections(int numberOfDirectConnections) {
+        this.numberOfDirectConnections = numberOfDirectConnections;
+    }
+    
+    public boolean isInheritedClass(JavaClass auxJavaClass){
+        boolean isInheritedClass = false;
+        JavaClass aux = this.getSuperClass();
+        while(aux != null){
+            if(aux.getFullQualifiedName().equals(auxJavaClass.getFullQualifiedName())){
+                isInheritedClass = true;
+                break;
+            }
+            aux = aux.getSuperClass();
+        }
+        return isInheritedClass;
+    }
+
+
+    /**
+     * @return the clientClasses
+     */
+    public List<JavaClass> getClientClasses() {
+        List<JavaClass> javaClasses = new LinkedList();
+        Collection<JavaClass> classCollection = clientClasses.values();
+        Iterator it = classCollection.iterator();
+        while (it.hasNext()) {
+            JavaClass javaClass = (JavaClass) it.next();
+            javaClasses.add(javaClass);
+        }
+        return javaClasses;
+    }
+    
+    /**
+     * @return the clientPackages
+     */
+    public List<JavaPackage> getClientPackages() {
+        List<JavaPackage> javaPackages = new LinkedList();
+        Collection<JavaPackage> packageCollection = clientPackages.values();
+        Iterator it = packageCollection.iterator();
+        while (it.hasNext()) {
+            JavaPackage javaPackage = (JavaPackage) it.next();
+            javaPackages.add(javaPackage);
+        }
+        return javaPackages;
+    }
         
+    
+    public List<JavaClass> getintraPackageDependentClass() {
+        List<JavaClass> javaClasses = new LinkedList();
+        Collection<JavaClass> classCollection = intraPackageDependentClass.values();
+        Iterator it = classCollection.iterator();
+        while (it.hasNext()) {
+            JavaClass javaClass = (JavaClass) it.next();
+            javaClasses.add(javaClass);
+        }
+        return javaClasses;
+    }
+    
+    public boolean dependsOnClass(JavaClass javaClass){
+        boolean dependsOnClass = false;
+        if(intraPackageDependentClass.containsKey(javaClass.getFullQualifiedName())){
+            dependsOnClass = true;
+        }
+        return dependsOnClass;
+    }
+
+    /**
+     * @return the internalDependencyClasses
+     */
+    public List<JavaClass> getInternalDependencyClasses() {
+        List<JavaClass> javaClasses = new LinkedList();
+        Collection<JavaClass> classCollection = internalDependencyClasses.values();
+        Iterator it = classCollection.iterator();
+        while (it.hasNext()) {
+            JavaClass javaClass = (JavaClass) it.next();
+            javaClasses.add(javaClass);
+        }
+        return javaClasses;
+    }
+
+    /**
+     * @return the externalDependencyClasses
+     */
+    public List<JavaClass> getExternalDependencyClasses() {
+        List<JavaClass> javaClasses = new LinkedList();
+        Collection<JavaClass> classCollection = externalDependencyClasses.values();
+        Iterator it = classCollection.iterator();
+        while (it.hasNext()) {
+            JavaClass javaClass = (JavaClass) it.next();
+            javaClasses.add(javaClass);
+        }
+        return javaClasses;
+    }
+
+    /**
+     * @return the externalDependencyPackages
+     */
+    public List<JavaPackage> getExternalDependencyPackages() {
+        List<JavaPackage> javaPackages = new LinkedList();
+        Collection<JavaPackage> packageCollection = externalDependencyPackages.values();
+        Iterator it = packageCollection.iterator();
+        while (it.hasNext()) {
+            JavaPackage javaPackage = (JavaPackage) it.next();
+            javaPackages.add(javaPackage);
+        }
+        return javaPackages;
+    }
 }

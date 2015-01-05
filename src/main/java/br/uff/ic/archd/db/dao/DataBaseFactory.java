@@ -19,6 +19,7 @@ public class DataBaseFactory {
     private InternalImportsDao internalImportsDao;
     private ExternalImportsDao externalImportsDao;
     private MethodInvocationsDao methodInvocationsDao;
+    private JavaExternalAttributeAccessDao javaExternalAttributeAccessDao;
     
     public static DataBaseFactory getInstance(){
         if(dataBaseFactory == null){
@@ -37,6 +38,7 @@ public class DataBaseFactory {
         internalImportsDao = new HsqldbInternalImportsDao();
         externalImportsDao = new HsqldbExternalImportsDao();
         methodInvocationsDao = new HsqldbMethodInvocationsDao();
+        javaExternalAttributeAccessDao = new HsqldbJavaExternalAttributeAccessDao();
         
     }
     
@@ -98,6 +100,10 @@ public class DataBaseFactory {
      */
     public MethodInvocationsDao getMethodInvocationsDao() {
         return methodInvocationsDao;
+    }
+    
+    public JavaExternalAttributeAccessDao getJavaExternalAttributeAccessDao(){
+        return javaExternalAttributeAccessDao;
     }
     
 }

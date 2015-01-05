@@ -19,11 +19,15 @@ public class JavaMethod {
     private JavaData returnType;
     private List<Parameter> parameters;
     private List<JavaMethodInvocation> methodInvocations;
+    private List<JavaExternalAttributeAccess> javaExternalAttributeAccessList;
     private List<JavaMethod> internalMethodInvocations;
     private List<JavaMethod> changingMethods;
     private HashMap<String, JavaClass> changingClasses;
     private int cyclomaticComplexity;
     private int sizeInChars;
+    private int numberOfLines;
+    private int numberOfLocalVariables;
+    
     private boolean isFinal;
     private boolean isStatic;
     private boolean isAbstract;
@@ -35,7 +39,14 @@ public class JavaMethod {
     private JavaAbstract javaAbstract;
     private boolean changeInternalState;
     private boolean changeInternalStateByMethodInvocations;
+    private boolean isAnAcessorMethod;
+    private String accessedAttribute;
+            
     private int internalID;
+    
+    private int accessToForeignDataNumber;
+    private int accessToLocalDataNumber;
+    private int foreignDataProviderNumber;
     
     
 
@@ -53,10 +64,19 @@ public class JavaMethod {
         parameters = new ArrayList();
         methodInvocations = new ArrayList();
         internalMethodInvocations = new ArrayList();
+        this.javaExternalAttributeAccessList = new ArrayList();
         this.cyclomaticComplexity = cyclomaticComplexity;
         this.block = block;
         this.changeInternalState = false;
         this.changeInternalStateByMethodInvocations = false;
+        this.isAnAcessorMethod = false;
+        this.accessToForeignDataNumber = 0;
+        this.accessToLocalDataNumber = 0;
+        this.foreignDataProviderNumber = 0;
+        this.numberOfLines = 0;
+        this.numberOfLocalVariables = 0;
+        this.accessedAttribute = null;
+        
         changingMethods = new ArrayList();
         changingClasses = new HashMap();
     }
@@ -162,6 +182,19 @@ public class JavaMethod {
     public void addInternalMethodInvocation(JavaMethod javaMethod){
         getInternalMethodInvocations().add(javaMethod);
     }
+    
+    public void addExternalAttributeAccess(JavaExternalAttributeAccess javaExternalAttributeAccess){
+        javaExternalAttributeAccessList.add(javaExternalAttributeAccess);
+    }
+
+    /**
+     * @return the javaExternalAttributeAccess
+     */
+    public List<JavaExternalAttributeAccess> getJavaExternalAttributeAccessList() {
+        return javaExternalAttributeAccessList;
+    }
+    
+    
     
     public String getMethodSignature(){
         String methodSignature = name+"(";
@@ -328,6 +361,104 @@ public class JavaMethod {
      */
     public List<JavaMethod> getChangingMethods() {
         return changingMethods;
+    }
+
+    /**
+     * @return the isAnAcessorMethod
+     */
+    public boolean isAnAcessorMethod() {
+        return isAnAcessorMethod;
+    }
+
+    /**
+     * @param isAnAcessorMethod the isAnAcessorMethod to set
+     */
+    public void setIsAnAcessorMethod(boolean isAnAcessorMethod) {
+        this.isAnAcessorMethod = isAnAcessorMethod;
+    }
+
+    /**
+     * @return the accessToForeignDataNumber
+     */
+    public int getAccessToForeignDataNumber() {
+        return accessToForeignDataNumber;
+    }
+
+    /**
+     * @param accessToForeignDataNumber the accessToForeignDataNumber to set
+     */
+    public void setAccessToForeignDataNumber(int accessToForeignDataNumber) {
+        this.accessToForeignDataNumber = accessToForeignDataNumber;
+    }
+
+    /**
+     * @return the accessToLocalDataNumber
+     */
+    public int getAccessToLocalDataNumber() {
+        return accessToLocalDataNumber;
+    }
+
+    /**
+     * @param accessToLocalDataNumber the accessToLocalDataNumber to set
+     */
+    public void setAccessToLocalDataNumber(int accessToLocalDataNumber) {
+        this.accessToLocalDataNumber = accessToLocalDataNumber;
+    }
+
+    /**
+     * @return the foreignDataProviderNumber
+     */
+    public int getForeignDataProviderNumber() {
+        return foreignDataProviderNumber;
+    }
+
+    /**
+     * @param foreignDataProviderNumber the foreignDataProviderNumber to set
+     */
+    public void setForeignDataProviderNumber(int foreignDataProviderNumber) {
+        this.foreignDataProviderNumber = foreignDataProviderNumber;
+    }
+
+    /**
+     * @return the accessedAttribute
+     */
+    public String getAccessedAttribute() {
+        return accessedAttribute;
+    }
+
+    /**
+     * @param accessedAttribute the accessedAttribute to set
+     */
+    public void setAccessedAttribute(String accessedAttribute) {
+        this.accessedAttribute = accessedAttribute;
+    }
+
+    /**
+     * @return the numberOfLines
+     */
+    public int getNumberOfLines() {
+        return numberOfLines;
+    }
+
+    /**
+     * @param numberOfLines the numberOfLines to set
+     */
+    public void setNumberOfLines(int numberOfLines) {
+        this.numberOfLines = numberOfLines;
+    }
+
+    /**
+     * @return the numberOfLocalVariables
+     */
+    public int getNumberOfLocalVariables() {
+        return numberOfLocalVariables;
+    }
+
+    /**
+     * @param numberOfLocalVariables the numberOfLocalVariables to set
+     */
+    public void setNumberOfLocalVariables(int numberOfLocalVariables) {
+        this.numberOfLocalVariables = numberOfLocalVariables;
     }
     
 }

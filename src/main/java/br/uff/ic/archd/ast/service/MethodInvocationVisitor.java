@@ -10,6 +10,8 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -25,6 +27,8 @@ public class MethodInvocationVisitor extends ASTVisitor {
         private List<SingleVariableDeclaration> singleDeclarations = new ArrayList<SingleVariableDeclaration>();
         private List<VariableDeclarationStatement> variableDeclarations = new ArrayList<VariableDeclarationStatement>();
         private List<Assignment> assignments = new ArrayList<Assignment>();
+        private List<ReturnStatement> returnStatements = new ArrayList<ReturnStatement>();
+        private List<SimpleName> simpleNames = new ArrayList();
 
 	@Override
 	public boolean visit(MethodInvocation node) {
@@ -54,6 +58,16 @@ public class MethodInvocationVisitor extends ASTVisitor {
         
         public boolean visit(Assignment node) {
             getAssignments().add(node);
+            return super.visit(node);
+        }
+        
+        public boolean visit(ReturnStatement node){
+            returnStatements.add(node);
+            return super.visit(node);
+        }
+        
+        public boolean visit(SimpleName node){
+            getSimpleNames().add(node);
             return super.visit(node);
         }
 
@@ -89,5 +103,19 @@ public class MethodInvocationVisitor extends ASTVisitor {
     public List<Assignment> getAssignments() {
         return assignments;
     }
-        
+
+    /**
+     * @return the returnStatements
+     */
+    public List<ReturnStatement> getReturnStatements() {
+        return returnStatements;
+    }
+
+    /**
+     * @return the simpleNames
+     */
+    public List<SimpleName> getSimpleNames() {
+        return simpleNames;
+    }
+
 }

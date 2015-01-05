@@ -19,32 +19,31 @@ import java.sql.Statement;
  */
 public class HsqldbTerminatedDao implements TerminatedDao {
 
-    private final static String DB_DIR = System.getProperty("user.home") + "/.archDB/METRIC_VALUE_DB_DIR/";
     private Connection connection;
 
     HsqldbTerminatedDao() {
         try {
-            File file = new File(DB_DIR);
+            File file = new File(Constants.DB_DIR);
             if(!file.exists()){
                 file.mkdirs();
                 
             }
             Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:" + DB_DIR, "archd", "123");
+            connection = DriverManager.getConnection("jdbc:hsqldb:file:" + Constants.DB_DIR, "archd", "123");
             DatabaseMetaData dbData = connection.getMetaData();
             ResultSet tables = dbData.getTables(null, null, "TERMINATED", null);
             //System.out.println("NEXT "+tables.next());
             if (!tables.next()) {
 
 
-                System.out.println("NAO POSSUI TABELA");
+                System.out.println("NAO POSSUI TABELA TERMINATED");
                 Statement stm = connection.createStatement();
 
                 stm.executeUpdate("create table TERMINATED (id bigint IDENTITY, "
                         + "project_name varchar(1000),"
-                        + "revision_id varchar(1000))");
+                        + "revision_id varchar(1000));");
             } else {
-                System.out.println("TABELA JAH EXISTE");
+                System.out.println("TABELA JAH EXISTE TERMINATED");
             }
 
             //stm.execute("SHUTDOWN");

@@ -30,6 +30,7 @@ public class JavaMethodAstBox {
     private int methodInternalId;
     private boolean changeInternalState;
     private boolean changeInternalStateByMethodInvocation;
+    private boolean isAnAcessorMethod;
     
     public JavaMethodAstBox(String name, String returnType, Block block){
         this.name = name;
@@ -289,5 +290,19 @@ public class JavaMethodAstBox {
      */
     public void setMethodInvocations(List<String> methodInvocations) {
         this.methodInvocations = methodInvocations;
+    }
+
+    /**
+     * @return the isAnAcessorMethod
+     */
+    public boolean isAnAcessorMethod() {
+        return isAnAcessorMethod;
+    }
+
+    /**
+     * @param isAnAcessorMethod the isAnAcessorMethod to set
+     */
+    public void setIsAnAcessorMethod(boolean isAnAcessorMethod) {
+        this.isAnAcessorMethod = isAnAcessorMethod;
     }
 }

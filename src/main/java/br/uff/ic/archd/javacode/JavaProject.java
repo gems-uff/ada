@@ -38,11 +38,11 @@ public class JavaProject {
         externalClasses = new ArrayList();
         leaderClasses = new ArrayList();
         possibleLeaderClasses = new ArrayList();
-        
+
         simpleSmartClasses = new ArrayList();
         fullSmartClasses = new ArrayList();
         foolClasses = new ArrayList();
-        
+
         numberOfClasses = 0;
         numberOfInterfaces = 0;
         numberOfViewExternalClasses = 0;
@@ -66,28 +66,28 @@ public class JavaProject {
         }
         return javaClasses;
     }
-    
-    public JavaClass getClassById(long id){
+
+    public JavaClass getClassById(long id) {
         JavaClass ja = null;
-        for(JavaAbstract javaAbstract : getClasses()){
-            if(javaAbstract.getId() == id){
+        for (JavaAbstract javaAbstract : getClasses()) {
+            if (javaAbstract.getId() == id) {
                 ja = (JavaClass) javaAbstract;
                 break;
             }
         }
         return ja;
     }
-    
-    public JavaInterface getInterfaceById(long id){
+
+    public JavaInterface getInterfaceById(long id) {
         JavaInterface ja = null;
-        for(JavaAbstract javaAbstract : getInterfaces()){
-            if(javaAbstract.getId() == id){
+        for (JavaAbstract javaAbstract : getInterfaces()) {
+            if (javaAbstract.getId() == id) {
                 ja = (JavaInterface) javaAbstract;
                 break;
             }
         }
         return ja;
-    } 
+    }
 
     public List<JavaAbstract> getClasses() {
         List<JavaAbstract> javaClasses = new LinkedList();
@@ -126,16 +126,16 @@ public class JavaProject {
     public void addClass(JavaAbstract javaAbstract) {
         classes.put(javaAbstract.getFullQualifiedName(), javaAbstract);
     }
-    
-    public void addSimpleSmartClass(JavaClass javaClass){
+
+    public void addSimpleSmartClass(JavaClass javaClass) {
         simpleSmartClasses.add(javaClass);
     }
-    
-    public void addFullSmartClass(JavaClass javaClass){
+
+    public void addFullSmartClass(JavaClass javaClass) {
         fullSmartClasses.add(javaClass);
     }
-    
-    public void addFoolClass(JavaClass javaClass){
+
+    public void addFoolClass(JavaClass javaClass) {
         foolClasses.add(javaClass);
     }
 
@@ -286,17 +286,106 @@ public class JavaProject {
         }
         return packagesThatCall;
     }
-    
-    public void setChangingMethodsAndClasses(){
-        for(JavaAbstract javaAbstract : getClasses()){
+
+    public void setChangingMethodsAndClasses() {
+        for (JavaAbstract javaAbstract : getClasses()) {
             JavaClass javaClass = (JavaClass) javaAbstract;
-            for(JavaMethod javaMethod : javaClass.getMethods()){
+            for (JavaMethod javaMethod : javaClass.getMethods()) {
                 List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();
-                for(JavaMethodInvocation javaMethodInvocation : listMethodInvocation){
-                    if(javaMethodInvocation.getJavaMethod() != null){
+                for (JavaMethodInvocation javaMethodInvocation : listMethodInvocation) {
+                    if (javaMethodInvocation.getJavaMethod() != null) {
                         javaMethodInvocation.getJavaMethod().addChangingMethod(javaMethod);
                     }
                 }
+            }
+        }
+    }
+
+    public void setClassesMetrics() {
+        for (JavaAbstract javaAbstract : getClasses()) {
+            JavaClass javaClass = (JavaClass) javaAbstract;
+            for (JavaMethod javaMethod : javaClass.getMethods()) {
+                List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();
+                for (JavaMethodInvocation javaMethodInvocation : listMethodInvocation) {
+                    JavaAbstract ja1 = javaMethodInvocation.getJavaAbstract();
+                    if (ja1.getClass() == JavaClass.class) {
+                        JavaClass jc1 = (JavaClass) ja1;
+                        if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
+                            jc1.addClientClass(javaClass);
+                            jc1.addClientPackage(javaClass.getJavaPackage());
+                            jc1.getJavaPackage().addClientClass(javaClass);
+                            jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
+                            
+                            javaClass.addExternalDependencyClass(jc1);
+                            javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
+                        } else {
+                            jc1.addIntraPackageDependentClass(javaClass);
+                            
+                            javaClass.addInternalDependencyClass(jc1);
+                        }
+
+                    }
+                }
+                for (JavaExternalAttributeAccess javaExternalAttributeAccess : javaMethod.getJavaExternalAttributeAccessList()) {
+                    JavaAbstract ja1 = javaExternalAttributeAccess.getJavaAbstract();
+                    if (ja1.getClass() == JavaClass.class) {
+                        JavaClass jc1 = (JavaClass) ja1;
+                        if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
+                            jc1.addClientClass(javaClass);
+                            jc1.addClientPackage(javaClass.getJavaPackage());
+                            jc1.getJavaPackage().addClientClass(javaClass);
+                            jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
+                            
+                            javaClass.addExternalDependencyClass(jc1);
+                            javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
+                        } else {
+                            jc1.addIntraPackageDependentClass(javaClass);
+                            
+                            javaClass.addInternalDependencyClass(jc1);
+                        }
+
+                    }
+                }
+                //verifica de quem JavaClass herda
+                JavaClass jc1 = javaClass.getSuperClass();
+                while (jc1 != null) {
+                    if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
+                        jc1.addClientClass(javaClass);
+                        jc1.addClientPackage(javaClass.getJavaPackage());
+                        jc1.getJavaPackage().addClientClass(javaClass);
+                        jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
+                        
+                        javaClass.addExternalDependencyClass(jc1);
+                        javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
+                    } else {
+                        jc1.addIntraPackageDependentClass(javaClass);
+                        
+                        javaClass.addInternalDependencyClass(jc1);
+                    }
+                    jc1 = jc1.getSuperClass();
+                }
+            }
+        }
+        for (JavaPackage javaPackage : getPackages()) {
+
+            int numberOfPairs = 0;
+            List<JavaClass> javaClasses = javaPackage.getOnlyClasses();
+            if (javaClasses.size() > 1) {
+                for (int i = 0; i < javaClasses.size(); i++) {
+                    JavaClass jc1 = javaClasses.get(i);
+                    for (int j = i + 1; j < javaClasses.size(); j++) {
+                        JavaClass jc2 = javaClasses.get(j);
+                        if (jc1.dependsOnClass(jc2) || jc2.dependsOnClass(jc1)) {
+                            numberOfPairs++;
+                        }
+                    }
+                }
+                double packageCohesion = numberOfPairs;
+                int n = javaClasses.size();
+                packageCohesion = packageCohesion / ((n * (n - 1)) / 2);
+                javaPackage.setPackageCohesion(packageCohesion);
+            }else{
+                javaPackage.setPackageCohesion(1);
             }
         }
     }

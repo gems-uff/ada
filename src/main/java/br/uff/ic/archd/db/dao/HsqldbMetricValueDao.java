@@ -17,24 +17,23 @@ import java.sql.Statement;
  * @author wallace
  */
 public class HsqldbMetricValueDao {
-    private final static String DB_DIR = System.getProperty("user.home") + "/.archDB/METRIC_VALUE_DB_DIR/";
     private Connection connection;
     public HsqldbMetricValueDao() {
         try {
-            File file = new File(DB_DIR);
+            File file = new File(Constants.DB_DIR);
             if(!file.exists()){
                 file.mkdirs();
                 
             }
             Class.forName("org.hsqldb.jdbcDriver");
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:" + DB_DIR, "archd", "123");
+            connection = DriverManager.getConnection("jdbc:hsqldb:file:" + Constants.DB_DIR, "archd", "123");
             DatabaseMetaData dbData = connection.getMetaData();
             ResultSet tables = dbData.getTables(null, null, "METRIC_VALUES", null);
             //System.out.println("NEXT "+tables.next());
             if (!tables.next()) {
 
 
-                System.out.println("NAO POSSUI TABELA");
+                System.out.println("NAO POSSUI TABELA METRIC_VALUES");
                 Statement stm = connection.createStatement();
 
                 stm.executeUpdate("create table METRIC_VALUES (project_name varchar(255) , "
@@ -44,7 +43,7 @@ public class HsqldbMetricValueDao {
                         + "value real,"
                         + "timestamp bigint);");
             }else{
-                System.out.println("TABELA JAH EXISTE");
+                System.out.println("TABELA JAH EXISTE METRIC_VALUES");
             }
 
             //stm.execute("SHUTDOWN");
