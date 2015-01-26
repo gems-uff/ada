@@ -5,6 +5,7 @@
 package br.uff.ic.archd.gui.controller;
 
 import br.uff.ic.archd.git.service.ProjectRevisionsService;
+import br.uff.ic.archd.service.mining.CreateMiningFile;
 import br.uff.ic.archd.gui.view.InteractionViewer;
 import br.uff.ic.archd.javacode.JavaAbstract;
 import br.uff.ic.archd.javacode.JavaAbstractExternal;
@@ -114,7 +115,12 @@ public class InteractionController implements ActionListener {
 
         //showStatistics();
         //******** parte de baixo comente e descometne a vontade
-        writeInFilesStatistics();
+        //writeInFilesStatistics();
+        //criar arquivo para minerar
+        CreateMiningFile createMiningFile = new CreateMiningFile();
+        createMiningFile.createMethodsFileMining(newProjectRevisions, project, javaConstructorService);
+        //createMiningFile.createClassesFileMining(newProjectRevisions, project, javaConstructorService);
+        
 
 
 
@@ -814,6 +820,10 @@ public class InteractionController implements ActionListener {
         }
 
 
+    }
+    
+    public void writeFileToMining(){
+        
     }
 
     public void writeInFilesStatistics() {

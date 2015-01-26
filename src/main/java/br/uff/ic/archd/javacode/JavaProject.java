@@ -297,6 +297,12 @@ public class JavaProject {
                         javaMethodInvocation.getJavaMethod().addChangingMethod(javaMethod);
                     }
                 }
+                List<JavaMethod> listInternalMethodInvocation = javaMethod.getInternalMethodInvocations();
+                for (JavaMethod javaInternalMethodThatCall : listInternalMethodInvocation) {
+                    if (javaInternalMethodThatCall != null) {
+                        javaInternalMethodThatCall.addInternalMethodThatCallMe(javaMethod);
+                    }
+                }
             }
         }
     }
@@ -315,12 +321,12 @@ public class JavaProject {
                             jc1.addClientPackage(javaClass.getJavaPackage());
                             jc1.getJavaPackage().addClientClass(javaClass);
                             jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
-                            
+
                             javaClass.addExternalDependencyClass(jc1);
                             javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
                         } else {
                             jc1.addIntraPackageDependentClass(javaClass);
-                            
+
                             javaClass.addInternalDependencyClass(jc1);
                         }
 
@@ -335,12 +341,12 @@ public class JavaProject {
                             jc1.addClientPackage(javaClass.getJavaPackage());
                             jc1.getJavaPackage().addClientClass(javaClass);
                             jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
-                            
+
                             javaClass.addExternalDependencyClass(jc1);
                             javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
                         } else {
                             jc1.addIntraPackageDependentClass(javaClass);
-                            
+
                             javaClass.addInternalDependencyClass(jc1);
                         }
 
@@ -354,12 +360,12 @@ public class JavaProject {
                         jc1.addClientPackage(javaClass.getJavaPackage());
                         jc1.getJavaPackage().addClientClass(javaClass);
                         jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
-                        
+
                         javaClass.addExternalDependencyClass(jc1);
                         javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
                     } else {
                         jc1.addIntraPackageDependentClass(javaClass);
-                        
+
                         javaClass.addInternalDependencyClass(jc1);
                     }
                     jc1 = jc1.getSuperClass();
@@ -384,7 +390,7 @@ public class JavaProject {
                 int n = javaClasses.size();
                 packageCohesion = packageCohesion / ((n * (n - 1)) / 2);
                 javaPackage.setPackageCohesion(packageCohesion);
-            }else{
+            } else {
                 javaPackage.setPackageCohesion(1);
             }
         }

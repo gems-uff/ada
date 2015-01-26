@@ -22,6 +22,7 @@ public class JavaMethod {
     private List<JavaExternalAttributeAccess> javaExternalAttributeAccessList;
     private List<JavaMethod> internalMethodInvocations;
     private List<JavaMethod> changingMethods;
+    private List<JavaMethod> internalMethodsThatCallMe;
     private HashMap<String, JavaClass> changingClasses;
     private int cyclomaticComplexity;
     private int sizeInChars;
@@ -65,6 +66,7 @@ public class JavaMethod {
         methodInvocations = new ArrayList();
         internalMethodInvocations = new ArrayList();
         this.javaExternalAttributeAccessList = new ArrayList();
+        this.internalMethodsThatCallMe = new ArrayList();
         this.cyclomaticComplexity = cyclomaticComplexity;
         this.block = block;
         this.changeInternalState = false;
@@ -85,6 +87,10 @@ public class JavaMethod {
     public void addChangingMethod(JavaMethod javaMethod){
         getChangingMethods().add(javaMethod);
         changingClasses.put(javaMethod.getJavaAbstract().getFullQualifiedName(), (JavaClass) javaMethod.getJavaAbstract());
+    }
+    
+    public void addInternalMethodThatCallMe(JavaMethod javaMethod){
+        internalMethodsThatCallMe.add(javaMethod);
     }
 
     /**
@@ -459,6 +465,13 @@ public class JavaMethod {
      */
     public void setNumberOfLocalVariables(int numberOfLocalVariables) {
         this.numberOfLocalVariables = numberOfLocalVariables;
+    }
+
+    /**
+     * @return the internalMethodsThatCallMe
+     */
+    public List<JavaMethod> getInternalMethodsThatCallMe() {
+        return internalMethodsThatCallMe;
     }
     
 }

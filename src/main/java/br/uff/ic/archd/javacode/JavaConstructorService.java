@@ -135,6 +135,7 @@ public class JavaConstructorService {
             return javaProject;
         } catch (Exception e) {
             System.out.println("Exception getProjectByRevisionAndSetRevision: " + e.getMessage() + "             class: " + e.getClass());
+            e.printStackTrace();
         }
         return null;
     }
