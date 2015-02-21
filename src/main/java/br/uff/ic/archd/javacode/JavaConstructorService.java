@@ -7,7 +7,9 @@ package br.uff.ic.archd.javacode;
 import br.uff.ic.archd.ast.service.AstService;
 import br.uff.ic.archd.ast.service.JavaMethodAstBox;
 import br.uff.ic.archd.ast.service.ParameterAst;
+import br.uff.ic.archd.db.dao.AnomalieDao;
 import br.uff.ic.archd.db.dao.ClassesDao;
+import br.uff.ic.archd.db.dao.Constants;
 import br.uff.ic.archd.db.dao.DataBaseFactory;
 import br.uff.ic.archd.db.dao.ExternalImportsDao;
 import br.uff.ic.archd.db.dao.ImplementedInterfacesDao;
@@ -102,7 +104,7 @@ public class JavaConstructorService {
         return javaProjects;
     }
 
-    public JavaProject getProjectByRevisionAndSetRevision(String projectName, List<String> codeDirs, String path, Revision revision, ProjectRevisions projectRevisions) {
+    public JavaProject getProjectByRevisionAndSetRevision(String projectName, List<String> codeDirs, String path, String revisionId, String projectRevisionsName) {
 
         try {
             List<String> newCodeDirs = new LinkedList();
@@ -114,24 +116,24 @@ public class JavaConstructorService {
                 newCodeDir = BRANCHES_HISTORY_PATH + projectName + "/" + newCodeDir;
                 newCodeDirs.add(newCodeDir);
             }
-            
+
             long tempoclone1 = System.currentTimeMillis();
-            GitConnector gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
+            GitConnector gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisionsName);
             Git git = new Git(gitConnector.getRepository());
             CheckoutCommand checkoutCommand = null;
 
-            gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
+            gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisionsName);
             git = new Git(gitConnector.getRepository());
 
 
             checkoutCommand = git.checkout();
-            checkoutCommand.setName(revision.getId());
+            checkoutCommand.setName(revisionId);
             checkoutCommand.call();
-            
+
             long tempoclone2 = System.currentTimeMillis();
-            System.out.println("TEMPO PRA FAZER UM CLONE: "+(tempoclone2-tempoclone1)+" milisegundos");
-            
-            JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisions.getName(), revision.getId());
+            System.out.println("TEMPO PRA FAZER UM CLONE: " + (tempoclone2 - tempoclone1) + " milisegundos");
+
+            JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisionsName, revisionId);
             return javaProject;
         } catch (Exception e) {
             System.out.println("Exception getProjectByRevisionAndSetRevision: " + e.getMessage() + "             class: " + e.getClass());
@@ -152,6 +154,7 @@ public class JavaConstructorService {
         ExternalImportsDao externalImportsDao = DataBaseFactory.getInstance().getExternalImportsDao();
         MethodInvocationsDao methodInvocationDao = DataBaseFactory.getInstance().getMethodInvocationsDao();
         JavaExternalAttributeAccessDao javaExternalAttributeAccessDao = DataBaseFactory.getInstance().getJavaExternalAttributeAccessDao();
+        AnomalieDao anomalieDao = DataBaseFactory.getInstance().getAnomalieDao();
         if (terminatedDao.isTerminated(projectName, revisionId)) {
             System.out.println("Vai pegar do banco");
             System.out.println("ESTATISTICAS:");
@@ -161,7 +164,7 @@ public class JavaConstructorService {
             classesDao.getJavaClassesByRevisionId(javaProject, revisionId);
             //long t2 = System.currentTimeMillis();
             //System.out.println("Pegar todas as classes de uma revisão: "+(t2-t1)+"  milisegundos");
-            
+
             //t1 = System.currentTimeMillis();
             interfaceDao.getJavaInterfacesByRevisionId(javaProject, revisionId);
             //t2 = System.currentTimeMillis();
@@ -178,12 +181,12 @@ public class JavaConstructorService {
                 //System.out.println("Pegar todas os imports externos de uma revisão: "+(t2-t1)+"  milisegundos");
                 //System.out.println("Nome: " + javaAbstract.getFullQualifiedName());
                 if (javaAbstract.getClass() == JavaClass.class) {
-                    
+
                     //t1 = System.currentTimeMillis();
                     List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByClassId(javaProject, javaAbstract.getId());
                     //t2 = System.currentTimeMillis();
                     //System.out.println("Pegar todas os métodos de uma classe de uma revisão: "+(t2-t1)+"  milisegundos");
-                    
+
                     for (JavaMethod javaMethod : javaMethods) {
                         ((JavaClass) javaAbstract).addMethod(javaMethod);
                         javaMethod.setJavaAbstract(javaAbstract);
@@ -192,7 +195,7 @@ public class JavaConstructorService {
                     implementedInterfacesDao.setImplementedInterfacesDao((JavaClass) javaAbstract, javaProject);
                     //t2 = System.currentTimeMillis();
                     //System.out.println("Pegar todas as implemented interfaces de uma classe de uma revisão: "+(t2-t1)+"  milisegundos");
-                    
+
                     //t1 = System.currentTimeMillis();
                     javaAttributeDao.getJavaAttributesFromClass((JavaClass) javaAbstract, javaProject);
                     //t2 = System.currentTimeMillis();
@@ -220,9 +223,11 @@ public class JavaConstructorService {
                     }
                 }
             }
+
+
             System.out.println("Pegou do banco");
             long tempototal2 = System.currentTimeMillis();
-            System.out.println("TEMPO TOTAL PRA PEGAR UMA REVISÃO Do BANCO: "+(tempototal2 - tempototal1)+" milisegundos");
+            System.out.println("TEMPO TOTAL PRA PEGAR UMA REVISÃO Do BANCO: " + (tempototal2 - tempototal1) + " milisegundos");
             setProjectProperties(javaProject);
 
         } else {
@@ -264,14 +269,64 @@ public class JavaConstructorService {
                     javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaMethod);
                 }
             }
-            terminatedDao.save(projectName, revisionId);
-            System.out.println("Salvou a revisão: "+revisionId);
+            //terminatedDao.save(projectName, revisionId);
+            
 
         }
         javaProject.setRevisionId(revisionId);
         System.out.println("Vai setar changing methods");
         javaProject.setChangingMethodsAndClasses();
         System.out.println("Setou changing methods");
+
+
+        //trocar para não terminado
+        if (!terminatedDao.isTerminated(projectName, revisionId)) {
+            //colocar so design flaws
+
+            List<JavaPackage> godPackages = getGodPackage(javaProject);
+            for (JavaPackage javaPackge : godPackages) {
+                System.out.println("GOD PACKAGE");
+                anomalieDao.save(Constants.ANOMALIE_GOD_PACKAGE, javaPackge.getName(), revisionId);
+            }
+            List<JavaClass> godClasses = getGodClass(javaProject);
+            for (JavaClass javaClass : godClasses) {
+                System.out.println("GOD CLASS");
+                anomalieDao.save(Constants.ANOMALIE_GOD_CLASS, javaClass.getFullQualifiedName(), revisionId);
+            }
+            List<JavaClass> misplacedClasses = getMisplacedClass(javaProject);
+            for (JavaClass javaClass : misplacedClasses) {
+                System.out.println("MISPLACED CLASS");
+                anomalieDao.save(Constants.ANOMALIE_MISPLACED_CLASS, javaClass.getFullQualifiedName(), revisionId);
+            }
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                if (javaAbstract.getClass() == JavaClass.class) {
+                    JavaClass jc = (JavaClass) javaAbstract;
+                    List<JavaMethod> featureEnvyMethods = getFeatureEnvy(jc);
+                    for (JavaMethod javaMethod : featureEnvyMethods) {
+                        System.out.println("FEATURE ENVY");
+                        anomalieDao.save(Constants.ANOMALIE_FEATURE_ENVY, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
+                    }
+                    List<JavaMethod> shotgunSurgeryMethods = getShotgunSurgery(jc);
+                    for (JavaMethod javaMethod : shotgunSurgeryMethods) {
+                        System.out.println("SHOTGUN SURGERY");
+                        anomalieDao.save(Constants.ANOMALIE_SHOTGUN_SURGERY, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
+                    }
+                    List<JavaMethod> godMethods = getGodMethod(jc);
+                    for (JavaMethod javaMethod : godMethods) {
+                        System.out.println("GOD METHOD");
+                        anomalieDao.save(Constants.ANOMALIE_GOD_METHOD, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
+                    }
+                }
+            }
+
+
+            //**************** terminou so design flwas
+            //adicionar depois
+            terminatedDao.save(projectName, revisionId);
+            System.out.println("Salvou a revisão: " + revisionId);
+        }
+
+
         return javaProject;
     }
 
@@ -400,7 +455,7 @@ public class JavaConstructorService {
                 astService.setAttributeModificationMethod((JavaClass) javaAbstract, javaProject);
             }
         }
-        
+
         long fim = System.currentTimeMillis();
         System.out.println("Tempo para gerar: " + (fim - inicio));
         /*inicio = System.currentTimeMillis();
@@ -598,7 +653,7 @@ public class JavaConstructorService {
             JavaMethod javaMethod = new JavaMethod(javaMethodAstBox.getName(), javaDataReturnType, javaMethodAstBox.isFinal(), javaMethodAstBox.isStatic(),
                     javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getCyclomaticComplexity(), javaMethodAstBox.getBlock());
 
-            
+
             for (ParameterAst parameterAst : javaMethodAstBox.getParameters()) {
                 String parameterTypeName = parameterAst.getType();
                 JavaData parameterType = null;
@@ -644,7 +699,7 @@ public class JavaConstructorService {
                 ((JavaClass) javaAbstract).addMethod(javaMethod);
                 if (fromXML) {
                     javaMethod.setInternalID(javaMethodAstBox.getMethodInternalId());
-                }                
+                }
             } else if (javaAbstract.getClass() == JavaInterface.class) {
                 ((JavaInterface) javaAbstract).addJavaMethod(javaMethod);
                 if (fromXML) {
@@ -655,153 +710,397 @@ public class JavaConstructorService {
 
         }
     }
-    
-/*
-    public JavaProject createProjectsFromXML(String path) {
-        long inicio = System.currentTimeMillis();
-        XMLService xmlService = new XMLService();
-        JavaProject javaProject = new JavaProject(path);
-        List<String> pathList = getXMLPaths(path);
-        //create java classes and interfaces
-        for (String classPath : pathList) {
-            JavaAbstract javaAbstract = xmlService.createJavaAbstractFromXMLFile(classPath);
-            String packageName = xmlService.getPackageName(classPath);
-            JavaPackage javaPackage = javaProject.getPackageByName(packageName);
-            if (javaPackage == null) {
-                javaPackage = new JavaPackage(packageName);
-                javaProject.addPackage(javaPackage);
-            }
-            javaAbstract.setJavaPackage(javaPackage);
-            javaPackage.addJavaAbstract(javaAbstract);
-            javaProject.addClass(javaAbstract);
-        }
 
-        //complete the java abstract with imports, attributes, implements, superclasses and methods
-        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
-            //get import classes of classes
-            List<String> importList = xmlService.getImports(javaAbstract.getPath());
-            for (String packageImport : importList) {
-                List<JavaAbstract> javaAbstractList = javaProject.getPackagesByName(packageImport);
-                javaAbstract.addImportClasses(javaAbstractList);
-                if (javaAbstractList.isEmpty()) {
-                    javaAbstract.addImportClasses(javaAbstractList);
-                }
-            }
+    public List<JavaMethod> getFeatureEnvy(JavaClass jc) {
+        //feature envy
+        List<JavaMethod> featureEnvyList = new LinkedList();
+        if (!jc.getMethods().isEmpty()) {
+            List<JavaMethod> topValuesMethods = new LinkedList();
+            List<JavaMethod> auxList = new LinkedList();
 
-            if (javaAbstract.getClass() == JavaClass.class) {
-                //get superclass
-                String superClassString = xmlService.getSuperClass(javaAbstract.getPath());
-                if (superClassString != null && !superClassString.equals("")) {
-                    JavaClass superClass = (JavaClass) javaAbstract.getJavaAbstractImportByName(superClassString);
-                    ((JavaClass) javaAbstract).setSuperClass(superClass);
-                }
-                //get all implemented interfaces of internal interfaces
-                List<String> implementedInterfacesNames = xmlService.getImplementedInterfaces(javaAbstract.getPath());
-                for (String implementedInterface : implementedInterfacesNames) {
-                    //System.out.println("implemented interface ("+javaAbstract.getFullQualifiedName()+"): "+implementedInterface);
-                    JavaAbstract javaInterface = javaAbstract.getJavaAbstractImportByName(implementedInterface);
-                    if (javaInterface != null && javaInterface.getClass() == JavaInterface.class) {
-                        ((JavaClass) javaAbstract).addImplementedInterface((JavaInterface) javaInterface);
+            auxList.add(jc.getMethods().get(0));
+            for (int i = 1; i < jc.getMethods().size(); i++) {
+                JavaMethod javaMethod = jc.getMethods().get(i);
+                boolean inseriu = false;
+                for (int j = 0; j < auxList.size(); j++) {
+                    JavaMethod jm2 = auxList.get(j);
+                    if (javaMethod.getAccessToForeignDataNumber() > jm2.getAccessToForeignDataNumber()) {
+                        auxList.add(j, javaMethod);
+                        inseriu = true;
+                        break;
                     }
                 }
-
-                //get attributes
-                List<ParameterAst> attributes = xmlService.getAttributes(javaAbstract.getPath());
-
-                for (ParameterAst attribute : attributes) {
-                    //System.out.println("Attribute "+javaAbstract.getFullQualifiedName()+"    "+attribute.getName()+"  : "+attribute.getType());
-                    JavaAbstract javaAbstractAttribute = javaAbstract.getJavaAbstractImportByName(attribute.getType());
-                    if (javaAbstractAttribute == null) {
-                        if (JavaPrimitiveType.getType(attribute.getType()) != 0) {
-                            // the attribute is primitive type
-
-                            JavaData javaData = new JavaPrimitiveType(JavaPrimitiveType.getType(attribute.getType()));
-                            JavaAttribute javaAttribute = new JavaAttribute(javaData, attribute.getName(), attribute.isFinal(),
-                                    attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
-                            ((JavaClass) javaAbstract).addAttribute(javaAttribute);
-                        } else {
-                            // the attribute is a external class
-                            //get the complete name of the class
-                            String externalClassName = getClassName(importList, attribute.getType());
-                            //get external class from javaproject
-                            JavaAbstractExternal javaAbstractExternal = javaProject.getJavaExternalClassByName(externalClassName);
-                            if (javaAbstractExternal == null) {
-                                //create new external class and add to the projetc
-                                javaAbstractExternal = new JavaAbstractExternal(externalClassName);
-                                javaProject.addExternalClass(javaAbstractExternal);
-                            }
-                            JavaAttribute javaAttribute = new JavaAttribute(javaAbstractExternal, attribute.getName(), attribute.isFinal(),
-                                    attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
-                            ((JavaClass) javaAbstract).addAttribute(javaAttribute);
-                        }
-                    } else {
-                        //the attribute is a internal class
-                        JavaAttribute javaAttribute = new JavaAttribute(javaAbstractAttribute, attribute.getName(), attribute.isFinal(),
-                                attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
-                        ((JavaClass) javaAbstract).addAttribute(javaAttribute);
-                    }
+                if (!inseriu) {
+                    auxList.add(javaMethod);
                 }
             }
-
-            //get list of methods
-            boolean fromJavaClass = false;
-            if (javaAbstract.getClass() == JavaClass.class) {
-                fromJavaClass = true;
+            int topNumber = jc.getMethods().size() / 10;
+            if (topNumber * 10 != jc.getMethods().size()) {
+                topNumber++;
             }
-            List<JavaMethodAstBox> list = xmlService.getMethods(javaAbstract.getPath(), fromJavaClass);
-            setJavaMethods(javaAbstract, list, importList, javaProject, true);
+            for (int i = 0; i < topNumber; i++) {
+                topValuesMethods.add(auxList.get(i));
+            }
+
+            for (JavaMethod javaMethod : topValuesMethods) {
+                if ((javaMethod.getAccessToForeignDataNumber() >= 4)
+                        && (javaMethod.getAccessToLocalDataNumber() <= 3)
+                        && (javaMethod.getForeignDataProviderNumber() <= 3)) {
+                    featureEnvyList.add(javaMethod);
+                }
+            }
 
         }
 
-        //get calls of the methods
-        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
-            if (javaAbstract.getClass() == JavaClass.class) {
-                List<JavaMethodAstBox> list = xmlService.getMethods(javaAbstract.getPath(), true);
-                for (JavaMethodAstBox javaMethodAstBox : list) {
-                    JavaMethod javaMethod = ((JavaClass) javaAbstract).getMethodByInternalId(javaMethodAstBox.getMethodInternalId());
-                    if (javaMethod != null) {
-                        javaMethod.setSizeInChars(javaMethodAstBox.getSizeInChars());
-                        javaMethod.setChangeInternalState(javaMethodAstBox.isChangeInternalState());
-                        javaMethod.setChangeInternalStateByMethodInvocations(javaMethodAstBox.isChangeInternalStateByMethodInvocation());
-                        for (String methodInternalInvocation : javaMethodAstBox.getMethodInternalInvocations()) {
-                            int methodInternalId = Integer.valueOf(methodInternalInvocation);
-                            javaMethod.addInternalMethodInvocation(((JavaClass) javaAbstract).getMethodByInternalId(methodInternalId));
-                        }
-
-                        for (String methodInvocation : javaMethodAstBox.getMethodInvocations()) {
-                            String methodInvocationArray[] = methodInvocation.split(":");
-                            String classInvocation = methodInvocationArray[0];
-                            JavaAbstract javaAbstractInvocation = javaProject.getClassByName(classInvocation);
-                            if (methodInvocationArray[1].matches("[+-]?\\d*(\\.\\d+)?")) {
-                                int methodInternalId = Integer.valueOf(methodInvocationArray[1]);
-
-                                if (javaAbstractInvocation != null) {
-                                    if (javaAbstractInvocation.getClass() == JavaClass.class) {
-                                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, ((JavaClass) javaAbstractInvocation).getMethodByInternalId(methodInternalId));
-                                        javaMethod.addMethodInvocation(javaMethoInvocation);
-                                    } else {
-                                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, ((JavaInterface) javaAbstractInvocation).getMethodByInternalId(methodInternalId));
-                                        javaMethod.addMethodInvocation(javaMethoInvocation);
-                                    }
-
-                                }
-                            } else {
-                                JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, null);
-                                javaMethoInvocation.setUnknowMethodName(methodInvocationArray[1]);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        long fim = System.currentTimeMillis();
-        System.out.println("Tempo para gerar: " + (fim - inicio));
-
-        return javaProject;
+        return featureEnvyList;
     }
-    */
 
+    public List<JavaMethod> getShotgunSurgery(JavaClass jc) {
+        //feature envy
+        List<JavaMethod> shotgunList = new LinkedList();
+        if (!jc.getMethods().isEmpty()) {
+
+            for (JavaMethod jm : jc.getMethods()) {
+                if (jm.getChangingMethodsMetric() > 7 && jm.getChangingClassesMetric() > 5) {
+                    shotgunList.add(jm);
+                }
+            }
+
+        }
+
+        return shotgunList;
+    }
+
+    public List<JavaMethod> getGodMethod(JavaClass jc) {
+        //feature envy
+        List<JavaMethod> godMethodList = new LinkedList();
+        if (!jc.getMethods().isEmpty()) {
+            List<JavaMethod> topValuesMethods = new LinkedList();
+            List<JavaMethod> auxList = new LinkedList();
+            auxList.add(jc.getMethods().get(0));
+            for (int i = 1; i < jc.getMethods().size(); i++) {
+                JavaMethod javaMethod = jc.getMethods().get(i);
+                boolean inseriu = false;
+                for (int j = 0; j < auxList.size(); j++) {
+                    JavaMethod jm2 = auxList.get(j);
+                    if (javaMethod.getNumberOfLines() > jm2.getNumberOfLines()) {
+                        auxList.add(j, javaMethod);
+                        inseriu = true;
+                        break;
+                    }
+                }
+                if (!inseriu) {
+                    auxList.add(javaMethod);
+                }
+            }
+            int topNumber = jc.getMethods().size() / 5;
+            if (topNumber * 5 != jc.getMethods().size()) {
+                topNumber++;
+            }
+            for (int i = 0; i < topNumber; i++) {
+                topValuesMethods.add(auxList.get(i));
+            }
+
+            for (JavaMethod javaMethod : topValuesMethods) {
+                if ((javaMethod.getNumberOfLines() >= 70)
+                        && (javaMethod.getParameters().size() >= 4 || javaMethod.getNumberOfLocalVariables() >= 4)
+                        && (javaMethod.getCyclomaticComplexity() >= 4)) {
+                    godMethodList.add(javaMethod);
+                }
+            }
+
+
+
+        }
+        return godMethodList;
+    }
+
+    public List<JavaClass> getGodClass(JavaProject jp) {
+        List<JavaClass> godClassList = new LinkedList();
+        if (!jp.getClasses().isEmpty()) {
+            List<JavaClass> topValuesClasses = new LinkedList();
+            List<JavaClass> auxList = new LinkedList();
+
+            auxList.add((JavaClass) jp.getClasses().get(0));
+            for (int i = 1; i < jp.getClasses().size(); i++) {
+                JavaClass javaClass = (JavaClass) jp.getClasses().get(i);
+                boolean inseriu = false;
+                for (int j = 0; j < auxList.size(); j++) {
+                    JavaClass jc2 = auxList.get(j);
+                    if (javaClass.getAccessToForeignDataNumber() > jc2.getAccessToForeignDataNumber()) {
+                        auxList.add(j, javaClass);
+                        inseriu = true;
+                        break;
+                    }
+                }
+                if (!inseriu) {
+                    auxList.add(javaClass);
+                }
+            }
+            int topNumber = jp.getClasses().size() / 5;
+            if (topNumber * 5 != jp.getClasses().size()) {
+                topNumber++;
+            }
+            for (int i = 0; i < topNumber; i++) {
+                topValuesClasses.add(auxList.get(i));
+            }
+
+            for (JavaClass javaClass : topValuesClasses) {
+                double tcc = javaClass.getNumberOfDirectConnections();
+                int n = javaClass.getMethods().size();
+                tcc = tcc / ((n * (n - 1)) / 2);
+                if ((javaClass.getAccessToForeignDataNumber() >= 4)
+                        && (javaClass.getTotalCyclomaticComplexity() >= 20)
+                        && (tcc <= 0.33)) {
+                    godClassList.add(javaClass);
+                }
+            }
+
+
+
+
+        }
+        return godClassList;
+    }
+
+    public List<JavaPackage> getGodPackage(JavaProject jp) {
+        List<JavaPackage> godPackageList = new LinkedList();
+        if (!jp.getPackages().isEmpty()) {
+            List<JavaPackage> topValuesPackages = new LinkedList();
+            List<JavaPackage> auxList = new LinkedList();
+
+            auxList.add(jp.getPackages().get(0));
+            for (int i = 1; i < jp.getPackages().size(); i++) {
+                JavaPackage javaPackage = jp.getPackages().get(i);
+                boolean inseriu = false;
+                for (int j = 0; j < auxList.size(); j++) {
+                    JavaPackage jp2 = auxList.get(j);
+                    if (javaPackage.getOnlyClasses().size() > jp2.getOnlyClasses().size()) {
+                        auxList.add(j, javaPackage);
+                        inseriu = true;
+                        break;
+                    }
+                }
+                if (!inseriu) {
+                    auxList.add(javaPackage);
+                }
+            }
+            int topNumber = jp.getPackages().size() / 4;
+            if (topNumber * 4 != jp.getPackages().size()) {
+                topNumber++;
+            }
+            for (int i = 0; i < topNumber; i++) {
+                topValuesPackages.add(auxList.get(i));
+            }
+
+            for (JavaPackage javaPackage : topValuesPackages) {
+                double packageCohesion = javaPackage.getPackageCohesion();
+
+                if ((javaPackage.getOnlyClasses().size() >= 20)
+                        && (javaPackage.getClientClasses().size() >= 20)
+                        && (javaPackage.getClientPackages().size() >= 3)) {
+                    godPackageList.add(javaPackage);
+                }
+            }
+
+
+
+
+        }
+        return godPackageList;
+    }
+
+    public List<JavaClass> getMisplacedClass(JavaProject jp) {
+        List<JavaClass> misplacedClassList = new LinkedList();
+        if (!jp.getClasses().isEmpty()) {
+            List<JavaClass> topValuesClasses = new LinkedList();
+            List<JavaClass> auxList = new LinkedList();
+            auxList.add((JavaClass) jp.getClasses().get(0));
+            for (int i = 1; i < jp.getClasses().size(); i++) {
+                JavaClass javaClass = (JavaClass) jp.getClasses().get(i);
+                boolean inseriu = false;
+                for (int j = 0; j < auxList.size(); j++) {
+                    JavaClass jc2 = auxList.get(j);
+                    if (javaClass.getExternalDependencyClasses().size() > jc2.getExternalDependencyClasses().size()) {
+                        auxList.add(j, javaClass);
+                        inseriu = true;
+                        break;
+                    }
+                }
+                if (!inseriu) {
+                    auxList.add(javaClass);
+                }
+            }
+            int topNumber = jp.getClasses().size() / 4;
+            if (topNumber * 4 != jp.getClasses().size()) {
+                topNumber++;
+            }
+            for (int i = 0; i < topNumber; i++) {
+                topValuesClasses.add(auxList.get(i));
+            }
+
+            for (JavaClass javaClass : topValuesClasses) {
+                double classLocality = javaClass.getInternalDependencyClasses().size();
+                classLocality = classLocality / (javaClass.getInternalDependencyClasses().size() + javaClass.getExternalDependencyClasses().size());
+                if ((javaClass.getExternalDependencyClasses().size() >= 6)
+                        && (javaClass.getExternalDependencyPackages().size() <= 3)
+                        && (classLocality <= 0.33)) {
+                    misplacedClassList.add(javaClass);
+                }
+            }
+
+
+
+
+        }
+        return misplacedClassList;
+    }
+
+    /*
+     public JavaProject createProjectsFromXML(String path) {
+     long inicio = System.currentTimeMillis();
+     XMLService xmlService = new XMLService();
+     JavaProject javaProject = new JavaProject(path);
+     List<String> pathList = getXMLPaths(path);
+     //create java classes and interfaces
+     for (String classPath : pathList) {
+     JavaAbstract javaAbstract = xmlService.createJavaAbstractFromXMLFile(classPath);
+     String packageName = xmlService.getPackageName(classPath);
+     JavaPackage javaPackage = javaProject.getPackageByName(packageName);
+     if (javaPackage == null) {
+     javaPackage = new JavaPackage(packageName);
+     javaProject.addPackage(javaPackage);
+     }
+     javaAbstract.setJavaPackage(javaPackage);
+     javaPackage.addJavaAbstract(javaAbstract);
+     javaProject.addClass(javaAbstract);
+     }
+
+     //complete the java abstract with imports, attributes, implements, superclasses and methods
+     for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+     //get import classes of classes
+     List<String> importList = xmlService.getImports(javaAbstract.getPath());
+     for (String packageImport : importList) {
+     List<JavaAbstract> javaAbstractList = javaProject.getPackagesByName(packageImport);
+     javaAbstract.addImportClasses(javaAbstractList);
+     if (javaAbstractList.isEmpty()) {
+     javaAbstract.addImportClasses(javaAbstractList);
+     }
+     }
+
+     if (javaAbstract.getClass() == JavaClass.class) {
+     //get superclass
+     String superClassString = xmlService.getSuperClass(javaAbstract.getPath());
+     if (superClassString != null && !superClassString.equals("")) {
+     JavaClass superClass = (JavaClass) javaAbstract.getJavaAbstractImportByName(superClassString);
+     ((JavaClass) javaAbstract).setSuperClass(superClass);
+     }
+     //get all implemented interfaces of internal interfaces
+     List<String> implementedInterfacesNames = xmlService.getImplementedInterfaces(javaAbstract.getPath());
+     for (String implementedInterface : implementedInterfacesNames) {
+     //System.out.println("implemented interface ("+javaAbstract.getFullQualifiedName()+"): "+implementedInterface);
+     JavaAbstract javaInterface = javaAbstract.getJavaAbstractImportByName(implementedInterface);
+     if (javaInterface != null && javaInterface.getClass() == JavaInterface.class) {
+     ((JavaClass) javaAbstract).addImplementedInterface((JavaInterface) javaInterface);
+     }
+     }
+
+     //get attributes
+     List<ParameterAst> attributes = xmlService.getAttributes(javaAbstract.getPath());
+
+     for (ParameterAst attribute : attributes) {
+     //System.out.println("Attribute "+javaAbstract.getFullQualifiedName()+"    "+attribute.getName()+"  : "+attribute.getType());
+     JavaAbstract javaAbstractAttribute = javaAbstract.getJavaAbstractImportByName(attribute.getType());
+     if (javaAbstractAttribute == null) {
+     if (JavaPrimitiveType.getType(attribute.getType()) != 0) {
+     // the attribute is primitive type
+
+     JavaData javaData = new JavaPrimitiveType(JavaPrimitiveType.getType(attribute.getType()));
+     JavaAttribute javaAttribute = new JavaAttribute(javaData, attribute.getName(), attribute.isFinal(),
+     attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
+     ((JavaClass) javaAbstract).addAttribute(javaAttribute);
+     } else {
+     // the attribute is a external class
+     //get the complete name of the class
+     String externalClassName = getClassName(importList, attribute.getType());
+     //get external class from javaproject
+     JavaAbstractExternal javaAbstractExternal = javaProject.getJavaExternalClassByName(externalClassName);
+     if (javaAbstractExternal == null) {
+     //create new external class and add to the projetc
+     javaAbstractExternal = new JavaAbstractExternal(externalClassName);
+     javaProject.addExternalClass(javaAbstractExternal);
+     }
+     JavaAttribute javaAttribute = new JavaAttribute(javaAbstractExternal, attribute.getName(), attribute.isFinal(),
+     attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
+     ((JavaClass) javaAbstract).addAttribute(javaAttribute);
+     }
+     } else {
+     //the attribute is a internal class
+     JavaAttribute javaAttribute = new JavaAttribute(javaAbstractAttribute, attribute.getName(), attribute.isFinal(),
+     attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
+     ((JavaClass) javaAbstract).addAttribute(javaAttribute);
+     }
+     }
+     }
+
+     //get list of methods
+     boolean fromJavaClass = false;
+     if (javaAbstract.getClass() == JavaClass.class) {
+     fromJavaClass = true;
+     }
+     List<JavaMethodAstBox> list = xmlService.getMethods(javaAbstract.getPath(), fromJavaClass);
+     setJavaMethods(javaAbstract, list, importList, javaProject, true);
+
+     }
+
+     //get calls of the methods
+     for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+     if (javaAbstract.getClass() == JavaClass.class) {
+     List<JavaMethodAstBox> list = xmlService.getMethods(javaAbstract.getPath(), true);
+     for (JavaMethodAstBox javaMethodAstBox : list) {
+     JavaMethod javaMethod = ((JavaClass) javaAbstract).getMethodByInternalId(javaMethodAstBox.getMethodInternalId());
+     if (javaMethod != null) {
+     javaMethod.setSizeInChars(javaMethodAstBox.getSizeInChars());
+     javaMethod.setChangeInternalState(javaMethodAstBox.isChangeInternalState());
+     javaMethod.setChangeInternalStateByMethodInvocations(javaMethodAstBox.isChangeInternalStateByMethodInvocation());
+     for (String methodInternalInvocation : javaMethodAstBox.getMethodInternalInvocations()) {
+     int methodInternalId = Integer.valueOf(methodInternalInvocation);
+     javaMethod.addInternalMethodInvocation(((JavaClass) javaAbstract).getMethodByInternalId(methodInternalId));
+     }
+
+     for (String methodInvocation : javaMethodAstBox.getMethodInvocations()) {
+     String methodInvocationArray[] = methodInvocation.split(":");
+     String classInvocation = methodInvocationArray[0];
+     JavaAbstract javaAbstractInvocation = javaProject.getClassByName(classInvocation);
+     if (methodInvocationArray[1].matches("[+-]?\\d*(\\.\\d+)?")) {
+     int methodInternalId = Integer.valueOf(methodInvocationArray[1]);
+
+     if (javaAbstractInvocation != null) {
+     if (javaAbstractInvocation.getClass() == JavaClass.class) {
+     JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, ((JavaClass) javaAbstractInvocation).getMethodByInternalId(methodInternalId));
+     javaMethod.addMethodInvocation(javaMethoInvocation);
+     } else {
+     JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, ((JavaInterface) javaAbstractInvocation).getMethodByInternalId(methodInternalId));
+     javaMethod.addMethodInvocation(javaMethoInvocation);
+     }
+
+     }
+     } else {
+     JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstractInvocation, null);
+     javaMethoInvocation.setUnknowMethodName(methodInvocationArray[1]);
+     }
+     }
+     }
+     }
+     }
+     }
+
+     long fim = System.currentTimeMillis();
+     System.out.println("Tempo para gerar: " + (fim - inicio));
+
+     return javaProject;
+     }
+     */
     private List<String> getXMLPaths(String path) {
         List<String> paths = new ArrayList();
         File file = new File(path);

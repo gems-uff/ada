@@ -97,7 +97,7 @@ public class InteractionController implements ActionListener {
         this.project = project;
         //javaProject = javaConstructorService.createProjectsFromXML("/home/wallace/.archd/HISTORY/1/");
         currentRevision = newProjectRevisions.getBranchesRevisions().get(0).getHead();
-        javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision, newProjectRevisions);
+        javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision.getId(), newProjectRevisions.getName());
         String classesString[] = new String[javaProject.getClasses().size()];
         for (int i = 0; i < javaProject.getClasses().size(); i++) {
             classesString[i] = javaProject.getClasses().get(i).getFullQualifiedName();
@@ -118,7 +118,7 @@ public class InteractionController implements ActionListener {
         //writeInFilesStatistics();
         //criar arquivo para minerar
         CreateMiningFile createMiningFile = new CreateMiningFile();
-        createMiningFile.createMethodsFileMining(newProjectRevisions, project, javaConstructorService);
+        createMiningFile.createMethodsFileMiningByFile(newProjectRevisions, project, javaConstructorService);
         //createMiningFile.createClassesFileMining(newProjectRevisions, project, javaConstructorService);
         
 
@@ -128,7 +128,7 @@ public class InteractionController implements ActionListener {
 
 
 
-        javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision, newProjectRevisions);
+        javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision.getId(), newProjectRevisions.getName());
         interactionViewer.setRevisionLabel(currentRevision.getId());
 
 
@@ -198,7 +198,7 @@ public class InteractionController implements ActionListener {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
             //System.out.println("REV ID: "+rev.getId());
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
             k++;
             boolean flag = false;
@@ -239,7 +239,7 @@ public class InteractionController implements ActionListener {
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
             k++;
             boolean flag = false;
@@ -279,7 +279,7 @@ public class InteractionController implements ActionListener {
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
             k++;
             boolean flag = false;
@@ -322,7 +322,7 @@ public class InteractionController implements ActionListener {
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
             k++;
             boolean flag = false;
@@ -373,7 +373,7 @@ public class InteractionController implements ActionListener {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
             //System.out.println("REV ID: "+rev.getId());
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
             k++;
             boolean flag = false;
@@ -642,7 +642,7 @@ public class InteractionController implements ActionListener {
     private void searchRevision(String revisionId) {
         Revision aux = projectRevisions.getRevisionsBucket().getRevisionById(revisionId);
         if (aux != null) {
-            javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), aux, newProjectRevisions);
+            javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), aux.getId(), newProjectRevisions.getName());
             currentRevision = aux;
             interactionViewer.setRevisionLabel(revisionId);
             showDados();
@@ -854,7 +854,7 @@ public class InteractionController implements ActionListener {
                 //JavaProject jp = javaProjects.get(i);
                 JavaProject jp = null;
                 //System.out.println("REV ID: "+rev.getId());
-                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
                 k++;
                 boolean flag = false;

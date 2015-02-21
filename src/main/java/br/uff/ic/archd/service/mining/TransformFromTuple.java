@@ -14,6 +14,9 @@ import br.uff.ic.archd.javacode.JavaProject;
 import br.uff.ic.archd.model.Project;
 import br.uff.ic.dyevc.application.branchhistory.model.ProjectRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.Revision;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -302,8 +305,12 @@ public class TransformFromTuple {
         }
         return list;
     }
+    
+    public void crateStatistics(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService){
+        
+    }
 
-    public List<Sequence> transfFromMethodsToTuples(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
+    public List<String> transfFromMethodsToTuples(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
         List<Sequence> sequences = new LinkedList();
 
         HashMap<String, Sequence> hashMap = new HashMap();
@@ -311,17 +318,20 @@ public class TransformFromTuple {
 
         System.out.println("Criando sequencias de métodos");
         Revision rev = newProjectRevisions.getRoot();
+        Revision antRevision = null;
         JavaProject ant = null;
         int k = 0;
+        TemporaryFileManager temporaryFileManager = new TemporaryFileManager();
         while (rev != null) {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
             //System.out.println("REV ID: "+rev.getId());
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            System.out.println("********************************* vai pegar um projeto completo");
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+            System.out.println("********************************* já pegou um projeto completo");
 
 
-
-            System.gc();
+            //System.gc();
 
             k++;
 
@@ -367,166 +377,212 @@ public class TransformFromTuple {
                             //TO DO ******** aqui também ver caso tenha mudado a assinatura
                             if (antMethod != null) {
                                 //aqui começa a criação das sequencias
-                                Sequence sequence = hashMap.get(jc.getFullQualifiedName() + ":" + jm.getMethodSignature());
-                                if (sequence == null) {
-                                    sequence = new Sequence();
-                                    hashMap.put(jc.getFullQualifiedName() + ":" + jm.getMethodSignature(), sequence);
-                                }
-                                String tupleStr = "";
+                                //Sequence sequence = hashMap.get(jc.getFullQualifiedName() + ":" + jm.getMethodSignature());
+                                
+                                //if (sequence == null) {
+                               //     sequence = new Sequence();
+                                //    hashMap.put(jc.getFullQualifiedName() + ":" + jm.getMethodSignature(), sequence);
+                               // }
+                                //String tupleStr = "";
+                                StringBuilder tupleStrBuilder = new StringBuilder("");
                                 if (jm.getNumberOfLines() != antMethod.getNumberOfLines()) {
                                     if (jm.getNumberOfLines() > antMethod.getNumberOfLines()) {
-                                        tupleStr = tupleStr + "number_of_lines:+ ";
+                                        tupleStrBuilder.append("number_of_lines:+ ");
+                                        //tupleStr = tupleStr + "number_of_lines:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "number_of_lines:- ";
+                                        tupleStrBuilder.append("number_of_lines:- ");
+                                        //tupleStr = tupleStr + "number_of_lines:- ";
                                     }
                                 }
                                 if (jm.getSizeInChars() != antMethod.getSizeInChars()) {
                                     if (jm.getSizeInChars() > antMethod.getSizeInChars()) {
-                                        tupleStr = tupleStr + "size_in_chars:+ ";
+                                        tupleStrBuilder.append("size_in_chars:+ ");
+                                        //tupleStr = tupleStr + "size_in_chars:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "size_in_chars:- ";
+                                        tupleStrBuilder.append("size_in_chars:- ");
+                                        //tupleStr = tupleStr + "size_in_chars:- ";
                                     }
                                 }
                                 if (jm.getNumberOfLocalVariables() != antMethod.getNumberOfLocalVariables()) {
                                     if (jm.getNumberOfLocalVariables() > antMethod.getNumberOfLocalVariables()) {
-                                        tupleStr = tupleStr + "number_of_local_variables:+ ";
+                                        tupleStrBuilder.append("number_of_local_variables:+ ");
+                                        //tupleStr = tupleStr + "number_of_local_variables:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "number_of_local_variables:- ";
+                                        tupleStrBuilder.append("number_of_local_variables:- ");
+                                        //tupleStr = tupleStr + "number_of_local_variables:- ";
                                     }
                                 }
                                 if (jm.getCyclomaticComplexity() != antMethod.getCyclomaticComplexity()) {
                                     if (jm.getCyclomaticComplexity() > antMethod.getCyclomaticComplexity()) {
-                                        tupleStr = tupleStr + "cyclomatic_complexity:+ ";
+                                        tupleStrBuilder.append("cyclomatic_complexity:+ ");
+                                        //tupleStr = tupleStr + "cyclomatic_complexity:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "cyclomatic_complexity:- ";
+                                        tupleStrBuilder.append("cyclomatic_complexity:- ");
+                                        //tupleStr = tupleStr + "cyclomatic_complexity:- ";
                                     }
                                 }
                                 if (jm.getMethodInvocations().size() != antMethod.getMethodInvocations().size()) {
                                     if (jm.getMethodInvocations().size() > antMethod.getMethodInvocations().size()) {
-                                        tupleStr = tupleStr + "number_of_external_method_invocations:+ ";
+                                        tupleStrBuilder.append("number_of_external_method_invocations:+ ");
+                                        //tupleStr = tupleStr + "number_of_external_method_invocations:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "number_of_external_method_invocations:- ";
+                                        tupleStrBuilder.append("number_of_external_method_invocations:- ");
+                                        //tupleStr = tupleStr + "number_of_external_method_invocations:- ";
                                     }
                                 }
                                 if (jm.getAccessToForeignDataNumber() != antMethod.getAccessToForeignDataNumber()) {
                                     if (jm.getAccessToForeignDataNumber() > antMethod.getAccessToForeignDataNumber()) {
-                                        tupleStr = tupleStr + "access_to_foreign_data_number:+ ";
+                                        tupleStrBuilder.append("access_to_foreign_data_number:+ ");
+                                        //tupleStr = tupleStr + "access_to_foreign_data_number:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "access_to_foreign_data_number:- ";
+                                        tupleStrBuilder.append("access_to_foreign_data_number:- ");
+                                        //tupleStr = tupleStr + "access_to_foreign_data_number:- ";
                                     }
                                 }
                                 if (jm.getAccessToLocalDataNumber() != antMethod.getAccessToLocalDataNumber()) {
                                     if (jm.getAccessToLocalDataNumber() > antMethod.getAccessToLocalDataNumber()) {
-                                        tupleStr = tupleStr + "access_to_local_data_number:+ ";
+                                        tupleStrBuilder.append("access_to_local_data_number:+ ");
+                                        //tupleStr = tupleStr + "access_to_local_data_number:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "access_to_local_data_number:- ";
+                                        tupleStrBuilder.append("access_to_local_data_number:- ");
+                                        //tupleStr = tupleStr + "access_to_local_data_number:- ";
                                     }
                                 }
                                 if (jm.getChangingClassesMetric() != antMethod.getChangingClassesMetric()) {
                                     if (jm.getChangingClassesMetric() > antMethod.getChangingClassesMetric()) {
-                                        tupleStr = tupleStr + "change_classes_metric:+ ";
+                                        tupleStrBuilder.append("change_classes_metric:+ ");
+                                        //tupleStr = tupleStr + "change_classes_metric:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_classes_metric:- ";
+                                        tupleStrBuilder.append("change_classes_metric:- ");
+                                        //tupleStr = tupleStr + "change_classes_metric:- ";
                                     }
                                 }
                                 if (jm.getChangingMethods().size() != antMethod.getChangingMethods().size()) {
                                     if (jm.getChangingMethods().size() > antMethod.getChangingMethods().size()) {
-                                        tupleStr = tupleStr + "number_of_changing_methods:+ ";
+                                        tupleStrBuilder.append("number_of_changing_methods:+ ");
+                                        //tupleStr = tupleStr + "number_of_changing_methods:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "number_of_changing_methods:- ";
+                                        tupleStrBuilder.append("number_of_changing_methods:- ");
+                                        //tupleStr = tupleStr + "number_of_changing_methods:- ";
                                     }
                                 }
                                 if (jm.getChangingMethodsMetric() != antMethod.getChangingMethodsMetric()) {
                                     if (jm.getChangingMethodsMetric() > antMethod.getChangingMethodsMetric()) {
-                                        tupleStr = tupleStr + "changing_methods_metric:+ ";
+                                        tupleStrBuilder.append("changing_methods_metric:+ ");
+                                        //tupleStr = tupleStr + "changing_methods_metric:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "changing_methods_metric:- ";
+                                        tupleStrBuilder.append("changing_methods_metric:- ");
+                                        //tupleStr = tupleStr + "changing_methods_metric:- ";
                                     }
                                 }
                                 if (jm.getForeignDataProviderNumber() != antMethod.getForeignDataProviderNumber()) {
                                     if (jm.getForeignDataProviderNumber() > antMethod.getForeignDataProviderNumber()) {
-                                        tupleStr = tupleStr + "foreign_data_provider_number:+ ";
+                                        tupleStrBuilder.append("foreign_data_provider_number:+ ");
+                                        //tupleStr = tupleStr + "foreign_data_provider_number:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "foreign_data_provider_number:- ";
+                                        tupleStrBuilder.append("foreign_data_provider_number:- ");
+                                        //tupleStr = tupleStr + "foreign_data_provider_number:- ";
                                     }
                                 }
                                 if (jm.getInternalMethodInvocations().size() != antMethod.getInternalMethodInvocations().size()) {
                                     if (jm.getInternalMethodInvocations().size() > antMethod.getInternalMethodInvocations().size()) {
-                                        tupleStr = tupleStr + "number_of_internal_method_invocations:+ ";
+                                        tupleStrBuilder.append("number_of_internal_method_invocations:+ ");
+                                        //tupleStr = tupleStr + "number_of_internal_method_invocations:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "number_of_internal_method_invocations:- ";
+                                        tupleStrBuilder.append("number_of_internal_method_invocations:- ");
+                                        //tupleStr = tupleStr + "number_of_internal_method_invocations:- ";
                                     }
                                 }
                                 if (jm.getJavaExternalAttributeAccessList().size() != antMethod.getJavaExternalAttributeAccessList().size()) {
                                     if (jm.getJavaExternalAttributeAccessList().size() > antMethod.getJavaExternalAttributeAccessList().size()) {
-                                        tupleStr = tupleStr + "number_of_external_access_attribute:+ ";
+                                        tupleStrBuilder.append("number_of_external_access_attribute:+ ");
+                                        //tupleStr = tupleStr + "number_of_external_access_attribute:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "number_of_external_access_attribute:- ";
+                                        tupleStrBuilder.append("number_of_external_access_attribute:- ");
+                                        //tupleStr = tupleStr + "number_of_external_access_attribute:- ";
                                     }
                                 }
                                 if (!jm.getReturnType().getFullQualifiedName().equals(antMethod.getReturnType().getFullQualifiedName())) {
-                                    tupleStr = tupleStr + "change_return_type:+ ";
+                                    tupleStrBuilder.append("change_return_type:+ ");
+                                    //tupleStr = tupleStr + "change_return_type:+ ";
                                 }
 
                                 if (jm.isAbstract() != antMethod.isAbstract()) {
                                     if (jm.isAbstract()) {
-                                        tupleStr = tupleStr + "change_to_abstract:+ ";
+                                        tupleStrBuilder.append("change_to_abstract:+ ");
+                                        //tupleStr = tupleStr + "change_to_abstract:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_abstract:+ ";
+                                        tupleStrBuilder.append("change_to_not_abstract:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_abstract:+ ";
                                     }
                                 }
                                 if (jm.isPublic() != antMethod.isPublic()) {
                                     if (jm.isPublic()) {
-                                        tupleStr = tupleStr + "change_to_public:+ ";
+                                        tupleStrBuilder.append("change_to_public:+ ");
+                                        //tupleStr = tupleStr + "change_to_public:+ ";
                                     } else {
+                                        
                                         if (jm.isPrivate()) {
-                                            tupleStr = tupleStr + "change_to_private:+ ";
+                                            tupleStrBuilder.append("change_to_private:+ ");
+                                            //tupleStr = tupleStr + "change_to_private:+ ";
                                         } else {
-                                            tupleStr = tupleStr + "change_to_protected:+ ";
+                                            tupleStrBuilder.append("change_to_protected:+ ");
+                                            //tupleStr = tupleStr + "change_to_protected:+ ";
                                         }
                                     }
                                 }
                                 if (jm.isPrivate() != antMethod.isPrivate()) {
                                     if (jm.isPrivate()) {
-                                        tupleStr = tupleStr + "change_to_private:+ ";
+                                        tupleStrBuilder.append("change_to_private:+ ");
+                                        //tupleStr = tupleStr + "change_to_private:+ ";
                                     } else {
                                         if (jm.isPublic()) {
-                                            tupleStr = tupleStr + "change_to_public:+ ";
+                                            tupleStrBuilder.append("change_to_public:+ ");
+                                            //tupleStr = tupleStr + "change_to_public:+ ";
                                         } else {
-                                            tupleStr = tupleStr + "change_to_protected:+ ";
+                                            tupleStrBuilder.append("change_to_protected:+ ");
+                                            //tupleStr = tupleStr + "change_to_protected:+ ";
                                         }
                                     }
                                 }
 
                                 if (jm.isStatic() != antMethod.isStatic()) {
                                     if (jm.isStatic()) {
-                                        tupleStr = tupleStr + "change_to_static:+ ";
+                                        tupleStrBuilder.append("change_to_static:+ ");
+                                        //tupleStr = tupleStr + "change_to_static:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_static:+ ";
+                                        tupleStrBuilder.append("change_to_not_static:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_static:+ ";
                                     }
                                 }
 
                                 if (jm.isFinal() != antMethod.isFinal()) {
                                     if (jm.isFinal()) {
-                                        tupleStr = tupleStr + "change_to_final:+ ";
+                                        tupleStrBuilder.append("change_to_final:+ ");
+                                        //tupleStr = tupleStr + "change_to_final:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_final:+ ";
+                                        tupleStrBuilder.append("change_to_not_final:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_final:+ ";
                                     }
                                 }
 
                                 if (jm.isSynchronized() != antMethod.isSynchronized()) {
                                     if (jm.isSynchronized()) {
-                                        tupleStr = tupleStr + "change_to_synchronized:+ ";
+                                        tupleStrBuilder.append("change_to_synchronized:+ ");
+                                        //tupleStr = tupleStr + "change_to_synchronized:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_synchronized:+ ";
+                                        tupleStrBuilder.append("change_to_not_synchronized:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_synchronized:+ ";
                                     }
                                 }
 
                                 if (jm.isAnAcessorMethod() != antMethod.isAnAcessorMethod()) {
                                     if (jm.isAnAcessorMethod()) {
-                                        tupleStr = tupleStr + "change_to_accessor_method:+ ";
+                                        tupleStrBuilder.append("change_to_accessor_method:+ ");
+                                        //tupleStr = tupleStr + "change_to_accessor_method:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_accessor_method:+ ";
+                                        tupleStrBuilder.append("change_to_not_accessor_method:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_accessor_method:+ ";
                                     }
                                 }
 
@@ -538,17 +594,21 @@ public class TransformFromTuple {
 
                                 if (jm.isChangeInternalState() != antMethod.isChangeInternalState()) {
                                     if (jm.isChangeInternalState()) {
-                                        tupleStr = tupleStr + "change_to_change_internal_state:+ ";
+                                        tupleStrBuilder.append("change_to_change_internal_state:+ ");
+                                        //tupleStr = tupleStr + "change_to_change_internal_state:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_change_internal_state:+ ";
+                                        tupleStrBuilder.append("change_to_not_change_internal_state:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_change_internal_state:+ ";
                                     }
                                 }
 
                                 if (jm.isChangeInternalStateByMethodInvocations() != antMethod.isChangeInternalStateByMethodInvocations()) {
                                     if (jm.isChangeInternalState()) {
-                                        tupleStr = tupleStr + "change_to_change_internal_state_by_method_invocation:+ ";
+                                        tupleStrBuilder.append("change_to_change_internal_state_by_method_invocation:+ ");
+                                        //tupleStr = tupleStr + "change_to_change_internal_state_by_method_invocation:+ ";
                                     } else {
-                                        tupleStr = tupleStr + "change_to_not_change_internal_state_by_method_invocation:+ ";
+                                        tupleStrBuilder.append("change_to_not_change_internal_state_by_method_invocation:+ ");
+                                        //tupleStr = tupleStr + "change_to_not_change_internal_state_by_method_invocation:+ ";
                                     }
                                 }
 
@@ -559,8 +619,10 @@ public class TransformFromTuple {
                                 List<String> auxClassesChangesList = getClassesChanges(antClass, jc);
                                 for (String auxStr : auxClassesChangesList) {
                                     String[] strArray = auxStr.split(":");
+                                    
                                     auxStr = strArray[0] + "_in_same_class_of_this_method" + ":" + strArray[1];
-                                    tupleStr = tupleStr + auxStr;
+                                    tupleStrBuilder.append(auxStr);
+                                    //tupleStr = tupleStr + auxStr;
                                 }
 
 
@@ -612,7 +674,8 @@ public class TransformFromTuple {
                                             auxStr = strArray[0] + "_in_other_method_in_same_class_that_this_method_previously_called" + ":" + strArray[1];
                                             if (hashMapAux.get(auxStr) == null) {
                                                 hashMapAux.put(auxStr, auxStr);
-                                                tupleStr = tupleStr + auxStr;
+                                                tupleStrBuilder.append(auxStr);
+                                                //tupleStr = tupleStr + auxStr;
                                             }
                                         }
                                     }
@@ -627,7 +690,8 @@ public class TransformFromTuple {
                                             auxStr = strArray[0] + "_in_other_method_in_same_class_that_this_method_from_now_call" + ":" + strArray[1];
                                             if (hashMapAux.get(auxStr) == null) {
                                                 hashMapAux.put(auxStr, auxStr);
-                                                tupleStr = tupleStr + auxStr;
+                                                tupleStrBuilder.append(auxStr);
+                                                //tupleStr = tupleStr + auxStr;
                                             }
                                         }
                                     }
@@ -642,7 +706,8 @@ public class TransformFromTuple {
                                         auxStr = strArray[0] + "_in_other_method_in_same_class_that_this_method_call" + ":" + strArray[1];
                                         if (hashMapAux.get(auxStr) == null) {
                                             hashMapAux.put(auxStr, auxStr);
-                                            tupleStr = tupleStr + auxStr;
+                                            tupleStrBuilder.append(auxStr);
+                                            //tupleStr = tupleStr + auxStr;
                                         }
                                     }
                                 }
@@ -703,7 +768,8 @@ public class TransformFromTuple {
                                             auxStr = strArray[0] + "_in_other_method_in_same_class_that_previously_called_me" + ":" + strArray[1];
                                             if (hashMapAux.get(auxStr) == null) {
                                                 hashMapAux.put(auxStr, auxStr);
-                                                tupleStr = tupleStr + auxStr;
+                                                tupleStrBuilder.append(auxStr);
+                                                //tupleStr = tupleStr + auxStr;
                                             }
                                         }
                                     }
@@ -718,7 +784,8 @@ public class TransformFromTuple {
                                             auxStr = strArray[0] + "_in_other_method_in_same_class_that_from_now_call_me" + ":" + strArray[1];
                                             if (hashMapAux.get(auxStr) == null) {
                                                 hashMapAux.put(auxStr, auxStr);
-                                                tupleStr = tupleStr + auxStr;
+                                                tupleStrBuilder.append(auxStr);
+                                                //tupleStr = tupleStr + auxStr;
                                             }
                                         }
                                     }
@@ -733,7 +800,8 @@ public class TransformFromTuple {
                                         auxStr = strArray[0] + "_in_other_method_in_same_class_that_call_me" + ":" + strArray[1];
                                         if (hashMapAux.get(auxStr) == null) {
                                             hashMapAux.put(auxStr, auxStr);
-                                            tupleStr = tupleStr + auxStr;
+                                            tupleStrBuilder.append(auxStr);
+                                            //tupleStr = tupleStr + auxStr;
                                         }
                                     }
                                 }
@@ -802,7 +870,8 @@ public class TransformFromTuple {
                                                 auxStr = strArray[0] + "_in_other_method_in_other_class_that_this_method_previously_called" + ":" + strArray[1];
                                                 if (hashMapAux.get(auxStr) == null) {
                                                     hashMapAux.put(auxStr, auxStr);
-                                                    tupleStr = tupleStr + auxStr;
+                                                    tupleStrBuilder.append(auxStr);
+                                                    //tupleStr = tupleStr + auxStr;
                                                 }
                                             }
                                             //verificando o de classe
@@ -815,7 +884,8 @@ public class TransformFromTuple {
                                                     auxStr = strArray[0] + "_in_other_class_that_this_method_previously_called" + ":" + strArray[1];
                                                     if (hashMapAux.get(auxStr) == null) {
                                                         hashMapAux.put(auxStr, auxStr);
-                                                        tupleStr = tupleStr + auxStr;
+                                                        tupleStrBuilder.append(auxStr);
+                                                        //tupleStr = tupleStr + auxStr;
                                                     }
                                                 }
                                             }
@@ -837,7 +907,8 @@ public class TransformFromTuple {
                                                 auxStr = strArray[0] + "_in_other_method_in_other_class_that_this_method_from_now_call" + ":" + strArray[1];
                                                 if (hashMapAux.get(auxStr) == null) {
                                                     hashMapAux.put(auxStr, auxStr);
-                                                    tupleStr = tupleStr + auxStr;
+                                                    tupleStrBuilder.append(auxStr);
+                                                    //tupleStr = tupleStr + auxStr;
                                                 }
                                             }
 
@@ -851,7 +922,8 @@ public class TransformFromTuple {
                                                     auxStr = strArray[0] + "_in_class_that_this_method_from_now_call" + ":" + strArray[1];
                                                     if (hashMapAux.get(auxStr) == null) {
                                                         hashMapAux.put(auxStr, auxStr);
-                                                        tupleStr = tupleStr + auxStr;
+                                                        tupleStrBuilder.append(auxStr);
+                                                        //tupleStr = tupleStr + auxStr;
                                                     }
                                                 }
                                             }
@@ -872,7 +944,8 @@ public class TransformFromTuple {
                                             auxStr = strArray[0] + "_in_other_method_in_other_class_that_this_method_call" + ":" + strArray[1];
                                             if (hashMapAux.get(auxStr) == null) {
                                                 hashMapAux.put(auxStr, auxStr);
-                                                tupleStr = tupleStr + auxStr;
+                                                tupleStrBuilder.append(auxStr);
+                                                //tupleStr = tupleStr + auxStr;
                                             }
                                         }
 
@@ -886,7 +959,8 @@ public class TransformFromTuple {
                                                 auxStr = strArray[0] + "_in_other_class_that_this_method_call" + ":" + strArray[1];
                                                 if (hashMapAux.get(auxStr) == null) {
                                                     hashMapAux.put(auxStr, auxStr);
-                                                    tupleStr = tupleStr + auxStr;
+                                                    tupleStrBuilder.append(auxStr);
+                                                    //tupleStr = tupleStr + auxStr;
                                                 }
                                             }
                                         }
@@ -938,7 +1012,8 @@ public class TransformFromTuple {
                                                 auxStr = strArray[0] + "_in_other_method_in_other_class_that_previously_called_me" + ":" + strArray[1];
                                                 if (hashMapAux.get(auxStr) == null) {
                                                     hashMapAux.put(auxStr, auxStr);
-                                                    tupleStr = tupleStr + auxStr;
+                                                    tupleStrBuilder.append(auxStr);
+                                                    //tupleStr = tupleStr + auxStr;
                                                 }
                                             }
 
@@ -952,7 +1027,8 @@ public class TransformFromTuple {
                                                     auxStr = strArray[0] + "_in_other_class_that_previously_called_me" + ":" + strArray[1];
                                                     if (hashMapAux.get(auxStr) == null) {
                                                         hashMapAux.put(auxStr, auxStr);
-                                                        tupleStr = tupleStr + auxStr;
+                                                        tupleStrBuilder.append(auxStr);
+                                                        //tupleStr = tupleStr + auxStr;
                                                     }
                                                 }
                                             }
@@ -973,7 +1049,8 @@ public class TransformFromTuple {
                                                 auxStr = strArray[0] + "_in_other_method_in_other_class_that_from_now_call_me" + ":" + strArray[1];
                                                 if (hashMapAux.get(auxStr) == null) {
                                                     hashMapAux.put(auxStr, auxStr);
-                                                    tupleStr = tupleStr + auxStr;
+                                                    tupleStrBuilder.append(auxStr);
+                                                    //tupleStr = tupleStr + auxStr;
                                                 }
                                             }
 
@@ -987,7 +1064,8 @@ public class TransformFromTuple {
                                                     auxStr = strArray[0] + "_in_class_that_from_now_call_me" + ":" + strArray[1];
                                                     if (hashMapAux.get(auxStr) == null) {
                                                         hashMapAux.put(auxStr, auxStr);
-                                                        tupleStr = tupleStr + auxStr;
+                                                        tupleStrBuilder.append(auxStr);
+                                                        //tupleStr = tupleStr + auxStr;
                                                     }
                                                 }
                                             }
@@ -1008,7 +1086,8 @@ public class TransformFromTuple {
                                             auxStr = strArray[0] + "_in_other_method_in_other_class_that_call_me" + ":" + strArray[1];
                                             if (hashMapAux.get(auxStr) == null) {
                                                 hashMapAux.put(auxStr, auxStr);
-                                                tupleStr = tupleStr + auxStr;
+                                                tupleStrBuilder.append(auxStr);
+                                                //tupleStr = tupleStr + auxStr;
                                             }
                                         }
 
@@ -1022,7 +1101,8 @@ public class TransformFromTuple {
                                                 auxStr = strArray[0] + "_in_other_class_that_call_me" + ":" + strArray[1];
                                                 if (hashMapAux.get(auxStr) == null) {
                                                     hashMapAux.put(auxStr, auxStr);
-                                                    tupleStr = tupleStr + auxStr;
+                                                    tupleStrBuilder.append(auxStr);
+                                                    //tupleStr = tupleStr + auxStr;
                                                 }
                                             }
                                         }
@@ -1036,7 +1116,7 @@ public class TransformFromTuple {
 
 
 
-                                //começa agora mudanças de padrões
+                                //começa agora mudanças de padrões (anomalias)
                                 boolean changeSameMethod = false;
                                 boolean changeOtherMethod = false;
                                 //feature envy
@@ -1054,10 +1134,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameMethod) {
-                                    tupleStr = tupleStr + "feature_envy_in_this_method_emerge:+ ";
+                                    tupleStrBuilder.append("feature_envy_in_this_method_emerge:+ ");
+                                    //tupleStr = tupleStr + "feature_envy_in_this_method_emerge:+ ";
                                 }
                                 if (changeOtherMethod) {
-                                    tupleStr = tupleStr + "feature_envy_in_another_method_in_same_class_emerge:+ ";
+                                    tupleStrBuilder.append("feature_envy_in_another_method_in_same_class_emerge:+ ");
+                                    //tupleStr = tupleStr + "feature_envy_in_another_method_in_same_class_emerge:+ ";
                                 }
                                 changeSameMethod = false;
                                 changeOtherMethod = false;
@@ -1075,10 +1157,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameMethod) {
-                                    tupleStr = tupleStr + "feature_envy_in_this_method_correct:+ ";
+                                    tupleStrBuilder.append("feature_envy_in_this_method_correct:+ ");
+                                    //tupleStr = tupleStr + "feature_envy_in_this_method_correct:+ ";
                                 }
                                 if (changeOtherMethod) {
-                                    tupleStr = tupleStr + "feature_envy_in_another_method_in_same_class_correct:+ ";
+                                    tupleStrBuilder.append("feature_envy_in_another_method_in_same_class_correct:+ ");
+                                    //tupleStr = tupleStr + "feature_envy_in_another_method_in_same_class_correct:+ ";
                                 }
 
                                 //shotgun surgery
@@ -1098,10 +1182,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameMethod) {
-                                    tupleStr = tupleStr + "shotgun_surgery_in_this_method_emerge:+ ";
+                                    tupleStrBuilder.append("shotgun_surgery_in_this_method_emerge:+ ");
+                                    //tupleStr = tupleStr + "shotgun_surgery_in_this_method_emerge:+ ";
                                 }
                                 if (changeOtherMethod) {
-                                    tupleStr = tupleStr + "shotgun_surgery_in_another_method_in_same_class_emerge:+ ";
+                                    tupleStrBuilder.append("shotgun_surgery_in_another_method_in_same_class_emerge:+ ");
+                                    //tupleStr = tupleStr + "shotgun_surgery_in_another_method_in_same_class_emerge:+ ";
                                 }
                                 changeSameMethod = false;
                                 changeOtherMethod = false;
@@ -1119,10 +1205,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameMethod) {
-                                    tupleStr = tupleStr + "shotgun_surgery_in_this_method_correct:+ ";
+                                    tupleStrBuilder.append("shotgun_surgery_in_this_method_correct:+ ");
+                                    //tupleStr = tupleStr + "shotgun_surgery_in_this_method_correct:+ ";
                                 }
                                 if (changeOtherMethod) {
-                                    tupleStr = tupleStr + "shotgun_surgery_in_another_method_in_same_class_correct:+ ";
+                                    tupleStrBuilder.append("shotgun_surgery_in_another_method_in_same_class_correct:+ ");
+                                    //tupleStr = tupleStr + "shotgun_surgery_in_another_method_in_same_class_correct:+ ";
                                 }
 
 
@@ -1143,10 +1231,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameMethod) {
-                                    tupleStr = tupleStr + "god_method_in_this_method_emerge:+ ";
+                                    tupleStrBuilder.append("god_method_in_this_method_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_method_in_this_method_emerge:+ ";
                                 }
                                 if (changeOtherMethod) {
-                                    tupleStr = tupleStr + "god_method_in_another_method_in_same_class_emerge:+ ";
+                                    tupleStrBuilder.append("god_method_in_another_method_in_same_class_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_method_in_another_method_in_same_class_emerge:+ ";
                                 }
                                 changeSameMethod = false;
                                 changeOtherMethod = false;
@@ -1164,10 +1254,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameMethod) {
-                                    tupleStr = tupleStr + "god_method_in_this_method_correct:+ ";
+                                    tupleStrBuilder.append("god_method_in_this_method_correct:+ ");
+                                    //tupleStr = tupleStr + "god_method_in_this_method_correct:+ ";
                                 }
                                 if (changeOtherMethod) {
-                                    tupleStr = tupleStr + "god_method_in_another_method_in_same_class_correct:+ ";
+                                    tupleStrBuilder.append("god_method_in_another_method_in_same_class_correct:+ ");
+                                    //tupleStr = tupleStr + "god_method_in_another_method_in_same_class_correct:+ ";
                                 }
 
                                 //god class
@@ -1186,13 +1278,16 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameClass) {
-                                    tupleStr = tupleStr + "god_class_in_this_class_emerge:+ ";
+                                    tupleStrBuilder.append("god_class_in_this_class_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_class_in_this_class_emerge:+ ";
                                 }
                                 if (changeOtherClassSamePackage) {
-                                    tupleStr = tupleStr + "god_class_in_another_class_in_same_package_emerge:+ ";
+                                    tupleStrBuilder.append("god_class_in_another_class_in_same_package_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_class_in_another_class_in_same_package_emerge:+ ";
                                 }
                                 if (changeOtherClassOtherPackage) {
-                                    tupleStr = tupleStr + "god_class_in_another_class_in_another_package_emerge:+ ";
+                                    tupleStrBuilder.append("god_class_in_another_class_in_another_package_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_class_in_another_class_in_another_package_emerge:+ ";
                                 }
                                 changeSameClass = false;
                                 changeOtherClassSamePackage = false;
@@ -1210,13 +1305,16 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameClass) {
-                                    tupleStr = tupleStr + "god_class_in_this_class_correct:+ ";
+                                    tupleStrBuilder.append("god_class_in_this_class_correct:+ ");
+                                    //tupleStr = tupleStr + "god_class_in_this_class_correct:+ ";
                                 }
                                 if (changeOtherClassSamePackage) {
-                                    tupleStr = tupleStr + "god_class_in_another_class_in_same_package_correct:+ ";
+                                    tupleStrBuilder.append("god_class_in_another_class_in_same_package_correct:+ ");
+                                    //tupleStr = tupleStr + "god_class_in_another_class_in_same_package_correct:+ ";
                                 }
                                 if (changeOtherClassOtherPackage) {
-                                    tupleStr = tupleStr + "god_class_in_another_class_in_another_package_correct:+ ";
+                                    tupleStrBuilder.append("god_class_in_another_class_in_another_package_correct:+ ");
+                                    //tupleStr = tupleStr + "god_class_in_another_class_in_another_package_correct:+ ";
                                 }
 
 
@@ -1236,13 +1334,16 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameClass) {
-                                    tupleStr = tupleStr + "misplaced_class_in_this_class_emerge:+ ";
+                                    tupleStrBuilder.append("misplaced_class_in_this_class_emerge:+ ");
+                                    //tupleStr = tupleStr + "misplaced_class_in_this_class_emerge:+ ";
                                 }
                                 if (changeOtherClassSamePackage) {
-                                    tupleStr = tupleStr + "misplaced_class_in_another_class_in_same_package_emerge:+ ";
+                                    tupleStrBuilder.append("misplaced_class_in_another_class_in_same_package_emerge:+ ");
+                                    //tupleStr = tupleStr + "misplaced_class_in_another_class_in_same_package_emerge:+ ";
                                 }
                                 if (changeOtherClassOtherPackage) {
-                                    tupleStr = tupleStr + "misplaced_class_in_another_class_in_another_package_emerge:+ ";
+                                    tupleStrBuilder.append("misplaced_class_in_another_class_in_another_package_emerge:+ ");
+                                    //tupleStr = tupleStr + "misplaced_class_in_another_class_in_another_package_emerge:+ ";
                                 }
                                 changeSameClass = false;
                                 changeOtherClassSamePackage = false;
@@ -1260,13 +1361,16 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSameClass) {
-                                    tupleStr = tupleStr + "misplaced_class_in_this_class_correct:+ ";
+                                    tupleStrBuilder.append("misplaced_class_in_this_class_correct:+ ");
+                                    //tupleStr = tupleStr + "misplaced_class_in_this_class_correct:+ ";
                                 }
                                 if (changeOtherClassSamePackage) {
-                                    tupleStr = tupleStr + "misplaced_class_in_another_class_in_same_package_correct:+ ";
+                                    tupleStrBuilder.append("misplaced_class_in_another_class_in_same_package_correct:+ ");
+                                    //tupleStr = tupleStr + "misplaced_class_in_another_class_in_same_package_correct:+ ";
                                 }
                                 if (changeOtherClassOtherPackage) {
-                                    tupleStr = tupleStr + "misplaced_class_in_another_class_in_another_package_correct:+ ";
+                                    tupleStrBuilder.append("misplaced_class_in_another_class_in_another_package_correct:+ ");
+                                    //tupleStr = tupleStr + "misplaced_class_in_another_class_in_another_package_correct:+ ";
                                 }
 
 
@@ -1287,10 +1391,12 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSamePackage) {
-                                    tupleStr = tupleStr + "god_package_in_same_package_emerge:+ ";
+                                    tupleStrBuilder.append("god_package_in_same_package_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_package_in_same_package_emerge:+ ";
                                 }
                                 if (changeOtherPackage) {
-                                    tupleStr = tupleStr + "god_package_in_another_package_emerge:+ ";
+                                    tupleStrBuilder.append("god_package_in_another_package_emerge:+ ");
+                                    //tupleStr = tupleStr + "god_package_in_another_package_emerge:+ ";
                                 }
                                 changeSamePackage = false;
                                 changeOtherPackage = false;
@@ -1308,20 +1414,43 @@ public class TransformFromTuple {
                                     }
                                 }
                                 if (changeSamePackage) {
-                                    tupleStr = tupleStr + "god_package_in_same_package_correct:+ ";
+                                    tupleStrBuilder.append("god_package_in_same_package_correct:+ ");
+                                    //tupleStr = tupleStr + "god_package_in_same_package_correct:+ ";
                                 }
                                 if (changeOtherPackage) {
-                                    tupleStr = tupleStr + "god_package_in_another_package_correct:+ ";
+                                    tupleStrBuilder.append("god_package_in_another_package_correct:+ ");
+                                    //tupleStr = tupleStr + "god_package_in_another_package_correct:+ ";
                                 }
 
 
 
 
-
+                                String tupleStr = tupleStrBuilder.toString();
                                 if (!tupleStr.equals("")) {
                                     tupleStr = tupleStr.substring(0, tupleStr.length() - 1);
+                                    String filePaths[] = temporaryFileManager.getFilePath(jc.getFullQualifiedName() + ":" + jm.getMethodSignature());
+                                    String filePath = filePaths[0];
+                                    String fileRevisionPath = filePaths[1];
+                                    try{
+                                        FileWriter fw = new FileWriter(filePath,true); //the true will append the new data
+                                        fw.write(tupleStr+"\n");//appends the string to the file
+                                        fw.close();
+                                        fw = new FileWriter(fileRevisionPath,true); //the true will append the new data
+                                        fw.write(antRevision.getId()+" "+rev.getId()+"\n");//appends the string to the file
+                                        fw.close();
+                                    }catch(Exception e){
+                                        System.out.println("Erro escrita de dados de mineração: "+e.getMessage());
+                                        e.printStackTrace();
+                                    }
+                                    
+                                    
+                                    
+                                    //sequence.addItem(tupleStr);
+                                }/*
+                                if (!tupleStrBuilder.toString().equals("")) {
+                                    tupleStr = tupleStr.substring(0, tupleStr.length() - 1);
                                     sequence.addItem(tupleStr);
-                                }
+                                }*/
 
 
                             } else {
@@ -1335,21 +1464,29 @@ public class TransformFromTuple {
             if (rev.getNext().size() == 0) {
                 rev = null;
             } else {
+                antRevision = rev;
                 rev = rev.getNext().get(0);
             }
 
         }
 
 
-        Collection<Sequence> sequenceCollection = hashMap.values();
+        /*Collection<Sequence> sequenceCollection = hashMap.values();
         Iterator it = sequenceCollection.iterator();
         while (it.hasNext()) {
             Sequence sequence = (Sequence) it.next();
             sequences.add(sequence);
-        }
+        }*/
 
-        return sequences;
+        return temporaryFileManager.getPathFiles();
     }
+    
+    
+    
+    
+        
+    
+    
 
     public List<Sequence> transfFromClassesToTuples(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
         List<Sequence> sequences = new LinkedList();
@@ -1364,7 +1501,7 @@ public class TransformFromTuple {
             //JavaProject jp = javaProjects.get(i);
             JavaProject jp = null;
             //System.out.println("REV ID: "+rev.getId());
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev, newProjectRevisions);
+            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
 
 
@@ -1666,6 +1803,71 @@ public class TransformFromTuple {
         }
 
         return sequences;
+    }
+    
+    
+    public boolean isAArchitectureFlaw(String text){
+        boolean flag = false;
+        
+        if (text.equals("feature_envy_in_this_method_emerge:+")) {
+            flag = true;
+        } else if (text.equals("feature_envy_in_another_method_in_same_class_emerge:+")) {
+            flag = true;
+        } else if (text.equals("feature_envy_in_this_method_correct:+")) {
+            flag = true;
+        } else if (text.equals("feature_envy_in_another_method_in_same_class_correct:+")) {
+            flag = true;
+        } else if (text.equals("shotgun_surgery_in_this_method_emerge:+")) {
+            flag = true;
+        } else if (text.equals("shotgun_surgery_in_another_method_in_same_class_emerge:+")) {
+            flag = true;
+        } else if (text.equals("shotgun_surgery_in_this_method_correct:+")) {
+            flag = true;
+        } else if (text.equals("shotgun_surgery_in_another_method_in_same_class_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_method_in_this_method_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_method_in_another_method_in_same_class_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_method_in_this_method_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_method_in_another_method_in_same_class_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_class_in_this_class_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_class_in_another_class_in_same_package_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_class_in_another_class_in_another_package_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_class_in_this_class_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_class_in_another_class_in_same_package_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_class_in_another_class_in_another_package_correct:+")) {
+            flag = true;
+        } else if (text.equals("misplaced_class_in_this_class_emerge:+")) {
+            flag = true;
+        } else if (text.equals("misplaced_class_in_another_class_in_same_package_emerge:+")) {
+            flag = true;
+        } else if (text.equals("misplaced_class_in_another_class_in_another_package_emerge:+")) {
+            flag = true;
+        } else if (text.equals("misplaced_class_in_this_class_correct:+")) {
+            flag = true;
+        } else if (text.equals("misplaced_class_in_another_class_in_same_package_correct:+")) {
+            flag = true;
+        } else if (text.equals("misplaced_class_in_another_class_in_another_package_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_package_in_same_package_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_package_in_another_package_emerge:+")) {
+            flag = true;
+        } else if (text.equals("god_package_in_same_package_correct:+")) {
+            flag = true;
+        } else if (text.equals("god_package_in_another_package_correct:+")) {
+            flag = true;
+        }
+        
+        return flag;
     }
 
     public int changeTextToNumber(String text) throws Exception {
@@ -2230,7 +2432,7 @@ public class TransformFromTuple {
         }
     }
 
-    private List<JavaMethod> getFeatureEnvy(JavaClass jc) {
+    public List<JavaMethod> getFeatureEnvy(JavaClass jc) {
         //feature envy
         List<JavaMethod> featureEnvyList = new LinkedList();
         if (!jc.getMethods().isEmpty()) {
@@ -2274,7 +2476,7 @@ public class TransformFromTuple {
         return featureEnvyList;
     }
 
-    private List<JavaMethod> getShotgunSurgery(JavaClass jc) {
+    public List<JavaMethod> getShotgunSurgery(JavaClass jc) {
         //feature envy
         List<JavaMethod> shotgunList = new LinkedList();
         if (!jc.getMethods().isEmpty()) {
@@ -2290,7 +2492,7 @@ public class TransformFromTuple {
         return shotgunList;
     }
 
-    private List<JavaMethod> getGodMethod(JavaClass jc) {
+    public List<JavaMethod> getGodMethod(JavaClass jc) {
         //feature envy
         List<JavaMethod> godMethodList = new LinkedList();
         if (!jc.getMethods().isEmpty()) {
@@ -2334,7 +2536,7 @@ public class TransformFromTuple {
         return godMethodList;
     }
 
-    private List<JavaClass> getGodClass(JavaProject jp) {
+    public List<JavaClass> getGodClass(JavaProject jp) {
         List<JavaClass> godClassList = new LinkedList();
         if (!jp.getClasses().isEmpty()) {
             List<JavaClass> topValuesClasses = new LinkedList();
@@ -2382,7 +2584,7 @@ public class TransformFromTuple {
         return godClassList;
     }
 
-    private List<JavaPackage> getGodPackage(JavaProject jp) {
+    public List<JavaPackage> getGodPackage(JavaProject jp) {
         List<JavaPackage> godPackageList = new LinkedList();
         if (!jp.getPackages().isEmpty()) {
             List<JavaPackage> topValuesPackages = new LinkedList();
@@ -2429,7 +2631,7 @@ public class TransformFromTuple {
         return godPackageList;
     }
 
-    private List<JavaClass> getMisplacedClass(JavaProject jp) {
+    public List<JavaClass> getMisplacedClass(JavaProject jp) {
         List<JavaClass> misplacedClassList = new LinkedList();
         if (!jp.getClasses().isEmpty()) {
             List<JavaClass> topValuesClasses = new LinkedList();
