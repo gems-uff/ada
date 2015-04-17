@@ -60,7 +60,7 @@ public class MainView extends JFrame {
         projectsScrollPane = new JScrollPane();
         projectsScrollPane.setViewportView(projectsTable);
         
-        viewProjectButton.setVisible(false);
+        //viewProjectButton.setVisible(false);
 
 
         JPanel p = new JPanel();
@@ -73,6 +73,8 @@ public class MainView extends JFrame {
         gridBagConstraints = new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
         p.add(viewRulesButton, gridBagConstraints);
         gridBagConstraints = new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
+        p.add(viewProjectButton, gridBagConstraints);
+        gridBagConstraints = new GridBagConstraints(2, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
         p.add(viewAnomaliesButton, gridBagConstraints);
         
         gridBagConstraints = new GridBagConstraints(0, 2, 2, 2, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);

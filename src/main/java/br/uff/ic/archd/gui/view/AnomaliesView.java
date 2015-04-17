@@ -51,6 +51,7 @@ public class AnomaliesView extends JFrame{
     
     //private JPanel informationPanel;
     private JPanel chartPanel;
+    private JScrollPane chartPane;
     
     private JPanel panel;
     
@@ -97,8 +98,12 @@ public class AnomaliesView extends JFrame{
         informationPane.setPreferredSize(new Dimension(750,160));
         
         
+        
         //informationPanel = new JPanel();
         chartPanel = new JPanel();
+        chartPane = new JScrollPane();
+        chartPane.setViewportView(chartPanel);
+        chartPane.setPreferredSize(new Dimension(1500,500));
         
         //informationPanel.add(informationPane, BorderLayout.CENTER);
         
@@ -139,7 +144,7 @@ public class AnomaliesView extends JFrame{
         panel.add(informationPane, gridBagConstraints);
         
         gridBagConstraints = new GridBagConstraints(0, 4, 4, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(25, 20, 0, 0), 0, 0);
-        panel.add(chartPanel, gridBagConstraints);
+        panel.add(chartPane, gridBagConstraints);
         
         this.add(panel, BorderLayout.CENTER);
         

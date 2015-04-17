@@ -133,13 +133,56 @@ public class JavaConstructorService {
             long tempoclone2 = System.currentTimeMillis();
             System.out.println("TEMPO PRA FAZER UM CLONE: " + (tempoclone2 - tempoclone1) + " milisegundos");
 
+            long t1 = System.currentTimeMillis();
             JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisionsName, revisionId);
+            long t2 = System.currentTimeMillis();
+            System.out.println("Tempo para criar um projeto de uma revisão: "+(t2-t1)+" milisegundos");
             return javaProject;
         } catch (Exception e) {
             System.out.println("Exception getProjectByRevisionAndSetRevision: " + e.getMessage() + "             class: " + e.getClass());
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public void calculateProjectByRevisionAndSetRevisionOffMemory(String projectName, List<String> codeDirs, String path, String revisionId, String projectRevisionsName) {
+
+        try {
+            List<String> newCodeDirs = new LinkedList();
+            for (String codeDir : codeDirs) {
+                String newCodeDir = codeDir.substring(path.length(), codeDir.length());
+                if (newCodeDir.startsWith("/")) {
+                    newCodeDir = newCodeDir.substring(1);
+                }
+                newCodeDir = BRANCHES_HISTORY_PATH + projectName + "/" + newCodeDir;
+                newCodeDirs.add(newCodeDir);
+            }
+
+            long tempoclone1 = System.currentTimeMillis();
+            GitConnector gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisionsName);
+            Git git = new Git(gitConnector.getRepository());
+            CheckoutCommand checkoutCommand = null;
+
+            gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisionsName);
+            git = new Git(gitConnector.getRepository());
+
+
+            checkoutCommand = git.checkout();
+            checkoutCommand.setName(revisionId);
+            checkoutCommand.call();
+
+            long tempoclone2 = System.currentTimeMillis();
+            System.out.println("TEMPO PRA FAZER UM CLONE: " + (tempoclone2 - tempoclone1) + " milisegundos");
+
+            long t1 = System.currentTimeMillis();
+            this.getProjectByRevisionOffMemory(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisionsName, revisionId);
+            long t2 = System.currentTimeMillis();
+            System.out.println("Tempo para criar um projeto de uma revisão: "+(t2-t1)+" milisegundos");
+            
+        } catch (Exception e) {
+            System.out.println("Exception getProjectByRevisionAndSetRevision: " + e.getMessage() + "             class: " + e.getClass());
+            e.printStackTrace();
+        }
     }
 
     public JavaProject getProjectByRevision(String projectName, List<String> codeDirs, String path, String revisionId) {
@@ -155,6 +198,7 @@ public class JavaConstructorService {
         MethodInvocationsDao methodInvocationDao = DataBaseFactory.getInstance().getMethodInvocationsDao();
         JavaExternalAttributeAccessDao javaExternalAttributeAccessDao = DataBaseFactory.getInstance().getJavaExternalAttributeAccessDao();
         AnomalieDao anomalieDao = DataBaseFactory.getInstance().getAnomalieDao();
+        System.out.println("Vai verificar se possui no banco");
         if (terminatedDao.isTerminated(projectName, revisionId)) {
             System.out.println("Vai pegar do banco");
             System.out.println("ESTATISTICAS:");
@@ -214,6 +258,7 @@ public class JavaConstructorService {
             }
             for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
                 if (javaAbstract.getClass() == JavaClass.class) {
+                    //System.gc();
                     for (JavaMethod javaMethod : ((JavaClass) javaAbstract).getMethods()) {
                         //t1 = System.currentTimeMillis();
                         methodInvocationDao.getInvocatedMethods(javaMethod, (JavaClass) javaAbstract, javaProject);
@@ -231,39 +276,49 @@ public class JavaConstructorService {
             setProjectProperties(javaProject);
 
         } else {
+            System.out.println("Vai calcular métricas");
             javaProject = this.createProjects(codeDirs, path, revisionId);
 
             for (JavaAbstract javaAbstract : javaProject.getClasses()) {
                 JavaClass javaClass = (JavaClass) javaAbstract;
                 classesDao.save(javaClass);
+                //System.gc();
 
                 for (String externalImport : javaClass.getExternalImports()) {
                     externalImportsDao.save(javaAbstract, externalImport);
                 }
+                //System.gc();
                 for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
                     javaAttributeDao.save(javaAttribute, javaClass.getId());
                 }
+                //System.gc();
                 for (JavaMethod javaMethod : javaClass.getMethods()) {
                     javaMethodDao.save(javaMethod, true, javaClass.getId());
                 }
 
             }
+            //System.gc();
             for (JavaAbstract javaAbstract : javaProject.getInterfaces()) {
                 JavaInterface javaInterface = (JavaInterface) javaAbstract;
                 interfaceDao.save(javaInterface);
+                //System.gc();
                 for (JavaMethod javaMethod : javaInterface.getMethods()) {
                     javaMethodDao.save(javaMethod, false, javaInterface.getId());
                 }
             }
 
+            //System.gc();
             for (JavaAbstract javaAbstract : javaProject.getClasses()) {
                 JavaClass javaClass = (JavaClass) javaAbstract;
+                //System.gc();
                 for (JavaInterface javaInterface : javaClass.getImplementedInterfaces()) {
                     implementedInterfacesDao.saveImplementedInterface(javaClass, javaInterface);
                 }
+                //System.gc();
                 for (JavaAbstract javaAbstractImport : javaClass.getClassesImports()) {
                     internalImportsDao.saveInternalImport(javaClass, javaAbstractImport);
                 }
+                //System.gc();
                 for (JavaMethod javaMethod : javaClass.getMethods()) {
                     methodInvocationDao.saveMethodInvocations(javaMethod, javaClass);
                     javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaMethod);
@@ -277,27 +332,33 @@ public class JavaConstructorService {
         System.out.println("Vai setar changing methods");
         javaProject.setChangingMethodsAndClasses();
         System.out.println("Setou changing methods");
+        javaProject.setClassesMetrics();
+        System.out.println("Vai setar classes metrics");
 
 
         //trocar para não terminado
         if (!terminatedDao.isTerminated(projectName, revisionId)) {
             //colocar so design flaws
 
+            //System.gc();
             List<JavaPackage> godPackages = getGodPackage(javaProject);
             for (JavaPackage javaPackge : godPackages) {
                 System.out.println("GOD PACKAGE");
                 anomalieDao.save(Constants.ANOMALIE_GOD_PACKAGE, javaPackge.getName(), revisionId);
             }
+            //System.gc();
             List<JavaClass> godClasses = getGodClass(javaProject);
             for (JavaClass javaClass : godClasses) {
                 System.out.println("GOD CLASS");
                 anomalieDao.save(Constants.ANOMALIE_GOD_CLASS, javaClass.getFullQualifiedName(), revisionId);
             }
+            //System.gc();
             List<JavaClass> misplacedClasses = getMisplacedClass(javaProject);
             for (JavaClass javaClass : misplacedClasses) {
                 System.out.println("MISPLACED CLASS");
                 anomalieDao.save(Constants.ANOMALIE_MISPLACED_CLASS, javaClass.getFullQualifiedName(), revisionId);
             }
+            //System.gc();
             for (JavaAbstract javaAbstract : javaProject.getClasses()) {
                 if (javaAbstract.getClass() == JavaClass.class) {
                     JavaClass jc = (JavaClass) javaAbstract;
@@ -306,16 +367,19 @@ public class JavaConstructorService {
                         System.out.println("FEATURE ENVY");
                         anomalieDao.save(Constants.ANOMALIE_FEATURE_ENVY, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
                     }
+                    //System.gc();
                     List<JavaMethod> shotgunSurgeryMethods = getShotgunSurgery(jc);
                     for (JavaMethod javaMethod : shotgunSurgeryMethods) {
                         System.out.println("SHOTGUN SURGERY");
                         anomalieDao.save(Constants.ANOMALIE_SHOTGUN_SURGERY, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
                     }
+                    System.gc();
                     List<JavaMethod> godMethods = getGodMethod(jc);
                     for (JavaMethod javaMethod : godMethods) {
                         System.out.println("GOD METHOD");
                         anomalieDao.save(Constants.ANOMALIE_GOD_METHOD, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
                     }
+                    //System.gc();
                 }
             }
 
@@ -329,6 +393,217 @@ public class JavaConstructorService {
 
         return javaProject;
     }
+    
+    
+    
+    public void getProjectByRevisionOffMemory(String projectName, List<String> codeDirs, String path, String revisionId) {
+        TerminatedDao terminatedDao = DataBaseFactory.getInstance().getTerminatedDao();
+        JavaProject javaProject = null;
+        ClassesDao classesDao = DataBaseFactory.getInstance().getClassesDao();
+        InterfaceDao interfaceDao = DataBaseFactory.getInstance().getInterfaceDao();
+        JavaMethodDao javaMethodDao = DataBaseFactory.getInstance().getJavaMethodDao();
+        JavaAttributeDao javaAttributeDao = DataBaseFactory.getInstance().getJavaAttributeDao();
+        ImplementedInterfacesDao implementedInterfacesDao = DataBaseFactory.getInstance().getImplementedInterfacesDao();
+        InternalImportsDao internalImportsDao = DataBaseFactory.getInstance().getInternalImportsDao();
+        ExternalImportsDao externalImportsDao = DataBaseFactory.getInstance().getExternalImportsDao();
+        MethodInvocationsDao methodInvocationDao = DataBaseFactory.getInstance().getMethodInvocationsDao();
+        JavaExternalAttributeAccessDao javaExternalAttributeAccessDao = DataBaseFactory.getInstance().getJavaExternalAttributeAccessDao();
+        AnomalieDao anomalieDao = DataBaseFactory.getInstance().getAnomalieDao();
+        System.out.println("Vai verificar se possui no banco");
+        if (terminatedDao.isTerminated(projectName, revisionId)) {
+            System.out.println("Vai pegar do banco");
+            System.out.println("ESTATISTICAS:");
+            long tempototal1 = System.currentTimeMillis();
+            javaProject = new JavaProject(path);
+            //long t1 = System.currentTimeMillis();
+            classesDao.getJavaClassesByRevisionId(javaProject, revisionId);
+            //long t2 = System.currentTimeMillis();
+            //System.out.println("Pegar todas as classes de uma revisão: "+(t2-t1)+"  milisegundos");
+
+            //t1 = System.currentTimeMillis();
+            interfaceDao.getJavaInterfacesByRevisionId(javaProject, revisionId);
+            //t2 = System.currentTimeMillis();
+            //System.out.println("Pegar todas as interfaces de uma revisão: "+(t2-t1)+"  milisegundos");
+            //complete the java abstract with imports, attributes, implements, superclasses and methods
+            for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+                //t1 = System.currentTimeMillis();
+                internalImportsDao.getInternalImports(javaAbstract, javaProject);
+                //t2 = System.currentTimeMillis();
+                //System.out.println("Pegar todos os imports internos de uma revisão: "+(t2-t1)+"  milisegundos");
+                //t1 = System.currentTimeMillis();
+                externalImportsDao.getExternalImports(javaAbstract, javaProject);
+                //t2 = System.currentTimeMillis();
+                //System.out.println("Pegar todas os imports externos de uma revisão: "+(t2-t1)+"  milisegundos");
+                //System.out.println("Nome: " + javaAbstract.getFullQualifiedName());
+                if (javaAbstract.getClass() == JavaClass.class) {
+
+                    //t1 = System.currentTimeMillis();
+                    List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByClassId(javaProject, javaAbstract.getId());
+                    //t2 = System.currentTimeMillis();
+                    //System.out.println("Pegar todas os métodos de uma classe de uma revisão: "+(t2-t1)+"  milisegundos");
+
+                    for (JavaMethod javaMethod : javaMethods) {
+                        ((JavaClass) javaAbstract).addMethod(javaMethod);
+                        javaMethod.setJavaAbstract(javaAbstract);
+                    }
+                    //t1 = System.currentTimeMillis();
+                    implementedInterfacesDao.setImplementedInterfacesDao((JavaClass) javaAbstract, javaProject);
+                    //t2 = System.currentTimeMillis();
+                    //System.out.println("Pegar todas as implemented interfaces de uma classe de uma revisão: "+(t2-t1)+"  milisegundos");
+
+                    //t1 = System.currentTimeMillis();
+                    javaAttributeDao.getJavaAttributesFromClass((JavaClass) javaAbstract, javaProject);
+                    //t2 = System.currentTimeMillis();
+                    //System.out.println("Pegar todas os atributos de uma classe de uma revisão: "+(t2-t1)+"  milisegundos");
+
+                } else {
+                    //t1 = System.currentTimeMillis();
+                    List<JavaMethod> javaMethods = javaMethodDao.getJavaMethodsByInterfaceId(javaProject, javaAbstract.getId());
+                    //t2 = System.currentTimeMillis();
+                    //System.out.println("Pegar todas os métodos de uma interface de uma revisão: "+(t2-t1)+"  milisegundos");
+                    for (JavaMethod javaMethod : javaMethods) {
+                        ((JavaInterface) javaAbstract).addJavaMethod(javaMethod);
+                        javaMethod.setJavaAbstract(javaAbstract);
+                    }
+                }
+            }
+            for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+                if (javaAbstract.getClass() == JavaClass.class) {
+                    //System.gc();
+                    for (JavaMethod javaMethod : ((JavaClass) javaAbstract).getMethods()) {
+                        //t1 = System.currentTimeMillis();
+                        methodInvocationDao.getInvocatedMethods(javaMethod, (JavaClass) javaAbstract, javaProject);
+                        javaExternalAttributeAccessDao.getJavaExternalAttributeAccessByMethod(javaMethod, javaProject);
+                        //t2 = System.currentTimeMillis();
+                        //System.out.println("Pegar todas as invocações de métodos de uma classe de uma revisão: "+(t2-t1)+"  milisegundos");
+                    }
+                }
+            }
+
+
+            System.out.println("Pegou do banco");
+            long tempototal2 = System.currentTimeMillis();
+            System.out.println("TEMPO TOTAL PRA PEGAR UMA REVISÃO Do BANCO: " + (tempototal2 - tempototal1) + " milisegundos");
+            setProjectProperties(javaProject);
+
+        } else {
+            System.out.println("Vai calcular métricas");
+            //createProjectsOffMemory(codeDirs, path, revisionId);
+
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                JavaClass javaClass = (JavaClass) javaAbstract;
+                classesDao.save(javaClass);
+                //System.gc();
+
+                for (String externalImport : javaClass.getExternalImports()) {
+                    externalImportsDao.save(javaAbstract, externalImport);
+                }
+                //System.gc();
+                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+                    javaAttributeDao.save(javaAttribute, javaClass.getId());
+                }
+                //System.gc();
+                for (JavaMethod javaMethod : javaClass.getMethods()) {
+                    javaMethodDao.save(javaMethod, true, javaClass.getId());
+                }
+
+            }
+            //System.gc();
+            for (JavaAbstract javaAbstract : javaProject.getInterfaces()) {
+                JavaInterface javaInterface = (JavaInterface) javaAbstract;
+                interfaceDao.save(javaInterface);
+                //System.gc();
+                for (JavaMethod javaMethod : javaInterface.getMethods()) {
+                    javaMethodDao.save(javaMethod, false, javaInterface.getId());
+                }
+            }
+
+            //System.gc();
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                JavaClass javaClass = (JavaClass) javaAbstract;
+                //System.gc();
+                for (JavaInterface javaInterface : javaClass.getImplementedInterfaces()) {
+                    implementedInterfacesDao.saveImplementedInterface(javaClass, javaInterface);
+                }
+                //System.gc();
+                for (JavaAbstract javaAbstractImport : javaClass.getClassesImports()) {
+                    internalImportsDao.saveInternalImport(javaClass, javaAbstractImport);
+                }
+                //System.gc();
+                for (JavaMethod javaMethod : javaClass.getMethods()) {
+                    methodInvocationDao.saveMethodInvocations(javaMethod, javaClass);
+                    javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaMethod);
+                }
+            }
+            //terminatedDao.save(projectName, revisionId);
+            
+
+        }
+        javaProject.setRevisionId(revisionId);
+        System.out.println("Vai setar changing methods");
+        javaProject.setChangingMethodsAndClasses();
+        System.out.println("Setou changing methods");
+        javaProject.setClassesMetrics();
+        System.out.println("Vai setar classes metrics");
+
+
+        //trocar para não terminado
+        if (!terminatedDao.isTerminated(projectName, revisionId)) {
+            //colocar so design flaws
+
+            //System.gc();
+            List<JavaPackage> godPackages = getGodPackage(javaProject);
+            for (JavaPackage javaPackge : godPackages) {
+                System.out.println("GOD PACKAGE");
+                anomalieDao.save(Constants.ANOMALIE_GOD_PACKAGE, javaPackge.getName(), revisionId);
+            }
+            //System.gc();
+            List<JavaClass> godClasses = getGodClass(javaProject);
+            for (JavaClass javaClass : godClasses) {
+                System.out.println("GOD CLASS");
+                anomalieDao.save(Constants.ANOMALIE_GOD_CLASS, javaClass.getFullQualifiedName(), revisionId);
+            }
+            //System.gc();
+            List<JavaClass> misplacedClasses = getMisplacedClass(javaProject);
+            for (JavaClass javaClass : misplacedClasses) {
+                System.out.println("MISPLACED CLASS");
+                anomalieDao.save(Constants.ANOMALIE_MISPLACED_CLASS, javaClass.getFullQualifiedName(), revisionId);
+            }
+            //System.gc();
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                if (javaAbstract.getClass() == JavaClass.class) {
+                    JavaClass jc = (JavaClass) javaAbstract;
+                    List<JavaMethod> featureEnvyMethods = getFeatureEnvy(jc);
+                    for (JavaMethod javaMethod : featureEnvyMethods) {
+                        System.out.println("FEATURE ENVY");
+                        anomalieDao.save(Constants.ANOMALIE_FEATURE_ENVY, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
+                    }
+                    //System.gc();
+                    List<JavaMethod> shotgunSurgeryMethods = getShotgunSurgery(jc);
+                    for (JavaMethod javaMethod : shotgunSurgeryMethods) {
+                        System.out.println("SHOTGUN SURGERY");
+                        anomalieDao.save(Constants.ANOMALIE_SHOTGUN_SURGERY, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
+                    }
+                    System.gc();
+                    List<JavaMethod> godMethods = getGodMethod(jc);
+                    for (JavaMethod javaMethod : godMethods) {
+                        System.out.println("GOD METHOD");
+                        anomalieDao.save(Constants.ANOMALIE_GOD_METHOD, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
+                    }
+                    //System.gc();
+                }
+            }
+
+
+            //**************** terminou so design flwas
+            //adicionar depois
+            terminatedDao.save(projectName, revisionId);
+            System.out.println("Salvou a revisão: " + revisionId);
+        }
+
+
+    }
+
 
     public JavaProject createProjects(List<String> codeDirs, String path, String revisionId) {
         long inicio = System.currentTimeMillis();
@@ -340,6 +615,7 @@ public class JavaConstructorService {
         for (String codeDir : codeDirs) {
             System.out.println("CodeDir: " + codeDir);
             List<String> pathList = astService.getAllJavaClassesPath(codeDir);
+            System.out.println("Numero de classes: "+pathList.size());
             //create java classes and interfaces
             for (String classPath : pathList) {
                 JavaAbstract javaAbstract = null;
@@ -392,6 +668,7 @@ public class JavaConstructorService {
                     JavaAbstract javaInterface = javaAbstract.getJavaAbstractImportByName(implementedInterface);
                     if (javaInterface != null && javaInterface.getClass() == JavaInterface.class) {
                         ((JavaClass) javaAbstract).addImplementedInterface((JavaInterface) javaInterface);
+                        ((JavaInterface) javaInterface).addClassesThatImplements((JavaClass) javaAbstract);
                     }
                 }
 
@@ -434,12 +711,14 @@ public class JavaConstructorService {
             //get list of methods
             List<JavaMethodAstBox> list = astService.getMethods(javaAbstract.getPath());
             setJavaMethods(javaAbstract, list, importList, javaProject, false);
+            //System.gc();
 
         }
 
 
         //get calls of the methods
         for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+            //System.gc();
             if (javaAbstract.getClass() == JavaClass.class) {
                 astService.getMethodInvocations((JavaClass) javaAbstract, javaProject);
                 //System.out.println("Calculando métricas de acesso de dados");
@@ -451,6 +730,7 @@ public class JavaConstructorService {
 
         //get the assignments
         for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+            //System.gc();
             if (javaAbstract.getClass() == JavaClass.class) {
                 astService.setAttributeModificationMethod((JavaClass) javaAbstract, javaProject);
             }
@@ -536,6 +816,153 @@ public class JavaConstructorService {
 
 
     }
+    
+    
+    public JavaProject createProjectsOffMemory(List<String> codeDirs, String path, String revisionId,ClassesDao classesDao, InterfaceDao interfaceDao, JavaMethodDao javaMethodDao) {
+        long inicio = System.currentTimeMillis();
+        AstService astService = new AstService();
+        JavaProject javaProject = new JavaProject(path);
+        if (codeDirs.isEmpty()) {
+            codeDirs.add(path);
+        }
+        for (String codeDir : codeDirs) {
+            System.out.println("CodeDir: " + codeDir);
+            List<String> pathList = astService.getAllJavaClassesPath(codeDir);
+            System.out.println("Numero de classes: "+pathList.size());
+            //create java classes and interfaces
+            for (String classPath : pathList) {
+                JavaAbstract javaAbstract = null;
+                String className = astService.getClassName(classPath);
+                if (className != null) {
+                    boolean isInterface = astService.isInterface(classPath);
+                    if (isInterface) {
+                        javaAbstract = new JavaInterface(classPath);
+                    } else {
+                        javaAbstract = new JavaClass(classPath);
+                    }
+                    javaAbstract.setName(className);
+                    javaAbstract.setRevisionId(revisionId);
+                    String packageName = astService.getPackage(classPath);
+                    JavaPackage javaPackage = javaProject.getPackageByName(packageName);
+                    if (javaPackage == null) {
+                        javaPackage = new JavaPackage(packageName);
+                        javaProject.addPackage(javaPackage);
+                    }
+                    javaAbstract.setJavaPackage(javaPackage);
+                    javaPackage.addJavaAbstract(javaAbstract);
+                    javaProject.addClass(javaAbstract);
+                }
+            }
+        }
+
+        //complete the java abstract with imports, attributes, implements, superclasses and methods
+        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+            //get import classes of classes
+            List<String> importList = astService.getImports(javaAbstract.getPath());
+            for (String packageImport : importList) {
+                List<JavaAbstract> javaAbstractList = javaProject.getPackagesByName(packageImport);
+                javaAbstract.addImportClasses(javaAbstractList);
+                if (javaAbstractList.isEmpty()) {
+                    javaAbstract.addImportClasses(javaAbstractList);
+                }
+            }
+
+            if (javaAbstract.getClass() == JavaClass.class) {
+                //get superclass
+                String superClassString = astService.getSuperClass(javaAbstract.getPath());
+                if (superClassString != null) {
+                    JavaClass superClass = (JavaClass) javaAbstract.getJavaAbstractImportByName(superClassString);
+                    ((JavaClass) javaAbstract).setSuperClass(superClass);
+                }
+                //get all implemented interfaces of internal interfaces
+                List<String> implementedInterfacesNames = astService.getImplementedInterfaces(javaAbstract.getPath());
+                for (String implementedInterface : implementedInterfacesNames) {
+                    //System.out.println("implemented interface ("+javaAbstract.getFullQualifiedName()+"): "+implementedInterface);
+                    JavaAbstract javaInterface = javaAbstract.getJavaAbstractImportByName(implementedInterface);
+                    if (javaInterface != null && javaInterface.getClass() == JavaInterface.class) {
+                        ((JavaClass) javaAbstract).addImplementedInterface((JavaInterface) javaInterface);
+                        ((JavaInterface) javaInterface).addClassesThatImplements((JavaClass) javaAbstract);
+                    }
+                }
+
+                //get attributes
+                List<ParameterAst> attributes = astService.getAttributes(javaAbstract.getPath());
+
+                for (ParameterAst attribute : attributes) {
+                    JavaAbstract javaAbstractAttribute = javaAbstract.getJavaAbstractImportByName(attribute.getType());
+                    if (javaAbstractAttribute == null) {
+                        if (JavaPrimitiveType.getType(attribute.getType()) != 0) {
+                            // the attribute is primitive type
+                            JavaData javaData = new JavaPrimitiveType(JavaPrimitiveType.getType(attribute.getType()));
+                            JavaAttribute javaAttribute = new JavaAttribute(javaData, attribute.getName(), attribute.isFinal(),
+                                    attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
+                            ((JavaClass) javaAbstract).addAttribute(javaAttribute);
+                        } else {
+                            // the attribute is a external class
+                            //get the complete name of the class
+                            String externalClassName = getClassName(importList, attribute.getType());
+                            //get external class from javaproject
+                            JavaAbstractExternal javaAbstractExternal = javaProject.getJavaExternalClassByName(externalClassName);
+                            if (javaAbstractExternal == null) {
+                                //create new external class and add to the projetc
+                                javaAbstractExternal = new JavaAbstractExternal(externalClassName);
+                                javaProject.addExternalClass(javaAbstractExternal);
+                            }
+                            JavaAttribute javaAttribute = new JavaAttribute(javaAbstractExternal, attribute.getName(), attribute.isFinal(),
+                                    attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
+                            ((JavaClass) javaAbstract).addAttribute(javaAttribute);
+                        }
+                    } else {
+                        //the attribute is a internal class
+                        JavaAttribute javaAttribute = new JavaAttribute(javaAbstractAttribute, attribute.getName(), attribute.isFinal(),
+                                attribute.isStatic(), attribute.isVolatile(), attribute.isPrivate(), attribute.isPublic(), attribute.isProtected());
+                        ((JavaClass) javaAbstract).addAttribute(javaAttribute);
+                    }
+                }
+            }
+            
+
+            //get list of methods
+            List<JavaMethodAstBox> list = astService.getMethods(javaAbstract.getPath());
+            setJavaMethodsOffMemory(javaAbstract, list, importList, javaProject, false, javaMethodDao);
+            //System.gc();
+
+        }
+
+
+        //get calls of the methods
+        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+            //System.gc();
+            if (javaAbstract.getClass() == JavaClass.class) {
+                astService.getMethodInvocations((JavaClass) javaAbstract, javaProject);
+                //System.out.println("Calculando métricas de acesso de dados");
+                astService.getAccessDataMetrics((JavaClass) javaAbstract, javaProject);
+            }
+        }
+
+
+
+        //get the assignments
+        for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
+            //System.gc();
+            if (javaAbstract.getClass() == JavaClass.class) {
+                astService.setAttributeModificationMethod((JavaClass) javaAbstract, javaProject);
+            }
+        }
+
+        long fim = System.currentTimeMillis();
+        System.out.println("Tempo para gerar: " + (fim - inicio));
+
+        setProjectProperties(javaProject);
+
+
+
+
+        return javaProject;
+
+
+    }
+
 
     public void setProjectProperties(JavaProject javaProject) {
         //pegando as classes lideres        
@@ -544,6 +971,7 @@ public class JavaConstructorService {
         int numberOfInterfaces = 0;
         List<JavaAbstract> classes = javaProject.getAllClasses();
         for (JavaAbstract javaClazz : classes) {
+            //System.gc();
             if (javaClazz.getClass() == JavaClass.class) {
                 numberOfClasses++;
                 List<JavaClass> classesThatCall = javaProject.getClassesThatCall(javaClazz);
@@ -551,11 +979,13 @@ public class JavaConstructorService {
                 if (classesThatCall.isEmpty() && classesThatUsing.isEmpty()) {
                     List<JavaInterface> implementedInterfaces = ((JavaClass) javaClazz).getImplementedInterfaces();
                     for (JavaInterface implementedInterface : implementedInterfaces) {
+                        //System.gc();
                         classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
                         classesThatUsing.addAll(javaProject.getClassesThatUsing(implementedInterface));
                     }
                     JavaClass JavaSuperClazz = ((JavaClass) javaClazz).getSuperClass();
                     while (JavaSuperClazz != null) {
+                        //System.gc();
                         implementedInterfaces = JavaSuperClazz.getImplementedInterfaces();
                         for (JavaInterface implementedInterface : implementedInterfaces) {
                             classesThatCall.addAll(javaProject.getClassesThatCall(implementedInterface));
@@ -575,6 +1005,7 @@ public class JavaConstructorService {
                 boolean containSmartMethod = false;
                 boolean containFoolMethod = false;
                 for (JavaMethod javaMethod : ((JavaClass) javaClazz).getMethods()) {
+                    //System.gc();
                     if (javaMethod.getCyclomaticComplexity() <= 1) {
                         containFoolMethod = true;
                     } else {
@@ -614,6 +1045,104 @@ public class JavaConstructorService {
     }
 
     private void setJavaMethods(JavaAbstract javaAbstract, List<JavaMethodAstBox> list, List<String> importList, JavaProject javaProject, boolean fromXML) {
+        for (JavaMethodAstBox javaMethodAstBox : list) {
+            String returnTypeString = javaMethodAstBox.getReturnType();
+            //String returnTypeClassName = getClassName(importList, returnTypeString);
+
+
+            JavaData javaDataReturnType = null;
+            JavaAbstract javaAbstractAttribute = javaAbstract.getJavaAbstractImportByName(returnTypeString);
+            if (javaAbstractAttribute == null) {
+                if (JavaPrimitiveType.getType(returnTypeString) != 0) {
+                    // the attribute is primitive type
+                    javaDataReturnType = new JavaPrimitiveType(JavaPrimitiveType.getType(returnTypeString));
+                } else {
+                    // the attribute is a external class
+                    //get the complete name of the class
+                    String externalClassName = null;
+                    if (fromXML) {
+                        externalClassName = returnTypeString;
+                    } else {
+                        externalClassName = getClassName(importList, returnTypeString);
+                    }
+
+                    //get external class from javaproject
+                    JavaAbstractExternal javaAbstractExternal = javaProject.getJavaExternalClassByName(externalClassName);
+                    if (javaAbstractExternal == null) {
+                        //create new external class and add to the projetc
+                        javaAbstractExternal = new JavaAbstractExternal(externalClassName);
+                        javaProject.addExternalClass(javaAbstractExternal);
+
+                    }
+                    javaDataReturnType = javaAbstractExternal;
+                }
+            } else {
+                //the attribute is a internal class
+                javaDataReturnType = javaAbstractAttribute;
+            }
+
+            JavaMethod javaMethod = new JavaMethod(javaMethodAstBox.getName(), javaDataReturnType, javaMethodAstBox.isFinal(), javaMethodAstBox.isStatic(),
+                    javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getCyclomaticComplexity(), javaMethodAstBox.getBlock());
+
+
+            for (ParameterAst parameterAst : javaMethodAstBox.getParameters()) {
+                String parameterTypeName = parameterAst.getType();
+                JavaData parameterType = null;
+
+                JavaAbstract javaAbstractParameter = javaAbstract.getJavaAbstractImportByName(parameterTypeName);
+                if (javaAbstractParameter == null) {
+                    if (JavaPrimitiveType.getType(parameterTypeName) != 0) {
+                        // the attribute is primitive type
+                        parameterType = new JavaPrimitiveType(JavaPrimitiveType.getType(parameterTypeName));
+                    } else {
+                        // the attribute is a external class
+                        //get the complete name of the class
+                        String externalClassName = null;
+                        if (fromXML) {
+                            externalClassName = parameterTypeName;
+                        } else {
+                            externalClassName = getClassName(importList, parameterTypeName);
+                        }
+                        //get external class from javaproject
+                        JavaAbstractExternal javaAbstractExternal = javaProject.getJavaExternalClassByName(externalClassName);
+                        if (javaAbstractExternal == null) {
+                            //create new external class and add to the projetc
+                            javaAbstractExternal = new JavaAbstractExternal(externalClassName);
+                            javaProject.addExternalClass(javaAbstractExternal);
+
+                        }
+                        parameterType = javaAbstractExternal;
+                    }
+                } else {
+                    //the attribute is a internal class
+                    parameterType = javaAbstractParameter;
+                }
+
+
+                Parameter parameter = new Parameter(parameterType, parameterAst.getName());
+
+                javaMethod.addParameter(parameter);
+
+
+            }
+            javaMethod.setJavaAbstract(javaAbstract);
+            if (javaAbstract.getClass() == JavaClass.class) {
+                ((JavaClass) javaAbstract).addMethod(javaMethod);
+                if (fromXML) {
+                    javaMethod.setInternalID(javaMethodAstBox.getMethodInternalId());
+                }
+            } else if (javaAbstract.getClass() == JavaInterface.class) {
+                ((JavaInterface) javaAbstract).addJavaMethod(javaMethod);
+                if (fromXML) {
+                    javaMethod.setInternalID(javaMethodAstBox.getMethodInternalId());
+                }
+            }
+
+
+        }
+    }
+    
+    private void setJavaMethodsOffMemory(JavaAbstract javaAbstract, List<JavaMethodAstBox> list, List<String> importList, JavaProject javaProject, boolean fromXML, JavaMethodDao javaMethodDao) {
         for (JavaMethodAstBox javaMethodAstBox : list) {
             String returnTypeString = javaMethodAstBox.getReturnType();
             //String returnTypeClassName = getClassName(importList, returnTypeString);

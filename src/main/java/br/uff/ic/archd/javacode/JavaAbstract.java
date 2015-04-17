@@ -17,6 +17,7 @@ public class JavaAbstract extends JavaData{
     private String path;
     private JavaPackage javaPackage;
     private List<JavaAbstract> classesImports;
+    //imports realizados 
     private List<String> externalImports;
     private String revisionId;
     JavaAbstract(String path) {

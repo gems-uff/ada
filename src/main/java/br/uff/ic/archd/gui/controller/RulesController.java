@@ -43,7 +43,7 @@ public class RulesController implements ActionListener {
         this.project = project;
 
         javaConstructorService = new JavaConstructorService();
-        rulesManager = new RulesManager();
+        rulesManager = new RulesManager(project.getName());
 
         rulesView = new RulesView();
         rulesView.setController(this);

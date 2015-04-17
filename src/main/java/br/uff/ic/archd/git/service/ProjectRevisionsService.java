@@ -46,7 +46,7 @@ public class ProjectRevisionsService {
         
         File file = new File(novoPath);
         FileUtils.deleteDirectory(file);
-        
+        System.out.println("PATH: "+path);
         Runtime.getRuntime().exec("git clone "+path+" "+novoPath);
         
         //createDirectory(projectName);
@@ -73,9 +73,9 @@ public class ProjectRevisionsService {
         GitConnector gitConnector = new GitConnector(path,projectName);
         System.out.println("AQUI");
         GitCommitHistory gitCommitHistory = GitCommitHistory.getInstance(gitConnector);
-        System.out.println("AQUI");
+        System.out.println("AQUI2");
         Git git = new Git(gitConnector.getRepository());
-        System.out.println("AQUI");
+        System.out.println("AQUI3");
         List<Ref> branchRefList = git.branchList().call();
         System.out.println("AQUI4");
         List<BranchRevisions> branches = new LinkedList<BranchRevisions>();

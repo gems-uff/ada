@@ -37,7 +37,7 @@ public class AnomalieChart extends JPanel {
         final CategoryDataset dataset = createDataset(genericAnomalies, anomalieName);
         final JFreeChart chart = createChart(dataset);
         final ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(1500, 500));
+        chartPanel.setPreferredSize(new java.awt.Dimension(1500, 300));
         this.add(chartPanel, BorderLayout.CENTER);
     }
 
@@ -193,7 +193,7 @@ public class AnomalieChart extends JPanel {
 
     
     public static void main(String args[]){
-        GenericAnomalies genericAnomalies = new GenericAnomalies("method",20, 1);
+        GenericAnomalies genericAnomalies = new GenericAnomalies("method",20, 1, 1);
         genericAnomalies.addAnomalie("ANOMALIE_1", 3);
         genericAnomalies.addAnomalie("ANOMALIE_1", 6);
         genericAnomalies.addAnomalie("ANOMALIE_1", 7);

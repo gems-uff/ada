@@ -20,10 +20,12 @@ public class RulesManager {
     private HashMap<Integer, String> hashOfMethods;
     private int numberOfSequencesFromDataToMining;
     private long numberOfRules;
+    private String projectName;
     public static final int RULES_BY_CONFIDENCE = 1;
     public static final int RULES_BY_LIFT = 2;
 
-    public RulesManager() {
+    public RulesManager(String projectName) {
+        this.projectName = projectName;
         hash = new HashMap();
         hashOfMethods = new HashMap();
         String path = System.getProperty("user.home") + "/.archd/";
@@ -78,7 +80,7 @@ public class RulesManager {
 
     public Rule getRule(long ruleNumber, int ruleType) {
         Rule rule = null;
-        String path = System.getProperty("user.home") + "/.archd/FILES_TO_MINING/MapDB/";
+        String path = System.getProperty("user.home") + "/.archd/FILES_TO_MINING/"+projectName+"/";
         try {
             String sCurrentLine;
             BufferedReader br = null;
@@ -129,7 +131,7 @@ public class RulesManager {
     }
 
     public void getAllRulesInformation(int ruleType, List<String> rules, List<Double> confidences, List<Double> lifts, List<Integer> suportes) {
-        String path = System.getProperty("user.home") + "/.archd/FILES_TO_MINING/MapDB/";
+        String path = System.getProperty("user.home") + "/.archd/FILES_TO_MINING/"+projectName+"/";
         try {
             String sCurrentLine;
             BufferedReader br = null;

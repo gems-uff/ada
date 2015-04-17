@@ -44,7 +44,7 @@ public class JavaMethod {
     private String accessedAttribute;
             
     private int internalID;
-    
+    //numero de dados externos a classe que este metodo acessa, diretamente ou via metodos acessores
     private int accessToForeignDataNumber;
     private int accessToLocalDataNumber;
     private int foreignDataProviderNumber;

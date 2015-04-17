@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -122,6 +123,8 @@ public class InteractionViewer extends JFrame{
         p.setLayout(new GridBagLayout());
         GridBagConstraints gridBagConstraints = null;
         
+        JTabbedPane tabbedPane = new JTabbedPane();
+        
         
         gridBagConstraints = new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 10, 20, 10), 0, 0);
         p.add(revisionTextField, gridBagConstraints);
@@ -169,15 +172,20 @@ public class InteractionViewer extends JFrame{
         p.add(interfaceCodeButton, gridBagConstraints);
         
         
+        tabbedPane.add("Dados", dadosProjetoScrollPane);
+        tabbedPane.add("Classe", projectsScrollPane);
+        tabbedPane.add("Code", codeScrollPane);
+        
         
         gridBagConstraints = new GridBagConstraints(0, 5, 4, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0);
-        p.add(dadosProjetoScrollPane, gridBagConstraints);
+        p.add(tabbedPane, gridBagConstraints);
         
+        /*
         gridBagConstraints = new GridBagConstraints(0, 6, 4, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0);
         p.add(projectsScrollPane, gridBagConstraints);
         
         gridBagConstraints = new GridBagConstraints(0, 7, 4, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0);
-        p.add(codeScrollPane, gridBagConstraints);
+        p.add(codeScrollPane, gridBagConstraints);*/
 
 
         this.add(p, BorderLayout.CENTER);

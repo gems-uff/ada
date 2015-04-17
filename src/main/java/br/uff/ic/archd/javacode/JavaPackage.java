@@ -20,6 +20,8 @@ public class JavaPackage {
     private List<JavaAbstract> classes;
     private HashMap<String, JavaClass> clientClasses;
     private HashMap<String, JavaPackage> clientPackages;
+    //coesao entre as classes do acote, numero de dependencias entre as classes dividido por
+    // o numero total de pares totais
     private double packageCohesion;
 
     public JavaPackage(String name) {

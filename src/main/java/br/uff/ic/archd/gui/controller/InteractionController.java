@@ -4,6 +4,7 @@
  */
 package br.uff.ic.archd.gui.controller;
 
+import br.uff.ic.archd.git.service.JavaProjectsService;
 import br.uff.ic.archd.git.service.ProjectRevisionsService;
 import br.uff.ic.archd.service.mining.CreateMiningFile;
 import br.uff.ic.archd.gui.view.InteractionViewer;
@@ -98,13 +99,17 @@ public class InteractionController implements ActionListener {
         //javaProject = javaConstructorService.createProjectsFromXML("/home/wallace/.archd/HISTORY/1/");
         currentRevision = newProjectRevisions.getBranchesRevisions().get(0).getHead();
         javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision.getId(), newProjectRevisions.getName());
-        String classesString[] = new String[javaProject.getClasses().size()];
-        for (int i = 0; i < javaProject.getClasses().size(); i++) {
-            classesString[i] = javaProject.getClasses().get(i).getFullQualifiedName();
+        List<JavaAbstract> list = javaProject.getClasses();
+        orderByName(list);
+        String classesString[] = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            classesString[i] = list.get(i).getFullQualifiedName();
         }
-        String InterfacesString[] = new String[javaProject.getInterfaces().size()];
-        for (int i = 0; i < javaProject.getInterfaces().size(); i++) {
-            InterfacesString[i] = javaProject.getInterfaces().get(i).getFullQualifiedName();
+        list = javaProject.getInterfaces();
+        orderByName(list);
+        String InterfacesString[] = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            InterfacesString[i] = list.get(i).getFullQualifiedName();
         }
 
         interactionViewer = new InteractionViewer(classesString, InterfacesString);
@@ -117,10 +122,10 @@ public class InteractionController implements ActionListener {
         //******** parte de baixo comente e descometne a vontade
         //writeInFilesStatistics();
         //criar arquivo para minerar
-        CreateMiningFile createMiningFile = new CreateMiningFile();
-        createMiningFile.createMethodsFileMiningByFile(newProjectRevisions, project, javaConstructorService);
+        //CreateMiningFile createMiningFile = new CreateMiningFile(project.getName());
+        //createMiningFile.createMethodsFileMiningByFile(newProjectRevisions, project, javaConstructorService);
         //createMiningFile.createClassesFileMining(newProjectRevisions, project, javaConstructorService);
-        
+
 
 
 
@@ -640,8 +645,31 @@ public class InteractionController implements ActionListener {
     }
 
     private void searchRevision(String revisionId) {
-        Revision aux = projectRevisions.getRevisionsBucket().getRevisionById(revisionId);
+        Integer revisionNumber = null;
+        try {
+            revisionNumber = Integer.parseInt(revisionId);
+            System.out.println("O numero é: "+revisionNumber);
+        } catch (Exception e) {
+            System.out.println("Não é numero");
+        }
+        Revision aux = null;
+        if (revisionNumber == null) {
+            aux = newProjectRevisions.getRevisionsBucket().getRevisionById(revisionId);
+        } else {
+            Revision rev = newProjectRevisions.getRoot();
+            int i = 0;
+            while (i < revisionNumber && rev != null) {
+                i++;
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+            aux = rev;
+        }
         if (aux != null) {
+            System.out.println("Revision: "+aux.getId());
             javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), aux.getId(), newProjectRevisions.getName());
             currentRevision = aux;
             interactionViewer.setRevisionLabel(revisionId);
@@ -679,13 +707,17 @@ public class InteractionController implements ActionListener {
     }
 
     private void updateClassesAndInterfaces() {
-        String classesString[] = new String[javaProject.getClasses().size()];
-        for (int i = 0; i < javaProject.getClasses().size(); i++) {
-            classesString[i] = javaProject.getClasses().get(i).getFullQualifiedName();
+        List<JavaAbstract> list = javaProject.getClasses();
+        orderByName(list);
+        String classesString[] = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            classesString[i] = list.get(i).getFullQualifiedName();
         }
-        String InterfacesString[] = new String[javaProject.getInterfaces().size()];
-        for (int i = 0; i < javaProject.getInterfaces().size(); i++) {
-            InterfacesString[i] = javaProject.getInterfaces().get(i).getFullQualifiedName();
+        list = javaProject.getInterfaces();
+        orderByName(list);
+        String InterfacesString[] = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            InterfacesString[i] = list.get(i).getFullQualifiedName();
         }
 
         interactionViewer.setClassesAndInterfaces(classesString, InterfacesString);
@@ -753,12 +785,19 @@ public class InteractionController implements ActionListener {
                 JavaData returnType = ((JavaClass) javaAbstract).getMethods().get(i).getReturnType();
                 String retType = returnType == null ? "vazio" : returnType.getName();
                 System.out.println("- " + retType + "       " + ((JavaClass) javaAbstract).getMethods().get(i).getMethodSignature());
+                System.out.println("Number Of Local Variables: " + ((JavaClass) javaAbstract).getMethods().get(i).getNumberOfLocalVariables());
+                System.out.println("Number Of Parameters: " + ((JavaClass) javaAbstract).getMethods().get(i).getParameters().size());
+                System.out.println("Number Of Lines: " + ((JavaClass) javaAbstract).getMethods().get(i).getNumberOfLines());
                 System.out.println("Diff (in - out): " + ((JavaClass) javaAbstract).getMethods().get(i).getDiff());
                 System.out.println("Modifie internal state: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
                 System.out.println("Modifie internal state by call method: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
                 System.out.println("Size: " + ((JavaClass) javaAbstract).getMethods().get(i).getSizeInChars());
                 System.out.println("Cyclomatic complexity: " + ((JavaClass) javaAbstract).getMethods().get(i).getCyclomaticComplexity());
                 interactionViewer.appendText("- " + retType + "       " + ((JavaClass) javaAbstract).getMethods().get(i).getMethodSignature());
+                interactionViewer.appendText("Number Of Local Variables: " + ((JavaClass) javaAbstract).getMethods().get(i).getNumberOfLocalVariables());
+                interactionViewer.appendText("Number Of Parameters: " + ((JavaClass) javaAbstract).getMethods().get(i).getParameters().size());
+                interactionViewer.appendText("Number Of Lines: " + ((JavaClass) javaAbstract).getMethods().get(i).getNumberOfLines());
+                
                 interactionViewer.appendText("Diff (in - out): " + ((JavaClass) javaAbstract).getMethods().get(i).getDiff());
                 interactionViewer.appendText("Modifie internal state: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
                 interactionViewer.appendText("Modifie internal state by call method: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
@@ -821,9 +860,8 @@ public class InteractionController implements ActionListener {
 
 
     }
-    
-    public void writeFileToMining(){
-        
+
+    public void writeFileToMining() {
     }
 
     public void writeInFilesStatistics() {
@@ -1217,7 +1255,7 @@ public class InteractionController implements ActionListener {
                             }
                             writer11.println("\n******* CLASS: " + jc.getFullQualifiedName() + "\n");
                             for (JavaMethod javaMethod : godMethodList) {
-                                writer11.println("########### " + javaMethod.getMethodSignature() + "        LOC: " + javaMethod.getNumberOfLines() +"      NOLV: " +javaMethod.getNumberOfLocalVariables()+"    NOP: " + javaMethod.getParameters().size() + "     CYCLOCOMPLEXITY: " + javaMethod.getCyclomaticComplexity());
+                                writer11.println("########### " + javaMethod.getMethodSignature() + "        LOC: " + javaMethod.getNumberOfLines() + "      NOLV: " + javaMethod.getNumberOfLocalVariables() + "    NOP: " + javaMethod.getParameters().size() + "     CYCLOCOMPLEXITY: " + javaMethod.getCyclomaticComplexity());
                             }
                         }
 
@@ -1459,8 +1497,31 @@ public class InteractionController implements ActionListener {
 
 
     }
-//    public static void main(String args[]){
-//        InteractionController interactionController = new InteractionController("/home/wallace/mestrado/projetos_alvos/neo4j/neo4j", "neo4j");
-//        
-//    }
+    
+    private void orderByName(List<JavaAbstract> list){
+        for(int i =0; i < list.size(); i++){
+            for(int j = i+1; j < list.size(); j++){
+                if(list.get(i).getFullQualifiedName().compareTo(list.get(j).getFullQualifiedName()) > 0){
+                    JavaAbstract aux = list.get(i);
+                    list.set(i, list.get(j));
+                    list.set(j, aux);
+                }
+            }
+        }
+    }
+
+    public static void main(String args[]) {
+        JavaProjectsService javaprojectsService = new JavaProjectsService();
+        List<Project> projects = javaprojectsService.getProjects();
+        Project p = null;
+        for (Project project : projects) {
+            if (project.getName().equals("MapDB")) {
+                p = project;
+                break;
+            }
+        }
+        if (p != null) {
+            InteractionController interactionController = new InteractionController(p);
+        }
+    }
 }

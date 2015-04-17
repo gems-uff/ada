@@ -412,6 +412,7 @@ public class AstService {
     public List<JavaMethodAstBox> getMethods(String classPath) {
         List<JavaMethodAstBox> list = new ArrayList();
         String contentForJavancss = null;
+        
         try {
             String content = readFile(classPath);
             //System.out.println("Path: "+classPath);
@@ -423,14 +424,20 @@ public class AstService {
 
             List functionMetrics = new ArrayList();
             contentForJavancss = content.replace("<>", "");
+            content = null;
+            System.gc();
             if (contentForJavancss.contains("try")) {
                 contentForJavancss = removeComments(contentForJavancss);
+                System.gc();
                 //System.out.println("Foi removecomments");
                 contentForJavancss = removeLiteralStrings(contentForJavancss);
+                System.gc();
                 //System.out.println("Foi removeLiteralStrings");
                 contentForJavancss = removeTryWithResources(contentForJavancss);
+                System.gc();
                 //System.out.println("Foi removeTryWithResources");
                 contentForJavancss = removeMultipleCatch(contentForJavancss);
+                System.gc();
                 //System.out.println("Foi removeMultipleCatch");
             }
             Reader reader = new StringReader(contentForJavancss);
@@ -438,11 +445,11 @@ public class AstService {
             try {
                 Javancss javancss = new Javancss(reader);
                 functionMetrics = javancss.getFunctionMetrics();
-                System.out.println("Funcion metrics: " + functionMetrics.size());
-                for (Object object : functionMetrics) {
+                //System.out.println("Funcion metrics: " + functionMetrics.size());
+                /*for (Object object : functionMetrics) {
                     FunctionMetric functionMetric = (FunctionMetric) object;
-                    System.out.println("Name: " + functionMetric.toString());
-                }
+                    //System.out.println("Name: " + functionMetric.toString());
+                }*/
 
             } catch (Exception e) {
                 System.out.println("Error javancss: " + e.getMessage());
@@ -688,6 +695,7 @@ public class AstService {
             }
 
             for (JavaMethod javaMethod : javaClass.getMethods()) {
+                System.gc();
                 //System.out.println("Classe: "+javaClass.getFullQualifiedName()+":"+javaMethod.getMethodSignature());
                 //hashmap para calcular as tres métricas
                 HashMap<String, String> accessForeignDataMap = new HashMap();
@@ -828,6 +836,7 @@ public class AstService {
                     //vendo os métodos que são chamados e se eles são 
                     List<MethodInvocation> listmi = miv.getMethods();
                     for (MethodInvocation methinv : listmi) {
+                        System.gc();
 
                         //System.out.println("METHOD INVOCATION: " + methinv.toString());
                         //System.out.println("MI EXPRESSSION: " + methinv.getExpression());
@@ -925,6 +934,8 @@ public class AstService {
 
 
             for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+                
+                System.gc();
 
                 List<JavaMethod> completeMethods = new ArrayList();
                 List<JavaMethod> incompleteMethods = new ArrayList();
@@ -977,6 +988,7 @@ public class AstService {
                             break;
                         }
                     }
+                    System.gc();
                 }
             }
 
@@ -1013,6 +1025,7 @@ public class AstService {
                 JavaData classReturnType = blockVariablesBox.getJavaDataByVariableName(((SimpleName) expression).toString(), expression.getParent());
                 if (classReturnType == null) {
                     for (Parameter parameter : javaMethod.getParameters()) {
+                        System.gc();
                         if (parameter.getName().equals(((SimpleName) expression).toString())) {
                             classReturnType = parameter.getType();
                             break;
@@ -1097,7 +1110,7 @@ public class AstService {
                             completeCalls++;
                             if (methodCall.isChangeInternalState() || methodCall.isChangeInternalStateByMethodInvocations()) {
                                 change = true;
-                                System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
+                                //System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
                                 break;
                             }
                         }
@@ -1116,23 +1129,7 @@ public class AstService {
             }
 
 
-//            for (JavaMethod javaMethod : javaClass.getMethods()) {
-//                if(javaMethod)
-//                Block block = javaMethod.getBlock();
-//                if (block != null) {
-//                    MethodInvocationVisitor miv = new MethodInvocationVisitor();
-//                    block.accept(miv);
-//                    List<Assignment> assignments = miv.getAssignments();
-//                    for (Assignment assignment : assignments) {
-//                        if (assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.SimpleName.class
-//                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.FieldAccess.class
-//                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.ArrayAccess.class
-//                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.QualifiedName.class) {
-//                            System.out.println("Assignment: class: " + javaClass.getFullQualifiedName() + "     " + assignment.getLeftHandSide() + "    class: " + assignment.getLeftHandSide().getClass());
-//                        }
-//                    }
-//                }
-//            }
+
         } catch (Exception e) {
             System.out.println("Erro setAttributeModificationMethod " + e.getMessage());
         }

@@ -16,10 +16,13 @@ public class AnomalieList {
     private List<Boolean> list;
     private int typeOfAnomalie;
     private int revisionBirthNumber;
+    private int anomalieBirthNumber;
+    private int classBirthNumber;
     private int numberOfRevisionsWithoutAnomalie;
     private int numberOfRevisionsWithAnomalie;
 
-    AnomalieList(int numberOfRevisions, int revisionBirthNumber) {
+    AnomalieList(int numberOfRevisions, int revisionBirthNumber, int classBirthNumber) {
+        this.classBirthNumber = classBirthNumber;
         this.revisionBirthNumber = revisionBirthNumber;
         list = new LinkedList();
         for (int i = 0; i < numberOfRevisions; i++) {
@@ -41,6 +44,10 @@ public class AnomalieList {
     public void classifyAnomalie() {
         list = list.subList(getRevisionBirthNumber(), list.size());
         boolean congenital = false;
+        boolean bornWithTheClass = false;
+        if(getClassBirthNumber() == getRevisionBirthNumber()){
+            bornWithTheClass = true;
+        }
         if (list.get(0)) {
             congenital = true;
         }
@@ -50,9 +57,13 @@ public class AnomalieList {
                 i++;
             }
         }
+        anomalieBirthNumber = i;
         int aux = 0;
         if (!congenital) {
             aux = 6;
+        }
+        if(!bornWithTheClass){
+            aux = aux + 12;
         }
         int numOfCorrectness = 0;
         while (i < list.size() && list.get(i)) {
@@ -99,7 +110,7 @@ public class AnomalieList {
                 typeOfAnomalie = aux + 3;
             }
         } else {
-            System.out.println("Number of correctness: " + numOfCorrectness);
+            //System.out.println("Number of correctness: " + numOfCorrectness);
             if (numOfCorrectness == 1) {
                 typeOfAnomalie = aux + 4;
             } else if (numOfCorrectness == 2) {
@@ -146,5 +157,19 @@ public class AnomalieList {
      */
     public int getRevisionBirthNumber() {
         return revisionBirthNumber;
+    }
+
+    /**
+     * @return the anomalieBirthNumber
+     */
+    public int getAnomalieBirthNumber() {
+        return anomalieBirthNumber;
+    }
+
+    /**
+     * @return the classBirthNumber
+     */
+    public int getClassBirthNumber() {
+        return classBirthNumber;
     }
 }

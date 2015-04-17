@@ -21,6 +21,11 @@ import java.util.List;
 public class CreateMiningFile {
 
     public static final int MIN_NUMBER = 1001;
+    private String projectName;
+    
+    public CreateMiningFile(String projectName){
+        this.projectName = projectName;
+    }
 
     /* public void createMethodsFileMining(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
      TransformFromTuple transformFromTuple = new TransformFromTuple();
@@ -147,7 +152,7 @@ public class CreateMiningFile {
         //List<String> sequenceFilesList = null;//= transformFromTuple.transfFromMethodsToTuples(newProjectRevisions, project, javaConstructorService);
         long antm = System.currentTimeMillis();
         System.out.println("Tempo para pegar os dados de difenreças: " + (antm - ant1) + " milisegundos");
-        RulesManager rulesManager = new RulesManager();
+        RulesManager rulesManager = new RulesManager(projectName);
         long numberOfRules = rulesManager.getNumberOfRules();
         System.out.println("Number Of Rules: "+numberOfRules);
         List<Rule> rules = new LinkedList();
@@ -184,7 +189,7 @@ public class CreateMiningFile {
         //List<String> sequenceFilesList = null;//= transformFromTuple.transfFromMethodsToTuples(newProjectRevisions, project, javaConstructorService);
         long antm = System.currentTimeMillis();
         System.out.println("Tempo para pegar os dados de difenreças: " + (antm - ant1) + " milisegundos");
-        RulesManager rulesManager = new RulesManager();
+        RulesManager rulesManager = new RulesManager(projectName);
         long numberOfRules = rulesManager.getNumberOfRules();
         List<Rule> rules = new LinkedList();
         for (int i = 1; i <= numberOfRules; i++) {
@@ -333,7 +338,7 @@ public class CreateMiningFile {
     }
 
     public static void main(String args[]) {
-        CreateMiningFile createMiningFile = new CreateMiningFile();
+        CreateMiningFile createMiningFile = new CreateMiningFile("MapDB");
         createMiningFile.createConfidenceFile();
         createMiningFile.createLiftFile();
 

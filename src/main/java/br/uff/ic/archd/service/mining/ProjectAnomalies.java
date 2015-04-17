@@ -23,7 +23,7 @@ public class ProjectAnomalies {
     private HashMap<String, String> anomalies;
     private int numberOfRevisions;
 
-    ProjectAnomalies(int numberOfRevisions) {
+    public ProjectAnomalies(int numberOfRevisions) {
         this.numberOfRevisions = numberOfRevisions;
         packagesHashMap = new HashMap();
         classesHashMap = new HashMap();
@@ -31,43 +31,47 @@ public class ProjectAnomalies {
         anomalies = new HashMap();
     }
 
-    public void addPackageAnomalie(String packageName, String anomalieName, int revisionNumber, int revisionBirthNumber) {
+    public void addPackageAnomalie(String packageName, String anomalieName, int revisionNumber, int revisionBirthNumber, int classBirthNumber) {
         GenericAnomalies genericAnomalies = packagesHashMap.get(packageName);
         String anomalieStr = anomalies.get(anomalieName);
         if (anomalieStr == null) {
             anomalies.put(anomalieName, anomalieName);
         }
         if (genericAnomalies == null) {
-            genericAnomalies = new GenericAnomalies(packageName, numberOfRevisions, revisionBirthNumber);
+            genericAnomalies = new GenericAnomalies(packageName, numberOfRevisions, revisionBirthNumber, classBirthNumber);
             packagesHashMap.put(packageName, genericAnomalies);
         }
         genericAnomalies.addAnomalie(anomalieName, revisionNumber);
     }
 
-    public void addClassAnomalie(String className, String anomalieName, int revisionNumber, int revisionBirthNumber) {
+    public void addClassAnomalie(String className, String alternativeName,  String anomalieName, int revisionNumber, int revisionBirthNumber, int classBirthNumber) {
         GenericAnomalies genericAnomalies = classesHashMap.get(className);
         String anomalieStr = anomalies.get(anomalieName);
         if (anomalieStr == null) {
             anomalies.put(anomalieName, anomalieName);
         }
         if (genericAnomalies == null) {
-            genericAnomalies = new GenericAnomalies(className, numberOfRevisions, revisionBirthNumber);
+            genericAnomalies = new GenericAnomalies(className, numberOfRevisions, revisionBirthNumber, classBirthNumber);
             classesHashMap.put(className, genericAnomalies);
         }
+        genericAnomalies.addAlternativeName(alternativeName);
         genericAnomalies.addAnomalie(anomalieName, revisionNumber);
+        genericAnomalies.setGenericLastName(alternativeName);
     }
 
-    public void addMethodAnomalie(String methodName, String anomalieName, int revisionNumber, int revisionBirthNumber) {
+    public void addMethodAnomalie(String methodName, String alternativeName, String anomalieName, int revisionNumber, int revisionBirthNumber, int classBirthNumber) {
         GenericAnomalies genericAnomalies = methodsHashMap.get(methodName);
         String anomalieStr = anomalies.get(anomalieName);
         if (anomalieStr == null) {
             anomalies.put(anomalieName, anomalieName);
         }
         if (genericAnomalies == null) {
-            genericAnomalies = new GenericAnomalies(methodName, numberOfRevisions, revisionBirthNumber);
+            genericAnomalies = new GenericAnomalies(methodName, numberOfRevisions, revisionBirthNumber, classBirthNumber);
             methodsHashMap.put(methodName, genericAnomalies);
         }
+        genericAnomalies.addAlternativeName(alternativeName);
         genericAnomalies.addAnomalie(anomalieName, revisionNumber);
+        genericAnomalies.setGenericLastName(alternativeName);
     }
 
     public List<String> getAnomalies() {

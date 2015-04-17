@@ -55,6 +55,7 @@ public class AnomaliesController implements ActionListener {
         packages = this.projectAnomalies.getPackages();
         classes = this.projectAnomalies.getClasses();
         methods = this.projectAnomalies.getMethods();
+        orderByName(methods);
 
         anomalies.add(0, "ALL ANOMALIES");
         String anomaliesArr[] = new String[anomalies.size()];
@@ -185,13 +186,14 @@ public class AnomaliesController implements ActionListener {
                 packages = this.projectAnomalies.getPackages();
                 classes = this.projectAnomalies.getClasses();
                 methods = this.projectAnomalies.getMethods();
+                orderByName(methods);
                 anomaliesView.setPackages(packages);
                 anomaliesView.setClasses(classes);
                 anomaliesView.setMethods(methods);
 
                 String text = "ALL ANOMALIES: \n";
 
-                int typesOfAnomalies[] = new int[12];
+                int typesOfAnomalies[] = new int[24];
                 for (int i = 0; i < typesOfAnomalies.length; i++) {
                     typesOfAnomalies[i] = 0;
                 }
@@ -203,7 +205,7 @@ public class AnomaliesController implements ActionListener {
                     List<String> anomaliesNames = genericAnomalies.getAnomalies();
                     for (String anomalieName : anomaliesNames) {
                         AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalieName);
-                        typesOfAnomalies[anomalieList.getTypeOfAnomalie()-1]++;
+                        typesOfAnomalies[anomalieList.getTypeOfAnomalie() - 1]++;
                         totalOfAnomalies++;
                         numberOfRevisionsWithAnomalie = numberOfRevisionsWithAnomalie + anomalieList.getNumberOfRevisionsWithAnomalie();
                         numberOfRevisionsWithoutAnomalie = numberOfRevisionsWithoutAnomalie + anomalieList.getNumberOfRevisionsWithoutAnomalie();
@@ -215,7 +217,7 @@ public class AnomaliesController implements ActionListener {
                     List<String> anomaliesNames = genericAnomalies.getAnomalies();
                     for (String anomalieName : anomaliesNames) {
                         AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalieName);
-                        typesOfAnomalies[anomalieList.getTypeOfAnomalie()-1]++;
+                        typesOfAnomalies[anomalieList.getTypeOfAnomalie() - 1]++;
                         totalOfAnomalies++;
                         numberOfRevisionsWithAnomalie = numberOfRevisionsWithAnomalie + anomalieList.getNumberOfRevisionsWithAnomalie();
                         numberOfRevisionsWithoutAnomalie = numberOfRevisionsWithoutAnomalie + anomalieList.getNumberOfRevisionsWithoutAnomalie();
@@ -227,7 +229,7 @@ public class AnomaliesController implements ActionListener {
                     List<String> anomaliesNames = genericAnomalies.getAnomalies();
                     for (String anomalieName : anomaliesNames) {
                         AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalieName);
-                        typesOfAnomalies[anomalieList.getTypeOfAnomalie()-1]++;
+                        typesOfAnomalies[anomalieList.getTypeOfAnomalie() - 1]++;
                         totalOfAnomalies++;
                         numberOfRevisionsWithAnomalie = numberOfRevisionsWithAnomalie + anomalieList.getNumberOfRevisionsWithAnomalie();
                         numberOfRevisionsWithoutAnomalie = numberOfRevisionsWithoutAnomalie + anomalieList.getNumberOfRevisionsWithoutAnomalie();
@@ -244,21 +246,41 @@ public class AnomaliesController implements ActionListener {
 
                 text = text + "          Number Of Revisions With Problem: " + numberOfRevisionsWithAnomalie
                         + "          Number Of Revisions Without Problem: " + numberOfRevisionsWithoutAnomalie + "          ("
-                        + (percentagem) + " %)\n           Types Of Anomalies:";
-                for (int i = 0; i < 12; i++) {
+                        + (percentagem) + " %)"
+                        + "\n           Items Afected By Anomalies: " + (packages.size() + classes.size() + methods.size())
+                        + "\n           Types Of Anomalies:";
+                for (int i = 0; i < typesOfAnomalies.length; i++) {
                     percentagem = typesOfAnomalies[i];
                     percentagem = percentagem / totalOfAnomalies;
                     percentagem = percentagem * 100;
                     text = text + "\n               " + getTypeOfAnomalie(i + 1) + ": " + typesOfAnomalies[i] + " times (" + percentagem + " %)";
                 }
-                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
-                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int notCorrected = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8];
-                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9];
-                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10];
-                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11];
+                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
+                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11]+
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int notCorrected = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20];
+                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11] +
+                        typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9]+
+                        typesOfAnomalies[12] + typesOfAnomalies[15] + typesOfAnomalies[18] + typesOfAnomalies[21];
+                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10]+
+                        typesOfAnomalies[13] + typesOfAnomalies[16] + typesOfAnomalies[19] + typesOfAnomalies[22];
+                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11]+
+                        typesOfAnomalies[14] + typesOfAnomalies[17] + typesOfAnomalies[20] + typesOfAnomalies[23];
+                
+                int bornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int bornAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + 
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23] ;
+                
+                int congenitalBornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
+                int congenitalBorntAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
 
+                int adquiredBornWithTheClass = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int adquiredBornAfterTheClass =  typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                
                 percentagem = congenital;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -267,7 +289,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Adquired: " + adquired + " times (" + percentagem + " %)";
-                
+
                 percentagem = notCorrected;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -276,7 +298,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Corrected: " + corrected + " times (" + percentagem + " %)";
-                
+
                 percentagem = simplePattern;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -289,6 +311,34 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Recurrent Pattern: " + complexPattern + " times (" + percentagem + " %)";
+                
+                percentagem = bornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Born With The Class: " + bornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = bornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Born After The Class: " + bornAfterTheClass + " times (" + percentagem + " %)";
+                
+                percentagem = congenitalBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Congenital Born With The Class: " + congenitalBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = congenitalBorntAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Congenital Born After The Class: " + congenitalBorntAfterTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Adquired Born With The Class: " + adquiredBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Adquired Born After The Class: " + adquiredBornAfterTheClass + " times (" + percentagem + " %)";
+                
+                
 
                 anomaliesView.setInformation(text);
 
@@ -305,18 +355,19 @@ public class AnomaliesController implements ActionListener {
                 anomaliesView.setPackages(packages);
                 anomaliesView.setPackageEnable();
 
-                int typesOfAnomalies[] = new int[12];
+                int typesOfAnomalies[] = new int[24];
                 for (int i = 0; i < typesOfAnomalies.length; i++) {
                     typesOfAnomalies[i] = 0;
                 }
                 int totalOfAnomalies = 0;
                 long numberOfRevisionsWithAnomalie = 0;
                 long numberOfRevisionsWithoutAnomalie = 0;
+                
 
                 for (String genericName : packages) {
                     GenericAnomalies genericAnomalies = projectAnomalies.getPackageAnomalies(genericName);
                     AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalie);
-                    typesOfAnomalies[anomalieList.getTypeOfAnomalie()-1]++;
+                    typesOfAnomalies[anomalieList.getTypeOfAnomalie() - 1]++;
                     totalOfAnomalies++;
                     numberOfRevisionsWithAnomalie = numberOfRevisionsWithAnomalie + anomalieList.getNumberOfRevisionsWithAnomalie();
                     numberOfRevisionsWithoutAnomalie = numberOfRevisionsWithoutAnomalie + anomalieList.getNumberOfRevisionsWithoutAnomalie();
@@ -328,21 +379,41 @@ public class AnomaliesController implements ActionListener {
 
                 text = text + "          Number Of Revisions With Problem: " + numberOfRevisionsWithAnomalie
                         + "          Number Of Revisions Without Problem: " + numberOfRevisionsWithoutAnomalie + "          ("
-                        + (percentagem) + " %)\n           Types Of Anomalies:";
-                for (int i = 0; i < 12; i++) {
+                        + (percentagem) + " %)"
+                        + "\n           Packages Afected By Anomalie: " + (packages.size())
+                        + "\n           Types Of Anomalies:";
+                for (int i = 0; i < typesOfAnomalies.length; i++) {
                     percentagem = typesOfAnomalies[i];
                     percentagem = percentagem / totalOfAnomalies;
                     percentagem = percentagem * 100;
                     text = text + "\n               " + getTypeOfAnomalie(i + 1) + ": " + typesOfAnomalies[i] + " times (" + percentagem + " %)";
                 }
-                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
-                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int notCorrected = typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8];
-                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9];
-                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10];
-                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11];
+                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
+                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11]+
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int notCorrected = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20];
+                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11] +
+                        typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9]+
+                        typesOfAnomalies[12] + typesOfAnomalies[15] + typesOfAnomalies[18] + typesOfAnomalies[21];
+                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10]+
+                        typesOfAnomalies[13] + typesOfAnomalies[16] + typesOfAnomalies[19] + typesOfAnomalies[22];
+                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11]+
+                        typesOfAnomalies[14] + typesOfAnomalies[17] + typesOfAnomalies[20] + typesOfAnomalies[23];
+                
+                int bornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int bornAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + 
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23] ;
+                
+                int congenitalBornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
+                int congenitalBorntAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
 
+                int adquiredBornWithTheClass = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int adquiredBornAfterTheClass =  typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                
                 percentagem = congenital;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -351,7 +422,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Adquired: " + adquired + " times (" + percentagem + " %)";
-                
+
                 percentagem = notCorrected;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -360,7 +431,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Corrected: " + corrected + " times (" + percentagem + " %)";
-                
+
                 percentagem = simplePattern;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -374,6 +445,33 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem * 100;
                 text = text + "\n               Recurrent Pattern: " + complexPattern + " times (" + percentagem + " %)";
                 
+                percentagem = bornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Born With The Class: " + bornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = bornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Born After The Class: " + bornAfterTheClass + " times (" + percentagem + " %)";
+                
+                percentagem = congenitalBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Congenital Born With The Class: " + congenitalBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = congenitalBorntAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Congenital Born After The Class: " + congenitalBorntAfterTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Adquired Born With The Class: " + adquiredBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Adquired Born After The Class: " + adquiredBornAfterTheClass + " times (" + percentagem + " %)";
+                
+
 
             } else if (anomalie.equals("GOD CLASS") || anomalie.equals("MISPLACED CLASS")) {
                 classes = this.projectAnomalies.getClassesByAnomalie(anomalie);
@@ -382,7 +480,7 @@ public class AnomaliesController implements ActionListener {
 
 
 
-                int typesOfAnomalies[] = new int[12];
+                int typesOfAnomalies[] = new int[24];
                 for (int i = 0; i < typesOfAnomalies.length; i++) {
                     typesOfAnomalies[i] = 0;
                 }
@@ -393,7 +491,7 @@ public class AnomaliesController implements ActionListener {
                 for (String genericName : classes) {
                     GenericAnomalies genericAnomalies = projectAnomalies.getClassAnomalies(genericName);
                     AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalie);
-                    typesOfAnomalies[anomalieList.getTypeOfAnomalie()-1]++;
+                    typesOfAnomalies[anomalieList.getTypeOfAnomalie() - 1]++;
                     totalOfAnomalies++;
                     numberOfRevisionsWithAnomalie = numberOfRevisionsWithAnomalie + anomalieList.getNumberOfRevisionsWithAnomalie();
                     numberOfRevisionsWithoutAnomalie = numberOfRevisionsWithoutAnomalie + anomalieList.getNumberOfRevisionsWithoutAnomalie();
@@ -405,20 +503,40 @@ public class AnomaliesController implements ActionListener {
 
                 text = text + "          Number Of Revisions With Problem: " + numberOfRevisionsWithAnomalie
                         + "          Number Of Revisions Without Problem: " + numberOfRevisionsWithoutAnomalie + "          ("
-                        + (percentagem) + " %)\n           Types Of Anomalies:";
-                for (int i = 0; i < 12; i++) {
+                        + (percentagem) + " %)"
+                        + "\n           Classes Afected By Anomalie: " + (classes.size())
+                        + "\n           Types Of Anomalies:";
+                for (int i = 0; i < typesOfAnomalies.length; i++) {
                     percentagem = typesOfAnomalies[i];
                     percentagem = percentagem / totalOfAnomalies;
                     text = text + "\n               " + getTypeOfAnomalie(i + 1) + ": " + typesOfAnomalies[i] + " times (" + percentagem + " %)";
                 }
-                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
-                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int notCorrected = typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8];
-                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9];
-                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10];
-                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11];
+                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
+                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11]+
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int notCorrected = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20];
+                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11] +
+                        typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9]+
+                        typesOfAnomalies[12] + typesOfAnomalies[15] + typesOfAnomalies[18] + typesOfAnomalies[21];
+                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10]+
+                        typesOfAnomalies[13] + typesOfAnomalies[16] + typesOfAnomalies[19] + typesOfAnomalies[22];
+                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11]+
+                        typesOfAnomalies[14] + typesOfAnomalies[17] + typesOfAnomalies[20] + typesOfAnomalies[23];
+                
+                int bornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int bornAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + 
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23] ;
+                
+                int congenitalBornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
+                int congenitalBorntAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
 
+                int adquiredBornWithTheClass = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int adquiredBornAfterTheClass =  typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                
                 percentagem = congenital;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -427,7 +545,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Adquired: " + adquired + " times (" + percentagem + " %)";
-                
+
                 percentagem = notCorrected;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -436,7 +554,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Corrected: " + corrected + " times (" + percentagem + " %)";
-                
+
                 percentagem = simplePattern;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -449,17 +567,45 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Recurrent Pattern: " + complexPattern + " times (" + percentagem + " %)";
+                
+                percentagem = bornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Born With The Class: " + bornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = bornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Born After The Class: " + bornAfterTheClass + " times (" + percentagem + " %)";
+                
+                percentagem = congenitalBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Congenital Born With The Class: " + congenitalBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = congenitalBorntAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Congenital Born After The Class: " + congenitalBorntAfterTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Adquired Born With The Class: " + adquiredBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Adquired Born After The Class: " + adquiredBornAfterTheClass + " times (" + percentagem + " %)";
+                
 
 
             } else if (anomalie.equals("FEATURE ENVY") || anomalie.equals("SHOTGUN SURGERY") || anomalie.equals("GOD METHOD")) {
                 methods = this.projectAnomalies.getMethodsByAnomalie(anomalie);
+                orderByName(methods);
                 System.out.println("Methods number: " + methods.size());
                 anomaliesView.setMethods(methods);
                 anomaliesView.setMethodEnable();
 
 
 
-                int typesOfAnomalies[] = new int[12];
+                int typesOfAnomalies[] = new int[24];
                 for (int i = 0; i < typesOfAnomalies.length; i++) {
                     typesOfAnomalies[i] = 0;
                 }
@@ -470,7 +616,7 @@ public class AnomaliesController implements ActionListener {
                 for (String genericName : methods) {
                     GenericAnomalies genericAnomalies = projectAnomalies.getMethodAnomalies(genericName);
                     AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalie);
-                    typesOfAnomalies[anomalieList.getTypeOfAnomalie()-1]++;
+                    typesOfAnomalies[anomalieList.getTypeOfAnomalie() - 1]++;
                     totalOfAnomalies++;
                     numberOfRevisionsWithAnomalie = numberOfRevisionsWithAnomalie + anomalieList.getNumberOfRevisionsWithAnomalie();
                     numberOfRevisionsWithoutAnomalie = numberOfRevisionsWithoutAnomalie + anomalieList.getNumberOfRevisionsWithoutAnomalie();
@@ -482,20 +628,40 @@ public class AnomaliesController implements ActionListener {
 
                 text = text + "          Number Of Revisions With Problem: " + numberOfRevisionsWithAnomalie
                         + "          Number Of Revisions Without Problem: " + numberOfRevisionsWithoutAnomalie + "          ("
-                        + (percentagem) + " %)\n           Types Of Anomalies:";
-                for (int i = 0; i < 12; i++) {
+                        + (percentagem) + " %)"
+                        + "\n           Methods Afected By Anomalie: " + (methods.size())
+                        + "\n           Types Of Anomalies:";
+                for (int i = 0; i < typesOfAnomalies.length; i++) {
                     percentagem = typesOfAnomalies[i];
                     percentagem = percentagem / totalOfAnomalies;
-                    text = text + "\n               " + getTypeOfAnomalie(i + 1) + ": " + typesOfAnomalies[i] + " times (" + percentagem + " %)";
+                    text = text + "\n               " + getTypeOfAnomalie(i + 1) + ": " + typesOfAnomalies[i] + " times (" + (percentagem * 100) + " %)";
                 }
-                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
-                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int notCorrected = typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8];
-                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
-                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9];
-                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10];
-                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11];
+                int congenital = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
+                int adquired = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11]+
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int notCorrected = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] +
+                        typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20];
+                int corrected = typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11] +
+                        typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                int simplePattern = typesOfAnomalies[0] + typesOfAnomalies[3] + typesOfAnomalies[6] + typesOfAnomalies[9]+
+                        typesOfAnomalies[12] + typesOfAnomalies[15] + typesOfAnomalies[18] + typesOfAnomalies[21];
+                int doublePattern = typesOfAnomalies[1] + typesOfAnomalies[4] + typesOfAnomalies[7] + typesOfAnomalies[10]+
+                        typesOfAnomalies[13] + typesOfAnomalies[16] + typesOfAnomalies[19] + typesOfAnomalies[22];
+                int complexPattern = typesOfAnomalies[2] + typesOfAnomalies[5] + typesOfAnomalies[8] + typesOfAnomalies[11]+
+                        typesOfAnomalies[14] + typesOfAnomalies[17] + typesOfAnomalies[20] + typesOfAnomalies[23];
+                
+                int bornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5] +
+                        typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int bornAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17] + 
+                        typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23] ;
+                
+                int congenitalBornWithTheClass = typesOfAnomalies[0] + typesOfAnomalies[1] + typesOfAnomalies[2] + typesOfAnomalies[3] + typesOfAnomalies[4] + typesOfAnomalies[5];
+                int congenitalBorntAfterTheClass = typesOfAnomalies[12] + typesOfAnomalies[13] + typesOfAnomalies[14] + typesOfAnomalies[15] + typesOfAnomalies[16] + typesOfAnomalies[17];
 
+                int adquiredBornWithTheClass = typesOfAnomalies[6] + typesOfAnomalies[7] + typesOfAnomalies[8] + typesOfAnomalies[9] + typesOfAnomalies[10] + typesOfAnomalies[11];
+                int adquiredBornAfterTheClass =  typesOfAnomalies[18] + typesOfAnomalies[19] + typesOfAnomalies[20] + typesOfAnomalies[21] + typesOfAnomalies[22] + typesOfAnomalies[23];
+                
                 percentagem = congenital;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -504,7 +670,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Adquired: " + adquired + " times (" + percentagem + " %)";
-                
+
                 percentagem = notCorrected;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -513,7 +679,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Corrected: " + corrected + " times (" + percentagem + " %)";
-                
+
                 percentagem = simplePattern;
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
@@ -526,6 +692,33 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem / totalOfAnomalies;
                 percentagem = percentagem * 100;
                 text = text + "\n               Recurrent Pattern: " + complexPattern + " times (" + percentagem + " %)";
+                
+                percentagem = bornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Born With The Class: " + bornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = bornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Born After The Class: " + bornAfterTheClass + " times (" + percentagem + " %)";
+                
+                percentagem = congenitalBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Congenital Born With The Class: " + congenitalBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = congenitalBorntAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Congenital Born After The Class: " + congenitalBorntAfterTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornWithTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n\n               Adquired Born With The Class: " + adquiredBornWithTheClass + " times (" + percentagem + " %)";
+                percentagem = adquiredBornAfterTheClass;
+                percentagem = percentagem / totalOfAnomalies;
+                percentagem = percentagem * 100;
+                text = text + "\n               Adquired Born After The Class: " + adquiredBornAfterTheClass + " times (" + percentagem + " %)";
+                
             }
 
             anomaliesView.setInformation(text);
@@ -539,7 +732,14 @@ public class AnomaliesController implements ActionListener {
         GenericAnomalies genericAnomalies = projectAnomalies.getMethodAnomalies(methodName);
         JPanel chartPanel = new AnomalieChart(genericAnomalies, anomalie);
 
-        String text = "METHOD: " + methodName + "\n";
+        String text = "METHOD: " + methodName +"      last name: "+genericAnomalies.getGenericLastName()+"\n";
+        if(!genericAnomalies.getAlternativeNames().isEmpty()){
+            text = text+"Alternative Names: ";
+        }
+        for (String aux : genericAnomalies.getAlternativeNames()) {
+            text = text+" " + aux + "   ,  ";
+        }
+        text = text+"\n";
         if (anomalie.equals("ALL ANOMALIES")) {
             List<String> anomaliesNames = genericAnomalies.getAnomalies();
             for (String str : anomaliesNames) {
@@ -552,6 +752,8 @@ public class AnomaliesController implements ActionListener {
                         + "          Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
                         + (percentagem) + " %)"
                         + "\n    Revision Birth: " + anomalieList.getRevisionBirthNumber()
+                        + "\n    Class Birth: " + anomalieList.getClassBirthNumber()
+                        + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getRevisionBirthNumber())
                         + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie()) + "\n\n";
                 System.out.println("Type: " + anomalieList.getTypeOfAnomalie());
             }
@@ -564,7 +766,9 @@ public class AnomaliesController implements ActionListener {
                     + "          Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
                     + (percentagem) + " %)"
                     + "\n    Revision Birth: " + anomalieList.getRevisionBirthNumber()
-                    + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie()) + "\n\n";
+                    + "\n    Class Birth: " + anomalieList.getClassBirthNumber()
+                    + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getRevisionBirthNumber())
+                    + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie())+"\n\n";
             System.out.println("Type: " + anomalieList.getTypeOfAnomalie());
 
         }
@@ -577,30 +781,54 @@ public class AnomaliesController implements ActionListener {
     }
 
     private String getTypeOfAnomalie(int type) {
-        if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NEVER_CORRECTED) {
-            return "Congenital Never Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NOT_CORRECTED_BUT_CORRECTED_ONE_TIME) {
-            return "Congenital Not Corrected But Corrected One Time";
-        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NOT_CORRECTED_RECURRENT_CORRECTED) {
-            return "Congenital Not Corrected But Recurrently Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED) {
-            return "Congenital Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_BUT_CORRECTED_UM_TIME_BEFORE) {
-            return "Congenital Corrected But Corrected One Time Before";
-        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_RECURRENT_CORRECTED) {
-            return "Congenital Corrected But Recurrently Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NEVER_CORRECTED) {
-            return "Adquired Never Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NOT_CORRECTED_BUT_CORRECTED_ONE_TIME) {
-            return "Adquired Not Corrected But Corrected One Time";
-        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NOT_CORRECTED_RECURRENT_CORRECTED) {
-            return "Adquired Not Corrected But Recurrently Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED) {
-            return "Adquired Corrected";
-        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_BUT_CORRECTED_UM_TIME_BEFORE) {
-            return "Adquired Corrected But Corrected One Time Before";
-        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_RECURRENT_CORRECTED) {
-            return "Adquired Corrected But Recurrently Corrected";
+        if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NEVER_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Congenital Never Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NOT_CORRECTED_BUT_CORRECTED_ONE_TIME_BORN_WITH_THE_CLASS) {
+            return "Congenital Not Corrected But Corrected One Time Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NOT_CORRECTED_RECURRENT_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Congenital Not Corrected But Recurrently Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Congenital Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_BUT_CORRECTED_UM_TIME_BEFORE_BORN_WITH_THE_CLASS) {
+            return "Congenital Corrected But Corrected One Time Before Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_RECURRENT_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Congenital Corrected But Recurrently Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NEVER_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Adquired Never Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NOT_CORRECTED_BUT_CORRECTED_ONE_TIME_BORN_WITH_THE_CLASS) {
+            return "Adquired Not Corrected But Corrected One Time Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NOT_CORRECTED_RECURRENT_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Adquired Not Corrected But Recurrently Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Adquired Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_BUT_CORRECTED_UM_TIME_BEFORE_BORN_WITH_THE_CLASS) {
+            return "Adquired Corrected But Corrected One Time Before Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_RECURRENT_CORRECTED_BORN_WITH_THE_CLASS) {
+            return "Adquired Corrected But Recurrently Corrected Born with the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NEVER_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Congenital Never Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NOT_CORRECTED_BUT_CORRECTED_ONE_TIME_BORN_AFTER_THE_CLASS) {
+            return "Congenital Not Corrected But Corrected One Time Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_NOT_CORRECTED_RECURRENT_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Congenital Not Corrected But Recurrently Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Congenital Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_BUT_CORRECTED_UM_TIME_BEFORE_BORN_AFTER_THE_CLASS) {
+            return "Congenital Corrected But Corrected One Time Before Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_CONGENITAL_CORRECTED_RECURRENT_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Congenital Corrected But Recurrently Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NEVER_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Adquired Never Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NOT_CORRECTED_BUT_CORRECTED_ONE_TIME_BORN_AFTER_THE_CLASS) {
+            return "Adquired Not Corrected But Corrected One Time Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_NOT_CORRECTED_RECURRENT_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Adquired Not Corrected But Recurrently Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Adquired Corrected Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_BUT_CORRECTED_UM_TIME_BEFORE_BORN_AFTER_THE_CLASS) {
+            return "Adquired Corrected But Corrected One Time Before Born after the class";
+        } else if (type == Constants.ANOMALIE_TYPE_ADQUIRED_CORRECTED_RECURRENT_CORRECTED_BORN_AFTER_THE_CLASS) {
+            return "Adquired Corrected But Recurrently Corrected Born after the class";
         } else {
             return "";
         }
@@ -632,6 +860,18 @@ public class AnomaliesController implements ActionListener {
             showClass(anomaliesView.getClassIndex());
         } else if (e.getActionCommand().equals(AnomaliesView.ACTION_OK_PACKAGES)) {
             showPackage(anomaliesView.getPackageIndex());
+        }
+    }
+
+    private void orderByName(List<String> list) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i + 1; j < list.size(); j++) {
+                if (list.get(i).compareTo(list.get(j)) > 0) {
+                    String aux = list.get(i);
+                    list.set(i, list.get(j));
+                    list.set(j, aux);
+                }
+            }
         }
     }
 

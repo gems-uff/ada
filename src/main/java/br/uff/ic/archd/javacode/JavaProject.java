@@ -184,6 +184,24 @@ public class JavaProject {
     public JavaAbstract getClassByName(String name) {
         return classes.get(name);
     }
+    
+    public List<JavaAbstract> getClassByLastName(String name) {
+        
+        List<JavaAbstract> javaClasses = new LinkedList();
+        Collection<JavaPackage> packageCollection = packages.values();
+        Iterator it = packageCollection.iterator();
+        while (it.hasNext()) {
+            JavaPackage javaPackage = (JavaPackage) it.next();
+            for (JavaAbstract javaAbstract : javaPackage.getClasses()) {
+                if (javaAbstract.getClass() == JavaClass.class) {
+                    if(((JavaClass) javaAbstract).getName().equals(name)){
+                        javaClasses.add(javaAbstract);
+                    }
+                }
+            }
+        }
+        return javaClasses;
+    }
 
     public List<JavaClass> getClassesThatCall(JavaAbstract javaAbstract) {
         List<JavaAbstract> list = getAllClasses();
@@ -193,6 +211,7 @@ public class JavaProject {
                 boolean call = false;
                 for (JavaMethod javaMethod : ((JavaClass) javac).getMethods()) {
                     for (JavaMethodInvocation javaMethodInvocation : javaMethod.getMethodInvocations()) {
+                        //System.gc();
                         JavaAbstract javaAbtractMi = javaMethodInvocation.getJavaAbstract();
                         if (javaAbtractMi.getFullQualifiedName().equals(javaAbstract.getFullQualifiedName())) {
                             call = true;
@@ -289,16 +308,19 @@ public class JavaProject {
 
     public void setChangingMethodsAndClasses() {
         for (JavaAbstract javaAbstract : getClasses()) {
+            //System.gc();
             JavaClass javaClass = (JavaClass) javaAbstract;
             for (JavaMethod javaMethod : javaClass.getMethods()) {
                 List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();
                 for (JavaMethodInvocation javaMethodInvocation : listMethodInvocation) {
+                    //System.gc();
                     if (javaMethodInvocation.getJavaMethod() != null) {
                         javaMethodInvocation.getJavaMethod().addChangingMethod(javaMethod);
                     }
                 }
                 List<JavaMethod> listInternalMethodInvocation = javaMethod.getInternalMethodInvocations();
                 for (JavaMethod javaInternalMethodThatCall : listInternalMethodInvocation) {
+                    //System.gc();
                     if (javaInternalMethodThatCall != null) {
                         javaInternalMethodThatCall.addInternalMethodThatCallMe(javaMethod);
                     }
@@ -316,6 +338,7 @@ public class JavaProject {
                     JavaAbstract ja1 = javaMethodInvocation.getJavaAbstract();
                     if (ja1.getClass() == JavaClass.class) {
                         JavaClass jc1 = (JavaClass) ja1;
+                        //as classes pertencem a pacotes diferentes
                         if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
                             jc1.addClientClass(javaClass);
                             jc1.addClientPackage(javaClass.getJavaPackage());
@@ -325,6 +348,8 @@ public class JavaProject {
                             javaClass.addExternalDependencyClass(jc1);
                             javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
                         } else {
+                            //as classes são do mesmo pacote
+
                             jc1.addIntraPackageDependentClass(javaClass);
 
                             javaClass.addInternalDependencyClass(jc1);
@@ -394,6 +419,66 @@ public class JavaProject {
                 javaPackage.setPackageCohesion(1);
             }
         }
+
+        //verficar interfaces
+        for (JavaAbstract javaAbstract : getClasses()) {
+            JavaClass javaClass = (JavaClass) javaAbstract;
+            for (JavaMethod javaMethod : javaClass.getMethods()) {
+                List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();
+                for (JavaMethodInvocation javaMethodInvocation : listMethodInvocation) {
+                    JavaAbstract ja1 = javaMethodInvocation.getJavaAbstract();
+                    if (ja1.getClass() == JavaInterface.class) {
+                        JavaInterface ji1 = (JavaInterface) ja1;
+                        //as classes pertencem a pacotes diferentes
+                        for (JavaClass jc1 : ji1.getClassesThatImplements()) {
+                            if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
+                                jc1.addClientClassViaInterface(javaClass);
+                                jc1.addClientPackageViaInterface(javaClass.getJavaPackage());
+                                
+                                //jc1.getJavaPackage().addClientClass(javaClass);
+                                //jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
+
+                                javaClass.addExternalDependencyClassViaInterface(jc1);
+                                javaClass.addExternalDependencyPackageViaInterface(jc1.getJavaPackage());
+                                
+                                javaClass.addExternalDependencyInterface(ji1);
+                                javaClass.addExternalDependencyPackageInterface(ji1.getJavaPackage());
+                            } else {
+                                //as classes são do mesmo pacote
+
+                                jc1.addIntraPackageDependentClassViaInterface(javaClass);
+
+                                javaClass.addInternalDependencyClassViaInterface(jc1);
+                                
+                                javaClass.addInternalDependencyInterface(ji1);
+                            }
+                        }
+
+
+                    }
+                }
+                
+                //verifica de quem JavaClass herda
+                /*JavaClass jc1 = javaClass.getSuperClass();
+                while (jc1 != null) {
+                    if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
+                        jc1.addClientClass(javaClass);
+                        jc1.addClientPackage(javaClass.getJavaPackage());
+                        jc1.getJavaPackage().addClientClass(javaClass);
+                        jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
+
+                        javaClass.addExternalDependencyClass(jc1);
+                        javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
+                    } else {
+                        jc1.addIntraPackageDependentClass(javaClass);
+
+                        javaClass.addInternalDependencyClass(jc1);
+                    }
+                    jc1 = jc1.getSuperClass();
+                }*/
+            }
+        }
+
     }
 
     /*public List<JavaPackage> getPackagesThatUsing(JavaPackage javaPackage) {

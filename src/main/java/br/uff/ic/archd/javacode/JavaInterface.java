@@ -15,11 +15,22 @@ public class JavaInterface extends JavaAbstract {
 
     private List<JavaMethod> methods;
     private List<JavaInterface> interfaceExtends;
+    private List<JavaClass> classesThatImplements;
+    
 
     public JavaInterface(String path) {
         super(path);
         interfaceExtends = new ArrayList();
         methods = new ArrayList();
+        classesThatImplements = new ArrayList();
+    }
+    
+    public List<JavaClass> getClassesThatImplements(){
+        return classesThatImplements;
+    }
+    
+    public void addClassesThatImplements(JavaClass javaClass){
+        classesThatImplements.add(javaClass);
     }
 
     /**

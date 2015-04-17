@@ -4,127 +4,110 @@
  */
 package br.uff.ic.archd.gui.controller;
 
+import br.uff.ic.archd.db.dao.DataBaseFactory;
 import br.uff.ic.archd.git.service.JavaProjectsService;
 import br.uff.ic.archd.git.service.ProjectRevisionsService;
-import br.uff.ic.archd.gui.view.MainView;
-import br.uff.ic.archd.gui.view.NewProject;
 import br.uff.ic.archd.javacode.JavaConstructorService;
+import br.uff.ic.archd.javacode.JavaProject;
 import br.uff.ic.archd.model.Project;
-import br.uff.ic.archd.service.mining.AnomaliesAnaliser;
-import br.uff.ic.archd.service.mining.ProjectAnomalies;
 import br.uff.ic.dyevc.application.branchhistory.model.BranchRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.LineRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.ProjectRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.Revision;
 import br.uff.ic.dyevc.application.branchhistory.model.RevisionsBucket;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import br.uff.ic.dyevc.tools.vcs.git.GitConnector;
 import java.util.LinkedList;
 import java.util.List;
+import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.Git;
 
 /**
  *
  * @author wallace
  */
-public class MainController implements ActionListener {
+public class CalculateMetrics {
 
-    private MainView mainView;
-    private NewProject newProject;
-    private JavaProjectsService javaprojectsService;
-    //private String projectsItems[][];
-    private List<Project> projects;
+    private String BRANCHES_HISTORY_PATH = System.getProperty("user.home") + "/.archd/BRANCHES_HISTORY/";
 
-    MainController() {
-
-         
-        javaprojectsService = new JavaProjectsService();
-        projects = javaprojectsService.getProjects();
-        String projectsItems[][] = new String[projects.size()][2];
-        for(int i = 0; i < projects.size(); i++){
-            projectsItems[i][0] = projects.get(i).getName();
-            projectsItems[i][1] = projects.get(i).getPath();
-        }
-        mainView = new MainView(projectsItems);
-        newProject = new NewProject();
-        newProject.setController(this);
-        mainView.setController(this);
-        mainView.setVisible(true);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(MainView.ACTION_CREATE_PROJECT)) {
-            showNewProject();
-        } else if (e.getActionCommand().equals(NewProject.ACTION_OK_CREATE_PROJECT)) {
-            newProject.setVisible(false);
-            javaprojectsService.addProject(projects.size() + 1, newProject.getNameProject(), newProject.getPathProject(), newProject.getCodeDirs());
-            projects = javaprojectsService.getProjects();
-            updateMainView();
-        } else if (e.getActionCommand().equals(MainView.ACTION_VIEW_PROJECT)) {
-            int index = mainView.getProjectIndex();
-            if (index >= 0) {
-                showProject(index);
-            }
-        }else if(e.getActionCommand().equals(NewProject.ACTION_ADD_DIR)){
-            newProject.updateCodeDirs();
-        }else if (e.getActionCommand().equals(MainView.ACTION_VIEW_RULES)) {
-            int index = mainView.getProjectIndex();
-            if (index >= 0) {
-                showRules(index);
-            }
-        }else if (e.getActionCommand().equals(MainView.ACTION_VIEW_ANOMALIES)) {
-            int index = mainView.getProjectIndex();
-            if (index >= 0) {
-                showAnomalies(index);
-            }
-        }
-    }
-
-    private void updateMainView() {
-        String projectsItems[][] = new String[projects.size()][2];
-        for(int i = 0; i < projects.size(); i++){
-            projectsItems[i][0] = projects.get(i).getName();
-            projectsItems[i][1] = projects.get(i).getPath();
-        }
-        mainView.updateProject(projectsItems);
-    }
-
-    private void showNewProject() {
-        newProject.clean();
-        newProject.setVisible(true);
-    }
-
-    private void showProject(int index) {
-        new InteractionController(projects.get(index));
-    }
-    
-    private void showRules(int index) {
-        new RulesController(projects.get(index));
-    }
-    
-    private void showAnomalies(int index) {
-        new AnomaliesController(projects.get(index) , createAnomalies(projects.get(index)));
-    }
-    
-    public ProjectAnomalies createAnomalies(Project project) {
-        JavaConstructorService javaContructorService = new JavaConstructorService();
-        ProjectRevisionsService projectRevisionsService = new ProjectRevisionsService();
-        AnomaliesAnaliser anomaliesAnaliser = new AnomaliesAnaliser();
-        ProjectAnomalies projectAnomalies = null;
+    public void calculateMetrics(Project project, int number) {
         try {
+            JavaConstructorService javaContructorService = new JavaConstructorService();
+            ProjectRevisionsService projectRevisionsService = new ProjectRevisionsService();
             ProjectRevisions projectRevisions = projectRevisionsService.getProject(project.getPath(), project.getName());
             System.out.println("ORIGINAL ROOT: " + projectRevisions.getRoot().getId());
             System.out.println("ORIGINAL HEAD: " + projectRevisions.getBranchesRevisions().get(0).getHead().getId());
             System.out.println("Vai limpar");
+            DataBaseFactory.getInstance();
             ProjectRevisions newProjectRevisions = cleanProjectRevisionsLine(projectRevisions);
-            System.out.println("Limpou");
-            projectAnomalies = anomaliesAnaliser.getAnomalies(newProjectRevisions, project, javaContructorService);
+            Revision rev = newProjectRevisions.getRoot();
+            int numberOfRevisions = 0;
+            while (rev != null) {
+                numberOfRevisions++;
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+
+
+            System.out.println("Number of Revisions: " + numberOfRevisions);
+            rev = newProjectRevisions.getRoot();
+            int k = 0;
+            while (k < number) {
+
+                GitConnector gitConnector = null;
+                Git git = null;
+                CheckoutCommand checkoutCommand = null;
+                System.gc();
+                long tempoclone1 = System.currentTimeMillis();
+                gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + project.getName(), newProjectRevisions.getName());
+                
+
+                gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + project.getName(), newProjectRevisions.getName());
+                git = new Git(gitConnector.getRepository());
+
+
+                checkoutCommand = git.checkout();
+                checkoutCommand.setName(rev.getId());
+                checkoutCommand.call();
+
+                long tempoclone2 = System.currentTimeMillis();
+                System.out.println("TEMPO PRA FAZER UM CLONE: " + (tempoclone2 - tempoclone1) + " milisegundos       :" + k);
+
+                k++;
+
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+            System.out.println("Vai limpar a memoria");
+            System.gc();
+            System.out.println("Limpou a memoria");
+
+            while (rev != null) {
+
+                System.gc();
+                JavaProject jp = null;
+                jp = javaContructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+
+                System.out.println("Calculou: " + k);
+                k++;
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+
         } catch (Exception e) {
-            System.out.println("Erro createAnomalies: " + e.getMessage());
+            System.out.println("Rrro: " + e.getMessage());
         }
-        return projectAnomalies;
+        System.out.println("TERMINOU");
     }
-    
+
     private ProjectRevisions cleanProjectRevisionsLine(ProjectRevisions projectRevisions) {
         List<BranchRevisions> branches = new LinkedList();
         ProjectRevisions newProjectRevisions = new ProjectRevisions(projectRevisions.getName());
@@ -181,8 +164,22 @@ public class MainController implements ActionListener {
         return newProjectRevisions;
     }
 
-    
-    public static void main(String args[]){
-        MainController mainController = new MainController();
+    public static void main(String args[]) {
+        JavaProjectsService javaprojectsService = new JavaProjectsService();
+        List<Project> projects = javaprojectsService.getProjects();
+        Project p = null;
+        for (Project project : projects) {
+            if (project.getName().equals("titan")) {
+                p = project;
+                break;
+            }
+        }
+        if (p != null) {
+
+            CalculateMetrics calculateMetrics = new CalculateMetrics();
+            //calculateMetrics.calculateMetrics(p, 382);
+            calculateMetrics.calculateMetrics(p, 0);
+
+        }
     }
 }
