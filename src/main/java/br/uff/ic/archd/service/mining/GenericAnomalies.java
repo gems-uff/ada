@@ -67,6 +67,16 @@ public class GenericAnomalies {
     public String getGenericName() {
         return genericName;
     }
+    
+    public boolean isGenericName(String name){
+        boolean flag = false;
+        if(genericName.equals(name)){
+            flag = true;
+        }else {
+            flag = alternativeNames.contains(name);
+        }
+        return flag;
+    }
 
     public List<String> getAnomalies() {
         List<String> auxList = new LinkedList();

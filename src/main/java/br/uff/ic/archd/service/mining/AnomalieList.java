@@ -20,6 +20,11 @@ public class AnomalieList {
     private int classBirthNumber;
     private int numberOfRevisionsWithoutAnomalie;
     private int numberOfRevisionsWithAnomalie;
+    
+    private boolean isCongenital;
+    private boolean isCorrected;
+    private boolean afterSuperiorArtefact;
+    private int recurrenceLevel;
 
     AnomalieList(int numberOfRevisions, int revisionBirthNumber, int classBirthNumber) {
         this.classBirthNumber = classBirthNumber;
@@ -57,6 +62,9 @@ public class AnomalieList {
                 i++;
             }
         }
+        
+        afterSuperiorArtefact = !bornWithTheClass;
+        
         anomalieBirthNumber = i;
         int aux = 0;
         if (!congenital) {
@@ -65,6 +73,8 @@ public class AnomalieList {
         if(!bornWithTheClass){
             aux = aux + 12;
         }
+        
+        isCongenital = congenital;
         int numOfCorrectness = 0;
         while (i < list.size() && list.get(i)) {
             if (list.get(i)) {
@@ -109,6 +119,10 @@ public class AnomalieList {
             } else if (numOfCorrectness >= 2) {
                 typeOfAnomalie = aux + 3;
             }
+            
+            recurrenceLevel = numOfCorrectness;
+            
+            isCorrected = false;
         } else {
             //System.out.println("Number of correctness: " + numOfCorrectness);
             if (numOfCorrectness == 1) {
@@ -118,6 +132,10 @@ public class AnomalieList {
             } else if (numOfCorrectness >= 3) {
                 typeOfAnomalie = aux + 6;
             }
+            
+            
+            recurrenceLevel = numOfCorrectness-1;
+            isCorrected = true;
         }
 
         numberOfRevisionsWithoutAnomalie = 0;
@@ -171,5 +189,45 @@ public class AnomalieList {
      */
     public int getClassBirthNumber() {
         return classBirthNumber;
+    }
+
+    /**
+     * @return the isCongenital
+     */
+    public boolean isIsCongenital() {
+        return isCongenital;
+    }
+    
+    public boolean returnAnomalieInTheFuture(int num){
+        boolean returnAnomalie = false;
+        for(int i = num; i < list.size(); i++){
+            if(list.get(i)){
+                returnAnomalie = true;
+                break;
+            }
+        }
+        
+        return returnAnomalie;
+    }
+
+    /**
+     * @return the isCorrected
+     */
+    public boolean isIsCorrected() {
+        return isCorrected;
+    }
+
+    /**
+     * @return the afterSuperiorArtefact
+     */
+    public boolean isAfterSuperiorArtefact() {
+        return afterSuperiorArtefact;
+    }
+
+    /**
+     * @return the recurrenceLevel
+     */
+    public int getRecurrenceLevel() {
+        return recurrenceLevel;
     }
 }

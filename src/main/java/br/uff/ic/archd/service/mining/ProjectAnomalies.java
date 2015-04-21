@@ -96,6 +96,17 @@ public class ProjectAnomalies {
     public GenericAnomalies getMethodAnomalies(String str) {
         return methodsHashMap.get(str);
     }
+    
+    public List<GenericAnomalies> getAllMethodAnomalies() {
+        List<GenericAnomalies> genericAnomalies = new LinkedList();
+        Collection<GenericAnomalies> anomaliesCollection = methodsHashMap.values();
+        Iterator it = anomaliesCollection.iterator();
+        while (it.hasNext()) {
+            GenericAnomalies genericAnomalie = (GenericAnomalies) it.next();
+            genericAnomalies.add(genericAnomalie);
+        }
+        return genericAnomalies;
+    }
 
     public List<String> getPackages() {
         List<String> auxList = new LinkedList();
@@ -168,6 +179,31 @@ public class ProjectAnomalies {
             }
         }
         return auxList;
+    }
+    
+    public GenericAnomalies getMethodAnomalieByName(String methodName){
+        GenericAnomalies genericAnomalies = null;
+        Collection<GenericAnomalies> anomaliesCollection = methodsHashMap.values();
+        Iterator it = anomaliesCollection.iterator();
+        while (it.hasNext()) {
+            GenericAnomalies genericAnomalie = (GenericAnomalies) it.next();
+            if(genericAnomalie.getGenericName().equals(methodName)){
+                genericAnomalies = genericAnomalie;
+                break;
+            }else{
+                List<String> methodsName = genericAnomalie.getAlternativeNames();
+                for(String name : methodsName){
+                    if(name.equals(methodName)){
+                        genericAnomalies = genericAnomalie;
+                        break;
+                    }
+                }
+            }
+            
+            
+        }
+        
+        return genericAnomalies;
     }
     
     public void classifyAnomalies(){
