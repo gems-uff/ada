@@ -72,11 +72,6 @@ public class Verificar {
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
-
-
-
-
-
                 List<JavaClass> classesAddList = new LinkedList();
                 //if (ant != null) {
                 for (JavaAbstract javaAbstract : jp.getClasses()) {
@@ -96,15 +91,10 @@ public class Verificar {
                         writer0.println(javaClass.getFullQualifiedName() + " - number_of_external_dependency_package: " + javaClass.getExternalDependencyPackages().size());
                     }
 
-
-
-
                 }
                 //}
 
-
                 System.out.println("Verificou: " + k);
-
 
                 ant = jp;
                 k++;
@@ -128,7 +118,6 @@ public class Verificar {
             e.printStackTrace();
         }
         return;
-
 
     }
 
@@ -161,11 +150,6 @@ public class Verificar {
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
-
-
-
-
-
                 List<JavaClass> classesAddList = new LinkedList();
                 //if (ant != null) {
                 for (JavaAbstract javaAbstract : jp.getClasses()) {
@@ -185,16 +169,10 @@ public class Verificar {
                         writer0.println(javaClass.getFullQualifiedName() + " - number_of_external_dependency_package_by_interface: " + javaClass.getExternalDependencyPackagesViaInterface().size());
                     }
 
-
-
-
-
                 }
                 //}
 
-
                 System.out.println("Verificou: " + k);
-
 
                 ant = jp;
                 k++;
@@ -218,7 +196,6 @@ public class Verificar {
             e.printStackTrace();
         }
         return;
-
 
     }
 
@@ -251,9 +228,6 @@ public class Verificar {
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
-
-
-
                 List<JavaClass> classesAddList = new LinkedList();
                 if (ant != null) {
                     for (JavaAbstract javaAbstract : jp.getClasses()) {
@@ -271,7 +245,6 @@ public class Verificar {
                                 }
                             }
                             if (!methodsAddList.isEmpty()) {
-
 
                                 for (JavaMethod javaMethod : methodsAddList) {
                                     String text = "";
@@ -327,13 +300,10 @@ public class Verificar {
 
                         }
 
-
                     }
                 }
 
-
                 System.out.println("Verificou: " + k);
-
 
                 ant = jp;
                 k++;
@@ -357,7 +327,6 @@ public class Verificar {
             e.printStackTrace();
         }
         return;
-
 
     }
 
@@ -394,7 +363,6 @@ public class Verificar {
                 System.gc();
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
-
 
                 for (JavaPackage javaPackage : jp.getPackages()) {
                     if (birthHashMap.get(javaPackage.getName()) == null) {
@@ -481,7 +449,6 @@ public class Verificar {
                                                     System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                     methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
 
-
                                                 }
 
                                             }
@@ -522,7 +489,6 @@ public class Verificar {
                                                 }
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
 
                                             }
 
@@ -581,11 +547,6 @@ public class Verificar {
                                 int i = birthHashMap.get(alternativeName);
                                 if (k == i) {
                                     String text = "";
-
-
-
-
-
 
                                     Integer anomalieNum = hashAnomalies.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
                                     if (anomalieNum != null) {
@@ -639,10 +600,7 @@ public class Verificar {
 
                                     writer0.println(text);
 
-
                                 }
-
-
 
                             }
                         }
@@ -650,7 +608,6 @@ public class Verificar {
                 }
 
                 System.out.println("Calculou anomalies: " + k);
-
 
                 ant = jp;
                 k++;
@@ -672,7 +629,6 @@ public class Verificar {
         //projectAnomalies.classifyAnomalies();
         System.out.println("Terminou de classificar");
         System.out.println("Tempo pra pegar anomalias: " + ((t2 - t1) / 60000) + " minutos");
-
 
     }
 
@@ -711,7 +667,6 @@ public class Verificar {
 
             writer0.close();
             writer1.close();
-
 
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
@@ -759,11 +714,7 @@ public class Verificar {
                 writer0.println(ruleText);
             }
 
-
-
             writer0.close();
-
-
 
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
@@ -804,7 +755,6 @@ public class Verificar {
                 System.gc();
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
-
 
                 for (JavaPackage javaPackage : jp.getPackages()) {
                     if (birthHashMap.get(javaPackage.getName()) == null) {
@@ -891,7 +841,6 @@ public class Verificar {
                                                     System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                     methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
 
-
                                                 }
 
                                             }
@@ -932,7 +881,6 @@ public class Verificar {
                                                 }
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
 
                                             }
 
@@ -992,11 +940,6 @@ public class Verificar {
                                 if (k == i) {
                                     String text = "";
 
-
-
-
-
-
                                     Integer anomalieNum = hashAnomalies.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
                                     if (anomalieNum != null) {
                                         if (anomalieNum == Constants.ANOMALIE_FEATURE_ENVY) {
@@ -1035,11 +978,9 @@ public class Verificar {
                                     }
 
                                     //text = text + " , " + "number_of_external_imports=" + antClass.getExternalImports().size();
-
                                     text = text + " , " + "number_of_implemented_interfaces=" + antClass.getImplementedInterfaces().size();
                                     //classes do mesmo pacote das quais essa classe depende
                                     text = text + " , " + "number_of_internal_dependency_classes=" + antClass.getInternalDependencyClasses().size();
-
 
                                     //numero de metodos
                                     int numberOfMethods = antClass.getMethods().size();
@@ -1142,10 +1083,7 @@ public class Verificar {
 
                                     writer0.println(text);
 
-
                                 }
-
-
 
                             }
                         }
@@ -1153,7 +1091,6 @@ public class Verificar {
                 }
 
                 System.out.println("Calculou anomalies: " + k);
-
 
                 ant = jp;
                 k++;
@@ -1175,7 +1112,6 @@ public class Verificar {
         //projectAnomalies.classifyAnomalies();
         System.out.println("Terminou de classificar");
         System.out.println("Tempo pra pegar anomalias: " + ((t2 - t1) / 60000) + " minutos");
-
 
     }
 
@@ -1213,7 +1149,6 @@ public class Verificar {
                 System.gc();
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
-
 
                 for (JavaPackage javaPackage : jp.getPackages()) {
                     if (birthHashMap.get(javaPackage.getName()) == null) {
@@ -1300,7 +1235,6 @@ public class Verificar {
                                                     System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                     methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
 
-
                                                 }
 
                                             }
@@ -1341,7 +1275,6 @@ public class Verificar {
                                                 }
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
 
                                             }
 
@@ -1392,8 +1325,6 @@ public class Verificar {
                             }
                         }
 
-
-
                         if (auxAbstract != null && auxAbstract.getClass() == JavaClass.class) {
                             JavaClass antClass = (JavaClass) auxAbstract;
 
@@ -1406,13 +1337,7 @@ public class Verificar {
                                 int i = birthHashMap.get(alternativeName);
                                 if (k != i) {
 
-
                                     String text = "";
-
-
-
-
-
 
                                     Integer anomalieNum = hashAnomalies.get(alternativeName);
                                     Integer anomalieAntNum = hashAntAnomalies.get(alternativeName);
@@ -1449,11 +1374,9 @@ public class Verificar {
                                         }
 
                                         //text = text + " , " + "number_of_external_imports=" + antClass.getExternalImports().size();
-
                                         text = text + " , " + "number_of_implemented_interfaces=" + antClass.getImplementedInterfaces().size();
                                         //classes do mesmo pacote das quais essa classe depende
                                         text = text + " , " + "number_of_internal_dependency_classes=" + antClass.getInternalDependencyClasses().size();
-
 
                                         //numero de metodos
                                         int numberOfMethods = antClass.getMethods().size();
@@ -1559,12 +1482,7 @@ public class Verificar {
                                         text = text + "add_method_healthy";
                                     }
 
-
-
-
                                 }
-
-
 
                             }
                         }
@@ -1572,7 +1490,6 @@ public class Verificar {
                 }
 
                 System.out.println("Calculou anomalies: " + k);
-
 
                 ant = jp;
                 hashAntAnomalies = hashAnomalies;
@@ -1595,7 +1512,6 @@ public class Verificar {
         //projectAnomalies.classifyAnomalies();
         System.out.println("Terminou de classificar");
         System.out.println("Tempo pra pegar anomalias: " + ((t2 - t1) / 60000) + " minutos");
-
 
     }
 
@@ -1633,7 +1549,6 @@ public class Verificar {
                 System.gc();
                 System.out.println("********************************* vai pegar um projeto completo");
                 jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
-
 
                 for (JavaPackage javaPackage : jp.getPackages()) {
                     if (birthHashMap.get(javaPackage.getName()) == null) {
@@ -1677,6 +1592,7 @@ public class Verificar {
                         }
 
                     }
+                    List<JavaMethod> newMethods = new LinkedList();
                     for (JavaMethod javaMethod : javaClass.getMethods()) {
 
                         //ainda nao foi dito a existencia desse metodo
@@ -1720,7 +1636,6 @@ public class Verificar {
                                                     System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                     methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
 
-
                                                 }
 
                                             }
@@ -1733,43 +1648,100 @@ public class Verificar {
                                 } else {
                                     // a classe nao mudou de nome
                                     if (ant != null) {
+                                        //adiciona ao campo dos metodos novos
+                                        newMethods.add(javaMethod);
                                         //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
-                                        JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
-                                        if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//                                        JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+//                                        if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//
+//                                            List<JavaMethod> methodsName = new LinkedList();
+//                                            List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+//                                            List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+//                                            for (JavaMethod jm : methodsNameAnt) {
+//                                                boolean exists = false;
+//                                                for (JavaMethod auxJm : methodsNameCurrent) {
+//                                                    if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+//                                                        exists = true;
+//                                                        break;
+//                                                    }
+//                                                }
+//                                                if (!exists) {
+//                                                    methodsName.add(jm);
+//                                                }
+//                                            }
+//
+//                                            if (!methodsName.isEmpty()) {
+//                                                JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+//                                                String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+//                                                if (alternativeMethodName == null) {
+//                                                    alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
+//                                                }
+//                                                System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+//                                                methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+//
+//                                            }
+//
+//                                        }
+                                    }
+                                }
+                            }
 
-                                            List<JavaMethod> methodsName = new LinkedList();
-                                            List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-                                            List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-                                            for (JavaMethod jm : methodsNameAnt) {
-                                                boolean exists = false;
-                                                for (JavaMethod auxJm : methodsNameCurrent) {
-                                                    if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-                                                        exists = true;
-                                                        break;
-                                                    }
-                                                }
-                                                if (!exists) {
-                                                    methodsName.add(jm);
+                        }
+                    }
+                    boolean terminar = false;
+                    if (!newMethods.isEmpty()) {
+                        while (!terminar) {
+                            if (newMethods.isEmpty()) {
+                                terminar = true;
+                            } else {
+                                JavaMethod javaMethodFirst = newMethods.get(0);
+                                List<JavaMethod> methodsWithSameName = new LinkedList();
+                                methodsWithSameName.add(javaMethodFirst);
+                                for (int i = 1; i < newMethods.size(); i++) {
+                                    if (newMethods.get(i).getName().equals(javaMethodFirst.getName())) {
+                                        methodsWithSameName.add(newMethods.get(i));
+                                    }
+                                }
+                                for (JavaMethod jm : methodsWithSameName) {
+                                    newMethods.remove(jm);
+                                }
+
+                                for (JavaMethod javaMethod : methodsWithSameName) {
+                                    //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
+                                    JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+
+                                        List<JavaMethod> methodsName = new LinkedList();
+                                        List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+                                        List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+                                        for (JavaMethod jm : methodsNameAnt) {
+                                            boolean exists = false;
+                                            for (JavaMethod auxJm : methodsNameCurrent) {
+                                                if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+                                                    exists = true;
+                                                    break;
                                                 }
                                             }
+                                            if (!exists) {
+                                                methodsName.add(jm);
+                                            }
+                                        }
 
-                                            if (!methodsName.isEmpty()) {
-                                                JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+                                        if (!methodsName.isEmpty()) {
+                                            JavaMethod auxJm = closestMethod(javaMethod, methodsWithSameName, methodsName);
+                                            if (auxJm != null) {
                                                 String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
                                                 if (alternativeMethodName == null) {
                                                     alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
                                                 }
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
-
                                             }
-
                                         }
+
                                     }
                                 }
                             }
-
                         }
                     }
                 }
@@ -1812,8 +1784,6 @@ public class Verificar {
                             }
                         }
 
-
-
                         if (auxAbstract != null && auxAbstract.getClass() == JavaClass.class) {
                             JavaClass antClass = (JavaClass) auxAbstract;
 
@@ -1828,13 +1798,7 @@ public class Verificar {
                                 int i = birthHashMap.get(alternativeName);
                                 if (k != i) {
 
-
                                     String text = "";
-
-
-
-
-
 
                                     Integer anomalieNum = hashAnomalies.get(alternativeName);
                                     Integer anomalieAntNum = hashAntAnomalies.get(alternativeName);
@@ -1872,11 +1836,9 @@ public class Verificar {
                                         }
 
                                         //text = text + " , " + "number_of_external_imports=" + antClass.getExternalImports().size();
-
                                         text = text + " , " + "number_of_implemented_interfaces=" + antClass.getImplementedInterfaces().size();
                                         //classes do mesmo pacote das quais essa classe depende
                                         text = text + " , " + "number_of_internal_dependency_classes=" + antClass.getInternalDependencyClasses().size();
-
 
                                         //numero de metodos
                                         int numberOfMethods = antClass.getMethods().size();
@@ -2012,11 +1974,9 @@ public class Verificar {
                                         }
 
                                         //text = text + " , " + "number_of_external_imports=" + antClass.getExternalImports().size();
-
                                         text = text + " , " + "number_of_implemented_interfaces=" + antClass.getImplementedInterfaces().size();
                                         //classes do mesmo pacote das quais essa classe depende
                                         text = text + " , " + "number_of_internal_dependency_classes=" + antClass.getInternalDependencyClasses().size();
-
 
                                         //numero de metodos
                                         int numberOfMethods = antClass.getMethods().size();
@@ -2152,11 +2112,9 @@ public class Verificar {
                                         }
 
                                         //text = text + " , " + "number_of_external_imports=" + antClass.getExternalImports().size();
-
                                         text = text + " , " + "number_of_implemented_interfaces=" + antClass.getImplementedInterfaces().size();
                                         //classes do mesmo pacote das quais essa classe depende
                                         text = text + " , " + "number_of_internal_dependency_classes=" + antClass.getInternalDependencyClasses().size();
-
 
                                         //numero de metodos
                                         int numberOfMethods = antClass.getMethods().size();
@@ -2261,12 +2219,7 @@ public class Verificar {
                                     } else {
                                     }
 
-
-
-
                                 }
-
-
 
                             }
                             if (!possuiAlgumMetodo) {
@@ -2298,11 +2251,9 @@ public class Verificar {
                                 }
 
                                 //text = text + " , " + "number_of_external_imports=" + antClass.getExternalImports().size();
-
                                 text = text + " , " + "number_of_implemented_interfaces=" + antClass.getImplementedInterfaces().size();
                                 //classes do mesmo pacote das quais essa classe depende
                                 text = text + " , " + "number_of_internal_dependency_classes=" + antClass.getInternalDependencyClasses().size();
-
 
                                 //numero de metodos
                                 int numberOfMethods = antClass.getMethods().size();
@@ -2411,7 +2362,6 @@ public class Verificar {
 
                 System.out.println("Calculou anomalies: " + k);
 
-
                 ant = jp;
                 hashAntAnomalies = hashAnomalies;
                 k++;
@@ -2433,7 +2383,6 @@ public class Verificar {
         //projectAnomalies.classifyAnomalies();
         System.out.println("Terminou de classificar");
         System.out.println("Tempo pra pegar anomalias: " + ((t2 - t1) / 60000) + " minutos");
-
 
     }
 
@@ -2476,12 +2425,10 @@ public class Verificar {
         HashMap<String, Integer> hashmapClassLocalityCongenitalAfterClass = new HashMap();
         HashMap<String, Integer> hashmapClassLocalitySaudavel = new HashMap();
 
-
         //classificar as anomalias quanto aos seus 24 tipos
         //JavaConstructorService javaContructorService = new JavaConstructorService();
         //AnomaliesAnaliser anomaliesAnaliser = new AnomaliesAnaliser();
         //ProjectAnomalies projectAnomalies = anomaliesAnaliser.getAnomalies(newProjectRevisions, project, javaContructorService);
-
         try {
             PrintWriter writer0 = new PrintWriter(path + "map_add_methods_analise_emerge_and_correct_difference.txt", "UTF-8");
 
@@ -2586,7 +2533,6 @@ public class Verificar {
                                                     System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                     methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
 
-
                                                 }
 
                                             }
@@ -2628,7 +2574,6 @@ public class Verificar {
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
 
-
                                             }
 
                                         }
@@ -2649,7 +2594,6 @@ public class Verificar {
                     }
                     hashAnomalies.put(alternativeName, anomalieItem.getAnomalieId());
                 }
-
 
                 for (JavaAbstract javaAbstract : jp.getClasses()) {
 
@@ -2676,8 +2620,6 @@ public class Verificar {
                             }
                         }
 
-
-
                         if (auxAbstract != null && auxAbstract.getClass() == JavaClass.class) {
                             JavaClass antClass = (JavaClass) auxAbstract;
 
@@ -2691,13 +2633,7 @@ public class Verificar {
                                 int i = birthHashMap.get(alternativeName);
                                 if (k != i) {
 
-
                                     String text = "";
-
-
-
-
-
 
                                     Integer anomalieNum = hashAnomalies.get(alternativeName);
                                     Integer anomalieAntNum = hashAntAnomalies.get(alternativeName);
@@ -2764,7 +2700,6 @@ public class Verificar {
                                                 hashmapNumberOfAcessoDadoEstrangeiroCongenitalAfterClass.put(String.valueOf(acessoDadoEstrangeiro), num);
                                             }
 
-
                                             int numeroDeDependenciaAClassesInternas = antClass.getInternalDependencyClasses().size();
                                             num = hashmapNumeroDeDependenciaAClassesInternasCongenitalAfterClass.get(String.valueOf(numeroDeDependenciaAClassesInternas));
                                             if (num == null) {
@@ -2809,12 +2744,6 @@ public class Verificar {
                                                 num++;
                                                 hashmapClassLocalityCongenitalAfterClass.put(String.valueOf(classLocality), num);
                                             }
-
-
-
-
-
-
 
                                         }
                                     } else if (anomalieNum == null && anomalieAntNum == null) {
@@ -2878,13 +2807,6 @@ public class Verificar {
                                             hashmapNumberOfAcessoDadoEstrangeiroSaudavel.put(String.valueOf(acessoDadoEstrangeiro), num);
                                         }
 
-
-
-
-
-
-
-
                                         int numeroDeDependenciaAClassesInternas = antClass.getInternalDependencyClasses().size();
                                         num = hashmapNumeroDeDependenciaAClassesInternasSaudavel.get(String.valueOf(numeroDeDependenciaAClassesInternas));
                                         if (num == null) {
@@ -2935,7 +2857,6 @@ public class Verificar {
                         }
                     }
 
-
 //                    JavaClass javaClass = (JavaClass) javaAbstract;
 //
 //                    for (JavaMethod javaMethod : javaClass.getMethods()) {
@@ -2951,9 +2872,6 @@ public class Verificar {
 //                        }
 //                    }
                 }
-
-
-
 
                 System.out.println("Calculou: " + k);
 
@@ -2975,9 +2893,7 @@ public class Verificar {
             e.printStackTrace();
         }
 
-
         try {
-
 
             PrintWriter writer0 = new PrintWriter(path + "congenital_after_class_classe_NumberOfAttributes.txt", "UTF-8");
             Set<String> auxSet = hashmapNumberOfAttributesCongenitalAfterClass.keySet();
@@ -3039,9 +2955,6 @@ public class Verificar {
             }
             writer0.close();
 
-
-
-
             writer0 = new PrintWriter(path + "congenital_after_class_classe_NumeroDeDependenciaAClassesInternas.txt", "UTF-8");
             auxSet = hashmapNumeroDeDependenciaAClassesInternasCongenitalAfterClass.keySet();
             it = auxSet.iterator();
@@ -3082,14 +2995,7 @@ public class Verificar {
             }
             writer0.close();
 
-
             //saudavel
-
-
-
-
-
-
             writer0 = new PrintWriter(path + "saudavel_classe_NumberOfAttributes.txt", "UTF-8");
             auxSet = hashmapNumberOfAttributesSaudavel.keySet();
             it = auxSet.iterator();
@@ -3150,12 +3056,6 @@ public class Verificar {
             }
             writer0.close();
 
-
-
-
-
-
-
             writer0 = new PrintWriter(path + "saudavel_classe_NumeroDeDependenciaAClassesInternas.txt", "UTF-8");
             auxSet = hashmapNumeroDeDependenciaAClassesInternasSaudavel.keySet();
             it = auxSet.iterator();
@@ -3196,13 +3096,10 @@ public class Verificar {
             }
             writer0.close();
 
-
         } catch (Exception e) {
             System.out.println("Erro verificarHistogramOfValues: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
-
-
 
     }
     private int typeMetricNumberOfAttributes = 0;
@@ -3215,6 +3112,13 @@ public class Verificar {
     private int typeMetricTightClassCohesion = 7;
     private int typeMetricNumeroDeClassesClientesInternas = 8;
     private int typeMetricClassLocality = 9;
+
+    private int typeMetricMaxCyclomaticComplexityMethod = 10;
+    private int typeMetricMinCyclomaticComplexityMethod = 11;
+    private int typeMetricNumberOfClientClasses = 12;
+    private int typeMetricNumberOfClientPackages = 13;
+    private int typeMetricExternalDependencyClasses = 14;
+    private int typeMetricNumberOfExternalDependencyPackages = 15;
 
     public void calculateMetrics(JavaClass javaClass, List<HashMap<String, Integer>> hashMapMetric) {
 
@@ -3333,9 +3237,360 @@ public class Verificar {
             hashMapAux.put(String.valueOf(classLocality), num);
         }
 
+        int maxComplexity = 0;
+        for (JavaMethod javaMethod : javaClass.getMethods()) {
+            if (javaMethod.getCyclomaticComplexity() > maxComplexity) {
+                maxComplexity = javaMethod.getCyclomaticComplexity();
+            }
+        }
+        hashMapAux = hashMapMetric.get(typeMetricMaxCyclomaticComplexityMethod);
+        num = hashMapAux.get(String.valueOf(maxComplexity));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(maxComplexity), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(maxComplexity), num);
+        }
+
+        int minComplexity = 0;
+        for (JavaMethod javaMethod : javaClass.getMethods()) {
+            if (javaMethod.getCyclomaticComplexity() < minComplexity) {
+                minComplexity = javaMethod.getCyclomaticComplexity();
+            }
+        }
+        hashMapAux = hashMapMetric.get(typeMetricMinCyclomaticComplexityMethod);
+        num = hashMapAux.get(String.valueOf(minComplexity));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(minComplexity), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(minComplexity), num);
+        }
+
+        hashMapAux = hashMapMetric.get(typeMetricNumberOfClientClasses);
+        int numberOfClientClasses = javaClass.getClientClasses().size();
+        num = hashMapAux.get(String.valueOf(numberOfClientClasses));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfClientClasses), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfClientClasses), num);
+        }
+
+        hashMapAux = hashMapMetric.get(typeMetricNumberOfClientPackages);
+        int numberOfClientPackages = javaClass.getClientPackages().size();
+        num = hashMapAux.get(String.valueOf(numberOfClientPackages));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfClientPackages), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfClientPackages), num);
+        }
+
+        hashMapAux = hashMapMetric.get(typeMetricExternalDependencyClasses);
+        int numberOfExternalDependencyClasses = javaClass.getExternalDependencyClasses().size();
+        num = hashMapAux.get(String.valueOf(numberOfExternalDependencyClasses));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfExternalDependencyClasses), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfExternalDependencyClasses), num);
+        }
+
+        hashMapAux = hashMapMetric.get(typeMetricNumberOfExternalDependencyPackages);
+        int numberOfExternalDependencyPackages = javaClass.getExternalDependencyPackages().size();
+        num = hashMapAux.get(String.valueOf(numberOfExternalDependencyPackages));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfExternalDependencyPackages), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfExternalDependencyPackages), num);
+        }
+
+    }
+
+    int tipoAcessoPublico = 0;
+    int tipoAcessoProtegido = 1;
+    int tipoAcessoPrivado = 2;
+
+    int tipoNaoEstatico = 0;
+    int tipoEstatico = 1;
+
+    int tipoNaoSincronizado = 0;
+    int tipoSincronizado = 1;
+
+    int tipoNaoAbstrato = 0;
+    int tipoAbstrato = 1;
+
+    int tipoMetodoNaoAcessor = 0;
+    int tipoMetodoAcessor = 1;
+
+    int tipoMetodoNotChangeInternalState = 0;
+    int tipoMetodoChangeInternalState = 1;
+
+    int tipoMetodoNotChangeInternalStateByMethodInvocations = 0;
+    int tipoMetodoChangeInternalStateByMethodInvocations = 1;
+
+    int typeMethodMetricAccessToForeignDataNumber = 0;
+    int typeMethodMetricAccessToLocalDataNumber = 1;
+    int typeMethodMetricChangingClassesMetric = 2;
+    int typeMethodMetricChangingMethodsMetric = 3;
+    int typeMethodMetricCyclomaticComplexity = 4;
+    int typeMethodMetricForeignDataProviderNumber = 5;
+    int typeMethodMetricNumberOfInternalMethodInvocations = 6;
+    int typeMethodMetricNumberOfInternalMethodsThatCallMe = 7;
+    int typeMethodMetricNumberOfMethodInvocations = 8;
+    int typeMethodMetricNumberOfLines = 9;
+    int typeMethodMetricNumberOfLocalVariables = 10;
+    int typeMethodMetricNumberOfParameters = 11;
+    int typeMethodMetricTypeOfAccess = 12;
+    int typeMethodMetricIsStatic = 13;
+    int typeMethodMetricisSynchronized = 14;
+    int typeMethodMetricIsAbstract = 15;
+    int typeMethodMetricIsAnAcessorMethod = 16;
+    int typeMethodMetricIsChangeInternalState = 17;
+    int typeMethodMetricIsChangeInternalStateByMethodInvocations = 18;
+
+    public void calculateMetricsofMethods(JavaMethod javaMethod, List<HashMap<String, Integer>> hashMapMethodMetric) {
+
+        Integer num = null;
+
+        HashMap<String, Integer> hashMapAux = hashMapMethodMetric.get(typeMethodMetricAccessToForeignDataNumber);
+
+        int accessToForeignDataNumber = javaMethod.getAccessToForeignDataNumber();
+        num = hashMapAux.get(String.valueOf(accessToForeignDataNumber));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(accessToForeignDataNumber), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(accessToForeignDataNumber), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricAccessToLocalDataNumber);
+
+        int accessToLocalDataNumber = javaMethod.getAccessToLocalDataNumber();
+        num = hashMapAux.get(String.valueOf(accessToLocalDataNumber));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(accessToLocalDataNumber), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(accessToLocalDataNumber), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricChangingClassesMetric);
+
+        int changingClassesMetric = javaMethod.getChangingClassesMetric();
+        num = hashMapAux.get(String.valueOf(changingClassesMetric));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(changingClassesMetric), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(changingClassesMetric), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricChangingMethodsMetric);
+
+        int changingMethodsMetric = javaMethod.getChangingMethodsMetric();
+        num = hashMapAux.get(String.valueOf(changingMethodsMetric));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(changingMethodsMetric), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(changingMethodsMetric), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricCyclomaticComplexity);
+
+        int cyclomaticComplexity = javaMethod.getCyclomaticComplexity();
+        num = hashMapAux.get(String.valueOf(cyclomaticComplexity));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(cyclomaticComplexity), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(cyclomaticComplexity), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricForeignDataProviderNumber);
+
+        int foreignDataProviderNumber = javaMethod.getForeignDataProviderNumber();
+        num = hashMapAux.get(String.valueOf(foreignDataProviderNumber));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(foreignDataProviderNumber), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(foreignDataProviderNumber), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricNumberOfInternalMethodInvocations);
+
+        int numberOfInternalMethodInvocations = javaMethod.getInternalMethodInvocations().size();
+        num = hashMapAux.get(String.valueOf(numberOfInternalMethodInvocations));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfInternalMethodInvocations), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfInternalMethodInvocations), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricNumberOfInternalMethodsThatCallMe);
+
+        int numberOfInternalMethodsThatCallMe = javaMethod.getInternalMethodsThatCallMe().size();
+        num = hashMapAux.get(String.valueOf(numberOfInternalMethodsThatCallMe));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfInternalMethodsThatCallMe), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfInternalMethodsThatCallMe), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricNumberOfMethodInvocations);
+
+        int numberOfMethodInvocations = javaMethod.getMethodInvocations().size();
+        num = hashMapAux.get(String.valueOf(numberOfMethodInvocations));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfMethodInvocations), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfMethodInvocations), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricNumberOfLines);
+
+        int numberOfLines = javaMethod.getNumberOfLines();
+        num = hashMapAux.get(String.valueOf(numberOfLines));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfLines), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfLines), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricNumberOfLocalVariables);
+
+        int numberOfLocalVariables = javaMethod.getNumberOfLocalVariables();
+        num = hashMapAux.get(String.valueOf(numberOfLocalVariables));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfLocalVariables), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfLocalVariables), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricNumberOfParameters);
+
+        int numberOfParameters = javaMethod.getParameters().size();
+        num = hashMapAux.get(String.valueOf(numberOfParameters));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(numberOfParameters), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(numberOfParameters), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricIsAbstract);
+
+        int isAbstract = 0;
+        if (javaMethod.isAbstract()) {
+            isAbstract = 1;
+        }
+        num = hashMapAux.get(String.valueOf(isAbstract));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(isAbstract), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(isAbstract), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricTypeOfAccess);
+
+        int acessType = 0;
+        if (javaMethod.isProtected()) {
+            acessType = 1;
+        } else if (javaMethod.isPrivate()) {
+            acessType = 2;
+        }
+        num = hashMapAux.get(String.valueOf(acessType));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(acessType), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(acessType), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricIsStatic);
+
+        int isStatic = 0;
+        if (javaMethod.isStatic()) {
+            isStatic = 1;
+        }
+        num = hashMapAux.get(String.valueOf(isStatic));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(isStatic), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(isStatic), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricisSynchronized);
+
+        int isSynchronized = 0;
+        if (javaMethod.isSynchronized()) {
+            isSynchronized = 1;
+        }
+        num = hashMapAux.get(String.valueOf(isSynchronized));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(isSynchronized), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(isSynchronized), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricIsAnAcessorMethod);
+
+        int isAnAcessorMethod = 0;
+        if (javaMethod.isAnAcessorMethod()) {
+            isAnAcessorMethod = 1;
+        }
+        num = hashMapAux.get(String.valueOf(isAnAcessorMethod));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(isAnAcessorMethod), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(isAnAcessorMethod), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricIsChangeInternalState);
+
+        int isChangeInternalState = 0;
+        if (javaMethod.isChangeInternalState()) {
+            isChangeInternalState = 1;
+        }
+        num = hashMapAux.get(String.valueOf(isChangeInternalState));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(isChangeInternalState), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(isChangeInternalState), num);
+        }
+
+        hashMapAux = hashMapMethodMetric.get(typeMethodMetricIsChangeInternalStateByMethodInvocations);
+
+        int isChangeInternalStateByMethodInvocations = 0;
+        if (javaMethod.isChangeInternalStateByMethodInvocations()) {
+            isChangeInternalStateByMethodInvocations = 1;
+        }
+        num = hashMapAux.get(String.valueOf(isChangeInternalStateByMethodInvocations));
+        if (num == null) {
+            hashMapAux.put(String.valueOf(isChangeInternalStateByMethodInvocations), 1);
+        } else {
+            num++;
+            hashMapAux.put(String.valueOf(isChangeInternalStateByMethodInvocations), num);
+        }
+
     }
 
     public void verificarAnomaliasDeMetodos(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
+
         long t1 = System.currentTimeMillis();
         Revision rev = newProjectRevisions.getRoot();
         int k = 0;
@@ -3348,12 +3603,10 @@ public class Verificar {
             }
         }
 
-
         HashMap<Integer, String> dirAnomalies = new HashMap();
         dirAnomalies.put(Constants.ANOMALIE_FEATURE_ENVY, "histogram_feature_envy");
         dirAnomalies.put(Constants.ANOMALIE_SHOTGUN_SURGERY, "histogram_shotgun_surgery");
         dirAnomalies.put(Constants.ANOMALIE_GOD_METHOD, "histogram_god_method");
-
 
         HashMap<Integer, String> metricsHashMap = new HashMap();
         metricsHashMap.put(0, "number_of_attributes");
@@ -3366,6 +3619,34 @@ public class Verificar {
         metricsHashMap.put(7, "tight_class_cohesion");
         metricsHashMap.put(8, "numero_classes_clientes_internas");
         metricsHashMap.put(9, "class_locality");
+
+        metricsHashMap.put(10, "max_cyclomatic_complexity");
+        metricsHashMap.put(11, "min_cyclomatic_complexity");
+        metricsHashMap.put(12, "number_of_client_classes");
+        metricsHashMap.put(13, "number_of_client_packages");
+        metricsHashMap.put(14, "external_dependency_classes");
+        metricsHashMap.put(15, "external_dependency_packages");
+
+        HashMap<Integer, String> metricsMethodHashMap = new HashMap();
+        metricsMethodHashMap.put(0, "access_to_foreign_data_number");
+        metricsMethodHashMap.put(1, "access_to_local_data_number");
+        metricsMethodHashMap.put(2, "changing_classes_metric");
+        metricsMethodHashMap.put(3, "changing_methods_metric");
+        metricsMethodHashMap.put(4, "cyclomatic_complexity");
+        metricsMethodHashMap.put(5, "foreign_data_provider_number");
+        metricsMethodHashMap.put(6, "number_of_internal_method_invocations");
+        metricsMethodHashMap.put(7, "number_of_internalMethods_that_call_me");
+        metricsMethodHashMap.put(8, "number_of_method_invocations");
+        metricsMethodHashMap.put(9, "number_of_lines");
+        metricsMethodHashMap.put(10, "number_of_local_variables");
+        metricsMethodHashMap.put(11, "number_of_parameters");
+        metricsMethodHashMap.put(12, "type_of_access");
+        metricsMethodHashMap.put(13, "is_static");
+        metricsMethodHashMap.put(14, "is_synchronized");
+        metricsMethodHashMap.put(15, "is_abstract");
+        metricsMethodHashMap.put(16, "is_an_acessor_method");
+        metricsMethodHashMap.put(17, "is_change_internal_state");
+        metricsMethodHashMap.put(18, "is_change_internal_state_by_method_invocations");
 
         //como estava imediatamente antes de nascer algum defeito congenito
         int typeCongenitalAfterClass = 0;
@@ -3392,12 +3673,24 @@ public class Verificar {
         //anomalia volta
         int typeAnomaliaVolta = 11;
         //como a classe esta enquanto possui alguma anomalia
-        int typeClasseComAlgumaAnomalia = 11;
+        int typeClasseComAlgumaAnomalia = 12;
         //como a classe esta quando esta sem anomalia
-        int typeClasseSemAnomalia = 12;
+        int typeClasseSemAnomalia = 13;
         //como a classe esta quando jamais tem anomalia
-        int typeClasseNuncaTeveAnomalia = 13;
+        int typeClasseNuncaTeveAnomalia = 14;
 
+        //esta atualmetne com anomalia
+        int typeMethodEstaComAnomalia = 0;
+        //nao esta atualmetne com anomalia
+        int typeMethodEstaSemAnomalia = 1;
+        //nunca terá anomalia 
+        int typeMethodNuncaTeraAnomalia = 2;
+        //como esta imeditamente antes de surgir a anomalia
+        int typeMethodLogoAntesDeSurgirAnomalia = 3;
+        //foi corrigido pra mas volta
+        int typeMethodFoiCorrigidoMasVolta = 4;
+        //foi corrigido pra sempre
+        int typeMethodFoiCorrigidoPraSempre = 5;
 
         HashMap<Integer, String> typeOfAnomalieHashMap = new HashMap();
         typeOfAnomalieHashMap.put(0, "congenital_after_class");
@@ -3416,21 +3709,26 @@ public class Verificar {
         typeOfAnomalieHashMap.put(13, "class_without_anomalie");
         typeOfAnomalieHashMap.put(14, "class_never_anomalie");
 
-
-
+        HashMap<Integer, String> typeOfMethodAnomalieHashMap = new HashMap();
+        typeOfMethodAnomalieHashMap.put(0, "method_with_anomalie");
+        typeOfMethodAnomalieHashMap.put(1, "method_without_anomalie");
+        typeOfMethodAnomalieHashMap.put(2, "method_never_anomalie");
+        typeOfMethodAnomalieHashMap.put(3, "method_right_before_anomalie");
+        typeOfMethodAnomalieHashMap.put(4, "method_corrected_but_return");
+        typeOfMethodAnomalieHashMap.put(5, "method_corrected_forever");
 
         //Lista por tipo (congenita, saudavel, etc)
         List<List<HashMap<String, Integer>>> hashMapsFeatureEnvyAnomalie = new LinkedList();
         List<List<HashMap<String, Integer>>> hashMapsShotgunSurgeryAnomalies = new LinkedList();
         List<List<HashMap<String, Integer>>> hashMapsGodMethodAnomalies = new LinkedList();
 
-        //ccongenito ou saudavel
-        for (int i = 0; i < 2; i++) {
+        //ccongenito ou saudavel, ou que mais seja
+        for (int i = 0; i < 15; i++) {
             List featureEnvyMetric = new LinkedList();
             List featureShotgunSurgeryMetric = new LinkedList();
             List featureGodMethodMetric = new LinkedList();
             //lista de métricas
-            for (int j = 0; j < 10; j++) {
+            for (int j = 0; j < 16; j++) {
                 HashMap<String, Integer> featureEnvyHashMap = new HashMap();
                 HashMap<String, Integer> featureShotgunSurgeryHashMap = new HashMap();
                 HashMap<String, Integer> featureGodMethodHashMap = new HashMap();
@@ -3446,22 +3744,41 @@ public class Verificar {
 
         }
 
+        //evolução dos metodos com anomalia ou sem anomalia
+        List<List<HashMap<String, Integer>>> hashMapsEvolutionMethodsGodMethodAnomalies = new LinkedList();
+        //ccongenito ou saudavel, ou que mais seja
+        for (int i = 0; i < 6; i++) {
+            List featureEnvyMetric = new LinkedList();
+            List featureShotgunSurgeryMetric = new LinkedList();
+            List featureGodMethodMetric = new LinkedList();
+            //lista de métricas
+            for (int j = 0; j < 19; j++) {
+                HashMap<String, Integer> featureEnvyHashMap = new HashMap();
+                HashMap<String, Integer> featureShotgunSurgeryHashMap = new HashMap();
+                HashMap<String, Integer> featureGodMethodHashMap = new HashMap();
 
+                featureEnvyMetric.add(featureEnvyHashMap);
+                featureShotgunSurgeryMetric.add(featureShotgunSurgeryHashMap);
+                featureGodMethodMetric.add(featureGodMethodHashMap);
+            }
 
+            hashMapsEvolutionMethodsGodMethodAnomalies.add(featureEnvyMetric);
+            hashMapsEvolutionMethodsGodMethodAnomalies.add(featureShotgunSurgeryMetric);
+            hashMapsEvolutionMethodsGodMethodAnomalies.add(featureGodMethodMetric);
 
+        }
 
         String path = System.getProperty("user.home") + "/.archd/histogramas_anomalias/";
         HashMap<String, Integer> hashAntAnomalies = null;
 
-
         int numberofAddmethods = 0;
-
 
         //classificar as anomalias quanto aos seus 24 tipos
         JavaConstructorService javaContructorService = new JavaConstructorService();
         AnomaliesAnaliser anomaliesAnaliser = new AnomaliesAnaliser();
         ProjectAnomalies projectAnomalies = anomaliesAnaliser.getAnomalies(newProjectRevisions, project, javaContructorService);
 
+        long tm = 0;
 
         try {
             //PrintWriter writer0 = new PrintWriter(path + "map_add_methods_analise_emerge_and_correct_difference.txt", "UTF-8");
@@ -3474,9 +3791,11 @@ public class Verificar {
             k = 0;
 
             List<GenericAnomalies> methodGenericAnomalies = projectAnomalies.getAllMethodAnomalies();
+
+            tm = System.currentTimeMillis();
+
             JavaProject ant = null;
             while (rev != null) {
-
 
                 JavaProject jp = null;
                 //System.out.println("REV ID: "+rev.getId());
@@ -3526,6 +3845,9 @@ public class Verificar {
                         }
 
                     }
+                    List<JavaMethod> newMethods = new LinkedList();
+                    List<JavaMethod> newMethodsClasseAlternativeName = new LinkedList();
+                    
                     for (JavaMethod javaMethod : javaClass.getMethods()) {
 
                         //ainda nao foi dito a existencia desse metodo
@@ -3541,38 +3863,41 @@ public class Verificar {
                                     String alternativeMethodName = methodsAlternativeNameMap.get(alternativeClassName + ":" + javaMethod.getMethodSignature());
                                     if (alternativeMethodName == null) {
                                         if (ant != null) {
-                                            JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
-                                            if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
-
-                                                List<JavaMethod> methodsName = new LinkedList();
-                                                List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-                                                List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-                                                for (JavaMethod jm : methodsNameAnt) {
-                                                    boolean exists = false;
-                                                    for (JavaMethod auxJm : methodsNameCurrent) {
-                                                        if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-                                                            exists = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (!exists) {
-                                                        methodsName.add(jm);
-                                                    }
-                                                }
-
-                                                if (!methodsName.isEmpty()) {
-                                                    JavaMethod auxJm = closestMethod(javaMethod, methodsName);
-                                                    alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
-                                                    if (alternativeMethodName == null) {
-                                                        alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
-                                                    }
-                                                    System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
-                                                    methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
-
-                                                }
-
-                                            }
+                                            
+                                            //adiciona ao campo dos metodos novos
+                                            newMethodsClasseAlternativeName.add(javaMethod);
+                                            
+//                                            JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+//                                            if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//
+//                                                List<JavaMethod> methodsName = new LinkedList();
+//                                                List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+//                                                List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+//                                                for (JavaMethod jm : methodsNameAnt) {
+//                                                    boolean exists = false;
+//                                                    for (JavaMethod auxJm : methodsNameCurrent) {
+//                                                        if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+//                                                            exists = true;
+//                                                            break;
+//                                                        }
+//                                                    }
+//                                                    if (!exists) {
+//                                                        methodsName.add(jm);
+//                                                    }
+//                                                }
+//
+//                                                if (!methodsName.isEmpty()) {
+//                                                    JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+//                                                    alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+//                                                    if (alternativeMethodName == null) {
+//                                                        alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
+//                                                    }
+//                                                    System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+//                                                    methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+//
+//                                                }
+//
+//                                            }
                                         }
                                     } else {
                                         //a classe mudou de nome e a encontramos com esse nome novo
@@ -3582,43 +3907,157 @@ public class Verificar {
                                 } else {
                                     // a classe nao mudou de nome
                                     if (ant != null) {
+                                        //adiciona ao campo dos metodos novos
+                                        newMethods.add(javaMethod);
                                         //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
-                                        JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
-                                        if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//                                        JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+//                                        if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//
+//                                            List<JavaMethod> methodsName = new LinkedList();
+//                                            List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+//                                            List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+//                                            for (JavaMethod jm : methodsNameAnt) {
+//                                                boolean exists = false;
+//                                                for (JavaMethod auxJm : methodsNameCurrent) {
+//                                                    if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+//                                                        exists = true;
+//                                                        break;
+//                                                    }
+//                                                }
+//                                                if (!exists) {
+//                                                    methodsName.add(jm);
+//                                                }
+//                                            }
+//
+//                                            if (!methodsName.isEmpty()) {
+//                                                JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+//                                                String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+//                                                if (alternativeMethodName == null) {
+//                                                    alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
+//                                                }
+//                                                System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+//                                                methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+//
+//                                            }
+//
+//                                        }
+                                    }
+                                }
+                            }
 
-                                            List<JavaMethod> methodsName = new LinkedList();
-                                            List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-                                            List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-                                            for (JavaMethod jm : methodsNameAnt) {
-                                                boolean exists = false;
-                                                for (JavaMethod auxJm : methodsNameCurrent) {
-                                                    if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-                                                        exists = true;
-                                                        break;
-                                                    }
-                                                }
-                                                if (!exists) {
-                                                    methodsName.add(jm);
+                        }
+                    }
+
+                    boolean terminar = false;
+                    if (!newMethods.isEmpty()) {
+                        while (!terminar) {
+                            if (newMethods.isEmpty()) {
+                                terminar = true;
+                            } else {
+                                JavaMethod javaMethodFirst = newMethods.get(0);
+                                List<JavaMethod> methodsWithSameName = new LinkedList();
+                                methodsWithSameName.add(javaMethodFirst);
+                                for (int i = 1; i < newMethods.size(); i++) {
+                                    if (newMethods.get(i).getName().equals(javaMethodFirst.getName())) {
+                                        methodsWithSameName.add(newMethods.get(i));
+                                    }
+                                }
+                                for (JavaMethod jm : methodsWithSameName) {
+                                    newMethods.remove(jm);
+                                }
+
+                                for (JavaMethod javaMethod : methodsWithSameName) {
+                                    //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
+                                    JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+
+                                        List<JavaMethod> methodsName = new LinkedList();
+                                        List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+                                        List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+                                        for (JavaMethod jm : methodsNameAnt) {
+                                            boolean exists = false;
+                                            for (JavaMethod auxJm : methodsNameCurrent) {
+                                                if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+                                                    exists = true;
+                                                    break;
                                                 }
                                             }
+                                            if (!exists) {
+                                                methodsName.add(jm);
+                                            }
+                                        }
 
-                                            if (!methodsName.isEmpty()) {
-                                                JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+                                        if (!methodsName.isEmpty()) {
+                                            JavaMethod auxJm = closestMethod(javaMethod, methodsWithSameName, methodsName);
+                                            if (auxJm != null) {
                                                 String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
                                                 if (alternativeMethodName == null) {
                                                     alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
                                                 }
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
-
                                             }
-
                                         }
+
                                     }
                                 }
                             }
+                        }
+                    }
 
+                    terminar = false;
+                    if (!newMethodsClasseAlternativeName.isEmpty()) {
+                        while (!terminar) {
+                            if (newMethodsClasseAlternativeName.isEmpty()) {
+                                terminar = true;
+                            } else {
+                                JavaMethod javaMethodFirst = newMethodsClasseAlternativeName.get(0);
+                                List<JavaMethod> methodsWithSameName = new LinkedList();
+                                methodsWithSameName.add(javaMethodFirst);
+                                for (int i = 1; i < newMethodsClasseAlternativeName.size(); i++) {
+                                    if (newMethodsClasseAlternativeName.get(i).getName().equals(javaMethodFirst.getName())) {
+                                        methodsWithSameName.add(newMethodsClasseAlternativeName.get(i));
+                                    }
+                                }
+                                for (JavaMethod jm : methodsWithSameName) {
+                                    newMethodsClasseAlternativeName.remove(jm);
+                                }
+
+                                String alternativeClassName = classesAlternativeNameMap.get(javaClass.getFullQualifiedName());
+                                for (JavaMethod javaMethod : methodsWithSameName) {
+                                    JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+
+                                        List<JavaMethod> methodsName = new LinkedList();
+                                        List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+                                        List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+                                        for (JavaMethod jm : methodsNameAnt) {
+                                            boolean exists = false;
+                                            for (JavaMethod auxJm : methodsNameCurrent) {
+                                                if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+                                                    exists = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!exists) {
+                                                methodsName.add(jm);
+                                            }
+                                        }
+
+                                        if (!methodsName.isEmpty()) {
+                                            JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+                                            String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+                                            if (alternativeMethodName == null) {
+                                                alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
+                                            }
+                                            System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+                                            methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+
+                                        }
+
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -3632,8 +4071,6 @@ public class Verificar {
                     }
                     hashAnomalies.put(alternativeName, anomalieItem.getAnomalieId());
                 }
-
-
 
                 //System.out.println("Pegar anomalies da revisÃ£o " + rev.getId() + " : " + (i2 - i1) + " milisegundos");
                 for (JavaAbstract javaAbstract : jp.getClasses()) {
@@ -3661,15 +4098,13 @@ public class Verificar {
                             }
                         }
 
-
-
                         //a classe já existia
                         if (auxAbstract != null && auxAbstract.getClass() == JavaClass.class) {
                             JavaClass antClass = (JavaClass) auxAbstract;
 
                             boolean possuiAlgumMetodo = false;
                             boolean surgiuMetodoNovo = false;
-                            boolean surgiuMetodoNovoComDefeito = false;
+                            //boolean surgiuMetodoNovoComDefeito = false;
 
                             boolean possuiAlgumMetodoComDefeito = false;
                             boolean alguemFoiCorrigidoMasVolta = false;
@@ -3681,6 +4116,8 @@ public class Verificar {
 
                             for (JavaMethod javaMethod : javaClass.getMethods()) {
 
+                                boolean metodoMudou = false;
+
                                 String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
                                 if (alternativeName == null) {
                                     alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
@@ -3689,11 +4126,16 @@ public class Verificar {
                                 //o método não nasceu agora,veremos então se alguma método ficou com anomalia agora
                                 if (k != i) {
 
-
                                     JavaMethod antMethod = null;
+                                    //System.out.println("Nome original Of Method: "+javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
+                                    //System.out.println("AltName Of Method: "+alternativeName);
+                                    //System.out.println("Ele nasceu em: "+i+"    e estamos em: "+k);
+
                                     //se não nasceu veremos como ela era antes
                                     for (JavaMethod jm : antClass.getMethods()) {
                                         String auxName = methodsAlternativeNameMap.get(jm.getJavaAbstract().getFullQualifiedName() + ":" + jm.getMethodSignature());
+                                        //System.out.println("name Of Method: "+jm.getJavaAbstract().getFullQualifiedName() + ":" + jm.getMethodSignature());
+                                        //System.out.println("auxname Of same Method: "+auxName);
                                         if (auxName != null) {
                                             if (alternativeName.equals(auxName)) {
                                                 antMethod = jm;
@@ -3702,54 +4144,76 @@ public class Verificar {
                                         }
                                     }
 
-                                    //verfica se o metodo mudou em alguma de suas métricas
-                                    if (javaMethod.isAbstract() != antMethod.isAbstract()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isAnAcessorMethod() != antMethod.isAnAcessorMethod()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isChangeInternalState() != antMethod.isChangeInternalState()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isChangeInternalStateByMethodInvocations() != antMethod.isChangeInternalStateByMethodInvocations()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isFinal() != antMethod.isFinal()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isPrivate() != antMethod.isPrivate()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isProtected() != antMethod.isProtected()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isPublic() != antMethod.isPublic()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isStatic() != antMethod.isStatic()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.isSynchronized() != antMethod.isSynchronized()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getAccessToForeignDataNumber() != antMethod.getAccessToForeignDataNumber()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getAccessToLocalDataNumber() != antMethod.getAccessToLocalDataNumber()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getChangingClassesMetric() != antMethod.getChangingClassesMetric()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getCyclomaticComplexity() != antMethod.getCyclomaticComplexity()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getForeignDataProviderNumber() != antMethod.getForeignDataProviderNumber()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getInternalMethodInvocations().size() != antMethod.getInternalMethodInvocations().size()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getInternalMethodsThatCallMe().size() != antMethod.getInternalMethodsThatCallMe().size()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getJavaExternalAttributeAccessList().size() != antMethod.getJavaExternalAttributeAccessList().size()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getMethodInvocations().size() != antMethod.getMethodInvocations().size()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getNumberOfLines() != antMethod.getNumberOfLines()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getNumberOfLocalVariables() != antMethod.getNumberOfLocalVariables()) {
-                                        algumMetodoMudou = true;
-                                    } else if (javaMethod.getParameters().size() != antMethod.getParameters().size()) {
-                                        algumMetodoMudou = true;
+                                    if (antMethod != null) {
+                                        //verfica se o metodo mudou em alguma de suas métricas
+                                        if (javaMethod.isAbstract() != antMethod.isAbstract()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isAnAcessorMethod() != antMethod.isAnAcessorMethod()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isChangeInternalState() != antMethod.isChangeInternalState()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isChangeInternalStateByMethodInvocations() != antMethod.isChangeInternalStateByMethodInvocations()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isFinal() != antMethod.isFinal()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isPrivate() != antMethod.isPrivate()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isProtected() != antMethod.isProtected()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isPublic() != antMethod.isPublic()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isStatic() != antMethod.isStatic()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.isSynchronized() != antMethod.isSynchronized()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getAccessToForeignDataNumber() != antMethod.getAccessToForeignDataNumber()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getAccessToLocalDataNumber() != antMethod.getAccessToLocalDataNumber()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getChangingClassesMetric() != antMethod.getChangingClassesMetric()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getCyclomaticComplexity() != antMethod.getCyclomaticComplexity()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getForeignDataProviderNumber() != antMethod.getForeignDataProviderNumber()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getInternalMethodInvocations().size() != antMethod.getInternalMethodInvocations().size()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getInternalMethodsThatCallMe().size() != antMethod.getInternalMethodsThatCallMe().size()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getJavaExternalAttributeAccessList().size() != antMethod.getJavaExternalAttributeAccessList().size()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getMethodInvocations().size() != antMethod.getMethodInvocations().size()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getNumberOfLines() != antMethod.getNumberOfLines()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getNumberOfLocalVariables() != antMethod.getNumberOfLocalVariables()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        } else if (javaMethod.getParameters().size() != antMethod.getParameters().size()) {
+                                            algumMetodoMudou = true;
+                                            metodoMudou = true;
+                                        }
                                     }
-
-
 
                                     String alternativeMethodName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
                                     GenericAnomalies auxGenericAnomalies = null;
@@ -3763,37 +4227,74 @@ public class Verificar {
                                     if (auxGenericAnomalies != null) {
                                         AnomalieList anomalieList = auxGenericAnomalies.getAnomalieList("GOD METHOD");
                                         if (anomalieList != null) {
+                                            boolean surgiuAnomaliaAgoraNesseMetodo = false;
                                             teraAlgumaAnomaliaAlgumDia = true;
                                             //hashMapsGodMethodAnomalies
                                             int anomalieNumberBirth = anomalieList.getAnomalieBirthNumber();
                                             int methodNumberBirth = anomalieList.getRevisionBirthNumber();
-                                            //nasceu agora
+                                            //nasceu agora a anomalia
                                             if (anomalieNumberBirth + methodNumberBirth == k) {
                                                 if (!anomalieList.isIsCongenital()) {
                                                     List<HashMap<String, Integer>> hashMapMetric = hashMapsGodMethodAnomalies.get(typeAdquiredAnomalie);
 
                                                     calculateMetrics(antClass, hashMapMetric);
 
-
                                                     hashMapMetric = hashMapsGodMethodAnomalies.get(typeAnomalies);
                                                     calculateMetrics(antClass, hashMapMetric);
 
-
-
                                                 }
+                                                surgiuAnomaliaAgoraNesseMetodo = true;
+                                                List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaComAnomalia);
+                                                this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+                                                System.out.println("1 Anomalia em: " + k + "  de  " + alternativeName + "   que agora é ( " + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + " )ciclomatic complexity: " + javaMethod.getCyclomaticComplexity());
+
+                                                if (antMethod != null) {
+                                                    hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodLogoAntesDeSurgirAnomalia);
+                                                    this.calculateMetricsofMethods(antMethod, hashMapMethodMetric);
+                                                }
+
                                             }
+                                            //System.out.println("K: "+k+"    methodNumberBirth: "+methodNumberBirth);
+                                            //System.out.println("Alternative method name: "+alternativeMethodName);
+                                            //System.out.println("method Name: "+auxGenericAnomalies.getGenericName());
+                                            //anomalia possui defeito agora
                                             if (anomalieList.getList().get(k - methodNumberBirth)) {
                                                 possuiAlgumMetodoComDefeito = true;
 
+                                                boolean anomaliaVoltouAgora = false;
                                                 //vamos ver se ela voltou agora
                                                 if (k > (anomalieNumberBirth + methodNumberBirth)) {
                                                     //a anomalia voltou
                                                     if (!anomalieList.getList().get((k - methodNumberBirth) - 1)) {
                                                         algumaAnomaliaVoltou = true;
+                                                        anomaliaVoltouAgora = true;
                                                     }
                                                 }
+                                                if (!surgiuAnomaliaAgoraNesseMetodo && anomaliaVoltouAgora) {
+                                                    List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaComAnomalia);
+                                                    this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                                    System.out.println("2 Anomalia em: " + k + "  de  " + alternativeName + "   que agora é ( " + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + " )ciclomatic complexity: " + javaMethod.getCyclomaticComplexity());
+
+                                                    if (antMethod != null) {
+                                                        hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodLogoAntesDeSurgirAnomalia);
+                                                        this.calculateMetricsofMethods(antMethod, hashMapMethodMetric);
+
+                                                    }
+                                                }
+                                                if (!surgiuAnomaliaAgoraNesseMetodo && (metodoMudou || antMethod == null)) {
+                                                    List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaComAnomalia);
+                                                    this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                                    System.out.println("3 Anomalia em: " + k + "  de  " + alternativeName + "   que agora é ( " + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + " )ciclomatic complexity: " + javaMethod.getCyclomaticComplexity());
+
+                                                }
+
                                             } else {
+
                                                 //nao possui anomalia agora
+                                                boolean anomaliaFoiCorrigidaMasVolta = false;
+                                                boolean anomaliaFoiCorrigidaDefinitivamente = false;
                                                 //vamos ver se foi corrigido agora
                                                 if (k > (anomalieNumberBirth + methodNumberBirth)) {
                                                     //acaba de ser corrigido
@@ -3802,13 +4303,55 @@ public class Verificar {
                                                         if (anomalieList.returnAnomalieInTheFuture(i)) {
                                                             //corrigido mas vai voltar
                                                             alguemFoiCorrigidoMasVolta = true;
+                                                            anomaliaFoiCorrigidaMasVolta = true;
                                                         } else {
                                                             //foi corrigido e nao volta mais
                                                             alguemFoiCorrigidoDefinitivamente = true;
+                                                            anomaliaFoiCorrigidaDefinitivamente = true;
                                                         }
                                                     }
                                                 }
+                                                if (metodoMudou || antMethod == null) {
+                                                    List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaSemAnomalia);
+                                                    this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                                    if (anomalieList.returnAnomalieInTheFuture(i)) {
+                                                        hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodFoiCorrigidoMasVolta);
+                                                        this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+                                                    } else {
+                                                        hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodFoiCorrigidoPraSempre);
+                                                        this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+                                                    }
+
+                                                }
+
+                                                if (!metodoMudou && anomaliaFoiCorrigidaMasVolta) {
+                                                    List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodFoiCorrigidoMasVolta);
+                                                    this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                                } else if (!metodoMudou && anomaliaFoiCorrigidaDefinitivamente) {
+                                                    List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodFoiCorrigidoPraSempre);
+                                                    this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                                }
                                             }
+
+                                        } else {
+                                            if (metodoMudou || antMethod == null) {
+                                                List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaSemAnomalia);
+                                                this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                                hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodNuncaTeraAnomalia);
+                                                this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+                                            }
+                                        }
+                                    } else {
+                                        if (metodoMudou || antMethod == null) {
+                                            List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaSemAnomalia);
+                                            this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                            hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodNuncaTeraAnomalia);
+                                            this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
 
                                         }
                                     }
@@ -3829,12 +4372,11 @@ public class Verificar {
                                     //esse método possui uma anomalia
                                     if (auxGenericAnomalies != null) {
                                         System.out.println("Metodo " + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + " possui anomalia");
-                                        
 
                                         //pego a anomalia god method
                                         AnomalieList anomalieList = auxGenericAnomalies.getAnomalieList("GOD METHOD");
                                         if (anomalieList != null) {
-                                            surgiuMetodoNovoComDefeito = true;
+                                            //surgiuMetodoNovoComDefeito = true;
                                             teraAlgumaAnomaliaAlgumDia = true;
                                             //hashMapsGodMethodAnomalies
                                             int anomalieNumberBirth = anomalieList.getAnomalieBirthNumber();
@@ -3855,13 +4397,11 @@ public class Verificar {
 //                                            }
                                                 if (anomalieList.isIsCongenital() && anomalieList.isAfterSuperiorArtefact()) {
 
-
                                                     System.out.println("Metodo congenito nascido apos artefato: " + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
 
                                                     List<HashMap<String, Integer>> hashMapMetric = hashMapsGodMethodAnomalies.get(typeCongenitalAfterClass);
 
                                                     calculateMetrics(antClass, hashMapMetric);
-
 
                                                     hashMapMetric = hashMapsGodMethodAnomalies.get(typeCongenital);
                                                     calculateMetrics(antClass, hashMapMetric);
@@ -3874,7 +4414,6 @@ public class Verificar {
 
                                                     calculateMetrics(javaClass, hashMapMetric);
 
-
                                                     hashMapMetric = hashMapsGodMethodAnomalies.get(typeCongenital);
                                                     calculateMetrics(javaClass, hashMapMetric);
 
@@ -3882,19 +4421,35 @@ public class Verificar {
                                                     calculateMetrics(javaClass, hashMapMetric);
 
                                                 }
+                                                List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaComAnomalia);
+                                                this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
 
+                                                System.out.println("Nasceu com Anomalia em: " + k + "  de  " + alternativeName + "   que agora é ( " + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + " )ciclomatic complexity: " + javaMethod.getCyclomaticComplexity());
 
+                                            } else {
+                                                List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaSemAnomalia);
+                                                this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
                                             }
+                                        } else {
+
+                                            List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaSemAnomalia);
+                                            this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                            hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodNuncaTeraAnomalia);
+                                            this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
                                         }
+                                    } else {
+                                        List<HashMap<String, Integer>> hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodEstaSemAnomalia);
+                                        this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
+
+                                        hashMapMethodMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(typeMethodNuncaTeraAnomalia);
+                                        this.calculateMetricsofMethods(javaMethod, hashMapMethodMetric);
                                     }
-
-
 
                                 }
                                 if (!possuiAlgumMetodo) {
 
                                     String text = "continue_healthly_method";
-
 
                                 }
                             }
@@ -3903,7 +4458,6 @@ public class Verificar {
                                 List<HashMap<String, Integer>> hashMapMetric = hashMapsGodMethodAnomalies.get(typeSurgiuMetodoEContinuaSaudavel);
 
                                 calculateMetrics(javaClass, hashMapMetric);
-
 
                             }
 
@@ -3936,7 +4490,6 @@ public class Verificar {
 
                                 calculateMetrics(javaClass, hashMapMetric);
                             }
-
 
                             //vamos ver se a classe mudou
                             boolean classeMudouAtributos = false;
@@ -3978,7 +4531,6 @@ public class Verificar {
 
                             }
 
-
                         } else if (auxAbstract == null) {
                             //a classe surgiu agora
                             boolean possuiAnomaliaQuandoSurgiu = false;
@@ -4011,7 +4563,6 @@ public class Verificar {
                                                 List<HashMap<String, Integer>> hashMapMetric = hashMapsGodMethodAnomalies.get(typeCongenitalWithClass);
 
                                                 calculateMetrics(javaClass, hashMapMetric);
-
 
                                                 hashMapMetric = hashMapsGodMethodAnomalies.get(typeCongenital);
                                                 calculateMetrics(javaClass, hashMapMetric);
@@ -4050,11 +4601,8 @@ public class Verificar {
                                 calculateMetrics(javaClass, hashMapMetric);
                             }
 
-
                         }
                     }
-
-
 
                 }
 
@@ -4072,52 +4620,119 @@ public class Verificar {
             }
 
             //writer0.close();
-
         } catch (Exception e) {
             System.out.println("Erro verificarHistogramasCongenitalAfterClass: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
 
+        long t2 = System.currentTimeMillis();
+        System.out.println("Tempo pra calcular anomalias: " + ((tm - t1) / 60000) + " minutos");
+        System.out.println("Tempo pra calcular os histogramas: " + ((t2 - tm) / 60000) + " minutos");
+        System.out.println("Tempo pra processar tudo: " + ((t2 - t1) / 60000) + " minutos");
 
         try {
 
+            //ccongenito ou saudavel, ou qualqur um dos outros tipos
+            for (int i = 0; i < 15; i++) {
 
-
-            //ccongenito ou saudavel
-            for (int i = 0; i < 2; i++) {
-
-                String dir = path + dirAnomalies.get(Constants.ANOMALIE_GOD_METHOD) + "/";
+                String dir = path + "classes_metrics/" + dirAnomalies.get(Constants.ANOMALIE_GOD_METHOD) + "/";
 
                 List<HashMap<String, Integer>> hashMapMetric = hashMapsGodMethodAnomalies.get(i);
-                dir = path + typeOfAnomalieHashMap.get(i) + "/";
+                dir = dir + typeOfAnomalieHashMap.get(i) + "/";
                 File f = new File(dir);
                 f.mkdirs();
                 //lista de métricas
-                for (int j = 0; j < 10; j++) {
+                for (int j = 0; j < 16; j++) {
 
                     String file = dir + metricsHashMap.get(j) + ".txt";
                     System.out.println("File: " + file);
                     HashMap<String, Integer> hashMapAux = hashMapMetric.get(j);
 
                     PrintWriter writer0 = new PrintWriter(file, "UTF-8");
+                    //lista pra ajudar a ordenar
+                    List<String> aux = new LinkedList();
                     Set<String> auxSet = hashMapAux.keySet();
                     Iterator it = auxSet.iterator();
                     while (it.hasNext()) {
                         String str = (String) it.next();
+                        //Integer num = hashMapAux.get(str);
+                        //writer0.println(str + "  " + num);
+                        //adicionar na lista ordenada
+                        boolean inseriu = false;
+                        for (int index = 0; index < aux.size(); index++) {
+                            if (Double.valueOf(aux.get(index)) > Double.valueOf(str)) {
+                                inseriu = true;
+                                aux.add(index, str);
+                                break;
+                            }
+                        }
+                        if (!inseriu) {
+                            aux.add(str);
+
+                        }
+                    }
+                    for (String str : aux) {
                         Integer num = hashMapAux.get(str);
                         writer0.println(str + "  " + num);
                     }
                     writer0.close();
 
+                }
+
+                //fazer o mesmo abaixo sobre as outras anomalias ou seja:
+                //file = path + dirAnomalies.get(Constants.ANOMALIE_GOD_METHOD) + "/";
+            }
+
+            //verificar metodos
+            for (int i = 0; i < 6; i++) {
+
+                String dir = path + "methods_metrics/" + dirAnomalies.get(Constants.ANOMALIE_GOD_METHOD) + "/";
+
+                List<HashMap<String, Integer>> hashMapMetric = hashMapsEvolutionMethodsGodMethodAnomalies.get(i);
+                dir = dir + typeOfMethodAnomalieHashMap.get(i) + "/";
+                File f = new File(dir);
+                f.mkdirs();
+                //lista de métricas
+                for (int j = 0; j < 16; j++) {
+
+                    String file = dir + metricsMethodHashMap.get(j) + ".txt";
+                    System.out.println("File: " + file);
+                    HashMap<String, Integer> hashMapAux = hashMapMetric.get(j);
+
+                    PrintWriter writer0 = new PrintWriter(file, "UTF-8");
+                    //lista pra ajudar a ordenar
+                    List<String> aux = new LinkedList();
+                    Set<String> auxSet = hashMapAux.keySet();
+                    Iterator it = auxSet.iterator();
+                    while (it.hasNext()) {
+                        String str = (String) it.next();
+                        //Integer num = hashMapAux.get(str);
+                        //writer0.println(str + "  " + num);
+                        //adicionar na lista ordenada
+                        boolean inseriu = false;
+                        for (int index = 0; index < aux.size(); index++) {
+                            if (Double.valueOf(aux.get(index)) > Double.valueOf(str)) {
+                                inseriu = true;
+                                aux.add(index, str);
+                                break;
+                            }
+                        }
+                        if (!inseriu) {
+                            aux.add(str);
+
+                        }
+                    }
+                    for (String str : aux) {
+                        Integer num = hashMapAux.get(str);
+                        writer0.println(str + "  " + num);
+                    }
+                    writer0.close();
 
                 }
 
                 //fazer o mesmo abaixo sobre as outras anomalias ou seja:
                 //file = path + dirAnomalies.get(Constants.ANOMALIE_GOD_METHOD) + "/";
-
-
             }
-
 
         } catch (Exception e) {
             System.out.println("Erro verificarHistogramOfValues: " + e.getLocalizedMessage());
@@ -4125,8 +4740,6 @@ public class Verificar {
         }
 
         System.out.println("Numero de métodos adicionados: " + numberofAddmethods);
-
-
 
     }
 
@@ -4145,17 +4758,12 @@ public class Verificar {
 
         String path = System.getProperty("user.home") + "/.archd/histogramas/";
 
-
-
         //coisas de pacote
         HashMap<String, Integer> hashmapNumberOfClasse = new HashMap();
         HashMap<String, Integer> hashmapNumberOfInterfaces = new HashMap();
         HashMap<String, Integer> hashmapNumberOfClientClasses = new HashMap();
         HashMap<String, Integer> hashmapNumberOfClientPackages = new HashMap();
         HashMap<String, Integer> hashmapPackageCohesion = new HashMap();
-
-
-
 
         HashMap<String, Integer> hashmapNumberOfAttributes = new HashMap();
         HashMap<String, Integer> hashmapNumberOfMethods = new HashMap();
@@ -4172,7 +4780,6 @@ public class Verificar {
         HashMap<String, Integer> hashmapNumeroDeClassesClientesInternas = new HashMap();
         HashMap<String, Integer> hashmapClassLocality = new HashMap();
 
-
         //metodos
         HashMap<String, Integer> hashmapNumberOfLines = new HashMap();
         HashMap<String, Integer> hashmapSizeInChars = new HashMap();
@@ -4186,7 +4793,6 @@ public class Verificar {
         HashMap<String, Integer> hashmapChangingMethods = new HashMap();
         HashMap<String, Integer> hashmapProvedorEstrangeiroDeDados = new HashMap();
         HashMap<String, Integer> hashmapInvocacoesMetodosInternos = new HashMap();
-
 
         try {
             rev = newProjectRevisions.getRoot();
@@ -4515,14 +5121,10 @@ public class Verificar {
                             hashmapInvocacoesMetodosInternos.put(String.valueOf(invocacoesMetodosInternos), num);
                         }
 
-
                     }
                 }
 
-
-
                 System.out.println("Calculou: " + k);
-
 
                 ant = jp;
                 //hashAntAnomalies = hashAnomalies;
@@ -4538,7 +5140,6 @@ public class Verificar {
             e.printStackTrace();
         }
         try {
-
 
             PrintWriter writer0 = new PrintWriter(path + "pacote_NumberOfClasse.txt", "UTF-8");
             Set<String> auxSet = hashmapNumberOfClasse.keySet();
@@ -4589,7 +5190,6 @@ public class Verificar {
                 writer0.println(str + "  " + num);
             }
             writer0.close();
-
 
             writer0 = new PrintWriter(path + "classe_NumberOfAttributes.txt", "UTF-8");
             auxSet = hashmapNumberOfAttributes.keySet();
@@ -4731,9 +5331,6 @@ public class Verificar {
             }
             writer0.close();
 
-
-
-
             writer0 = new PrintWriter(path + "metodo_NumberOfLines.txt", "UTF-8");
             auxSet = hashmapNumberOfLines.keySet();
             it = auxSet.iterator();
@@ -4784,8 +5381,6 @@ public class Verificar {
             }
             writer0.close();
 
-
-
             writer0 = new PrintWriter(path + "metodo_NumberOfInvocacoesAMetodosExternos.txt", "UTF-8");
             auxSet = hashmapNumberOfInvocacoesAMetodosExternos.keySet();
             it = auxSet.iterator();
@@ -4816,9 +5411,6 @@ public class Verificar {
             }
             writer0.close();
 
-
-
-
             writer0 = new PrintWriter(path + "metodo_ChangingClasses.txt", "UTF-8");
             auxSet = hashmapChangingClasses.keySet();
             it = auxSet.iterator();
@@ -4828,7 +5420,6 @@ public class Verificar {
                 writer0.println(str + "  " + num);
             }
             writer0.close();
-
 
             writer0 = new PrintWriter(path + "metodo_ChangingMethods.txt", "UTF-8");
             auxSet = hashmapChangingMethods.keySet();
@@ -4864,7 +5455,6 @@ public class Verificar {
             System.out.println("Erro verificarHistogramOfValues: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
-
 
     }
 
@@ -5026,7 +5616,6 @@ public class Verificar {
             }
         }
 
-
         for (JavaAttribute javaAttribute : currentClass.getAttributes()) {
             for (JavaAttribute antAttribute : antClass.getAttributes()) {
                 if (javaAttribute.getName().equals(antAttribute.getName()) && javaAttribute.getType().getName().equals(antAttribute.getType().getName())) {
@@ -5034,7 +5623,6 @@ public class Verificar {
                 }
             }
         }
-
 
         if ((currentClass.getMethods().size() <= (numberOfMethods + (numberOfMethods * 0.2)) && currentClass.getMethods().size() >= (numberOfMethods - (numberOfMethods * 0.2)))
                 && (currentClass.getAttributes().size() <= (numberOfAttributes + (numberOfAttributes * 0.2)) && currentClass.getAttributes().size() >= (numberOfAttributes - (numberOfAttributes * 0.2)))) {
@@ -5044,6 +5632,68 @@ public class Verificar {
         //System.out.println("Number of attributes: " + currentClass.getAttributes().size() + "     -     " + numberOfAttributes);
 
         return isSame;
+    }
+
+    public JavaMethod closestMethod(JavaMethod currentMethod, List<JavaMethod> newMethods, List<JavaMethod> methods) {
+        boolean isSame = false;
+
+        JavaMethod closestJavaMethod = null;
+
+        int closestMethod = 0;
+
+        List<Double> diffs = new LinkedList();
+
+        for (JavaMethod javaMethod : methods) {
+            int numberOfParameters = currentMethod.getParameters().size() - javaMethod.getParameters().size();
+            int numberOfMethodInvocations = currentMethod.getMethodInvocations().size() - javaMethod.getMethodInvocations().size();
+            int numberOfCharsDiff = currentMethod.getSizeInChars() - javaMethod.getSizeInChars();
+            int numberOfLocalVariablesDiff = currentMethod.getNumberOfLocalVariables() - javaMethod.getNumberOfLocalVariables();
+            int cyclomaticComplexityDiff = currentMethod.getCyclomaticComplexity() - javaMethod.getCyclomaticComplexity();
+            double diff = Math.sqrt(Math.pow(numberOfParameters, 2) + Math.pow(numberOfMethodInvocations, 2) + Math.pow(numberOfCharsDiff, 2) + Math.pow(numberOfLocalVariablesDiff, 2) + Math.pow(cyclomaticComplexityDiff, 2));
+            diffs.add(diff);
+        }
+        double minDiff = diffs.get(0);
+        for (int i = 1; i < diffs.size(); i++) {
+            Double diff = diffs.get(i);
+            if (diff < minDiff) {
+                closestMethod = i;
+                minDiff = diff;
+            }
+        }
+
+        //agora vemos se é possível algum outro método é mais proximo de mim do que ele mesmo
+        double menorDiffDosOutrosMetodos = Double.MAX_VALUE;
+        for (JavaMethod newMethod : newMethods) {
+            if (newMethod != currentMethod) {
+                List<Double> diffsNews = new LinkedList();
+
+                for (JavaMethod javaMethod : methods) {
+                    int numberOfParameters = newMethod.getParameters().size() - javaMethod.getParameters().size();
+                    int numberOfMethodInvocations = newMethod.getMethodInvocations().size() - javaMethod.getMethodInvocations().size();
+                    int numberOfCharsDiff = newMethod.getSizeInChars() - javaMethod.getSizeInChars();
+                    int numberOfLocalVariablesDiff = newMethod.getNumberOfLocalVariables() - javaMethod.getNumberOfLocalVariables();
+                    int cyclomaticComplexityDiff = newMethod.getCyclomaticComplexity() - javaMethod.getCyclomaticComplexity();
+                    double diff = Math.sqrt(Math.pow(numberOfParameters, 2) + Math.pow(numberOfMethodInvocations, 2) + Math.pow(numberOfCharsDiff, 2) + Math.pow(numberOfLocalVariablesDiff, 2) + Math.pow(cyclomaticComplexityDiff, 2));
+                    diffsNews.add(diff);
+                }
+                double minDiffNew = diffsNews.get(0);
+                for (int i = 1; i < diffsNews.size(); i++) {
+                    Double diff = diffsNews.get(i);
+                    if (diff < minDiffNew) {
+                        minDiffNew = diff;
+                    }
+                }
+                if (minDiffNew < menorDiffDosOutrosMetodos) {
+                    menorDiffDosOutrosMetodos = minDiffNew;
+                }
+            }
+        }
+        //vejo aqui se sou o mais proximo mesmo
+        if (minDiff < menorDiffDosOutrosMetodos) {
+            closestJavaMethod = methods.get(closestMethod);
+        }
+
+        return closestJavaMethod;
     }
 
     public JavaMethod closestMethod(JavaMethod currentMethod, List<JavaMethod> methods) {

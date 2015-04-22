@@ -47,7 +47,11 @@ public class AnomalieList {
     }
 
     public void classifyAnomalie() {
+        //System.out.println("Classificacao da anomalia");
+        //System.out.println("Revision Birth: "+getRevisionBirthNumber());
+        //System.out.println("Size: "+list.size());
         list = list.subList(getRevisionBirthNumber(), list.size());
+        //System.out.println("Size depois: "+list.size());
         boolean congenital = false;
         boolean bornWithTheClass = false;
         if(getClassBirthNumber() == getRevisionBirthNumber()){
