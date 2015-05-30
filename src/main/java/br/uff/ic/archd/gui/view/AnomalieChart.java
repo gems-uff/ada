@@ -55,7 +55,7 @@ public class AnomalieChart extends JPanel {
                     if (b) {
                         value = 1;
                     }
-                    result.addValue(value, str, String.valueOf(i+anomalieList.getRevisionBirthNumber()));
+                    result.addValue(value, str, String.valueOf(i+anomalieList.getArtifactBirthNumber()));
                 }
             }
         } else {
@@ -67,7 +67,7 @@ public class AnomalieChart extends JPanel {
                 if (b) {
                     value = 1;
                 }
-                result.addValue(value, anomalieName, String.valueOf(i+anomalieList.getRevisionBirthNumber()));
+                result.addValue(value, anomalieName, String.valueOf(i+anomalieList.getArtifactBirthNumber()));
             }
         }
         /*

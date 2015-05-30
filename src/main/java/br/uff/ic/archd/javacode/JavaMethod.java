@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.dom.Block;
 public class JavaMethod {
     private long id;
     private String name;
+    private String originalSignature;
     private JavaData returnType;
     private List<Parameter> parameters;
     private List<JavaMethodInvocation> methodInvocations;
@@ -49,11 +50,15 @@ public class JavaMethod {
     private int accessToLocalDataNumber;
     private int foreignDataProviderNumber;
     
+    private long itemId;
+    private boolean fromClass;
+    
     
 
-    public JavaMethod(String name, JavaData returnType, boolean isFinal, boolean isStatic, boolean isAbstract, boolean isSynchronized,
+    public JavaMethod(String name, String originalSignature, JavaData returnType, boolean isFinal, boolean isStatic, boolean isAbstract, boolean isSynchronized,
             boolean isPrivate, boolean isPublic, boolean isProtected,int cyclomaticComplexity, Block block){
         this.name = name;
+        this.originalSignature = originalSignature;
         this.returnType = returnType;
         this.isFinal = isFinal;
         this.isStatic = isStatic;
@@ -83,6 +88,10 @@ public class JavaMethod {
         changingClasses = new HashMap();
     }
     
+    public void removeBlock(){
+        block = null;
+        
+    }
     
     public void addChangingMethod(JavaMethod javaMethod){
         getChangingMethods().add(javaMethod);
@@ -472,6 +481,49 @@ public class JavaMethod {
      */
     public List<JavaMethod> getInternalMethodsThatCallMe() {
         return internalMethodsThatCallMe;
+    }
+
+
+    /**
+     * @return the originalSignature
+     */
+    public String getOriginalSignature() {
+        return originalSignature;
+    }
+
+    /**
+     * @param originalSignature the originalSignature to set
+     */
+    public void setOriginalSignature(String originalSignature) {
+        this.originalSignature = originalSignature;
+    }
+
+    /**
+     * @return the itemId
+     */
+    public long getItemId() {
+        return itemId;
+    }
+
+    /**
+     * @param itemId the itemId to set
+     */
+    public void setItemId(long itemId) {
+        this.itemId = itemId;
+    }
+
+    /**
+     * @return the fromClass
+     */
+    public boolean isFromClass() {
+        return fromClass;
+    }
+
+    /**
+     * @param fromClass the fromClass to set
+     */
+    public void setFromClass(boolean fromClass) {
+        this.fromClass = fromClass;
     }
     
 }

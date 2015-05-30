@@ -7,6 +7,7 @@ package br.uff.ic.archd.db.dao;
 import br.uff.ic.archd.javacode.JavaClass;
 import br.uff.ic.archd.javacode.JavaMethod;
 import br.uff.ic.archd.javacode.JavaProject;
+import java.util.List;
 
 /**
  *
@@ -15,4 +16,5 @@ import br.uff.ic.archd.javacode.JavaProject;
 public interface MethodInvocationsDao {
     public void saveMethodInvocations(JavaMethod javaMethod, JavaClass javaClass);
     public void getInvocatedMethods(JavaMethod javaMethod, JavaClass javaClass, JavaProject javaProject);
+    public void saveMethodInvocations(List<JavaMethod> methods);
 }

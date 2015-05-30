@@ -50,7 +50,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>br.uff.ic.archd.gui.controller.MainController</mainClass>
+                                    <mainClass>br.uff.ic.archd.gui.controller.Verificar</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
@@ -223,6 +223,11 @@
             <groupId>jfreechart</groupId>
             <artifactId>jfreechart</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.6</version>
         </dependency>
     </dependencies>
     

@@ -125,5 +125,10 @@ public class HsqldbExternalImportsDao implements ExternalImportsDao{
             System.out.println("ERRO external imports: " + e.getMessage());
         }
     }
+
+    @Override
+    public void save(JavaAbstract javaAbstract, List<String> externalImports) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

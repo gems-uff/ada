@@ -4,6 +4,7 @@
  */
 package br.uff.ic.archd.db.dao;
 
+import br.uff.ic.archd.javacode.JavaClass;
 import br.uff.ic.archd.javacode.JavaExternalAttributeAccess;
 import br.uff.ic.archd.javacode.JavaMethod;
 import br.uff.ic.archd.javacode.JavaProject;
@@ -16,4 +17,5 @@ import java.util.List;
 public interface JavaExternalAttributeAccessDao {
     public void saveJavaExternalAttributeAccess(JavaMethod javaMethod);
     public void getJavaExternalAttributeAccessByMethod(JavaMethod javaMethod, JavaProject javaProject);
+    public void saveJavaExternalAttributeAccess(List<JavaMethod> javaMethods);
 }

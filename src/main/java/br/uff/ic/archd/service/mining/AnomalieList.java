@@ -15,20 +15,20 @@ public class AnomalieList {
 
     private List<Boolean> list;
     private int typeOfAnomalie;
-    private int revisionBirthNumber;
+    private int artifactBirthNumber;
     private int anomalieBirthNumber;
-    private int classBirthNumber;
+    private int parentArtifactBirthNumber;
     private int numberOfRevisionsWithoutAnomalie;
     private int numberOfRevisionsWithAnomalie;
     
     private boolean isCongenital;
     private boolean isCorrected;
-    private boolean afterSuperiorArtefact;
+    private boolean birthAfterParentArtifact;
     private int recurrenceLevel;
 
-    AnomalieList(int numberOfRevisions, int revisionBirthNumber, int classBirthNumber) {
-        this.classBirthNumber = classBirthNumber;
-        this.revisionBirthNumber = revisionBirthNumber;
+    AnomalieList(int numberOfRevisions, int artifactBirthNumber, int parentArtifactBirthNumber) {
+        this.parentArtifactBirthNumber = parentArtifactBirthNumber;
+        this.artifactBirthNumber = artifactBirthNumber;
         list = new LinkedList();
         for (int i = 0; i < numberOfRevisions; i++) {
             list.add(false);
@@ -50,11 +50,11 @@ public class AnomalieList {
         //System.out.println("Classificacao da anomalia");
         //System.out.println("Revision Birth: "+getRevisionBirthNumber());
         //System.out.println("Size: "+list.size());
-        list = list.subList(getRevisionBirthNumber(), list.size());
+        list = list.subList(getArtifactBirthNumber(), list.size());
         //System.out.println("Size depois: "+list.size());
         boolean congenital = false;
         boolean bornWithTheClass = false;
-        if(getClassBirthNumber() == getRevisionBirthNumber()){
+        if(getParentArtifactBirthNumber() == getArtifactBirthNumber()){
             bornWithTheClass = true;
         }
         if (list.get(0)) {
@@ -67,7 +67,7 @@ public class AnomalieList {
             }
         }
         
-        afterSuperiorArtefact = !bornWithTheClass;
+        birthAfterParentArtifact = !bornWithTheClass;
         
         anomalieBirthNumber = i;
         int aux = 0;
@@ -177,8 +177,8 @@ public class AnomalieList {
     /**
      * @return the revisionBirthNumber
      */
-    public int getRevisionBirthNumber() {
-        return revisionBirthNumber;
+    public int getArtifactBirthNumber() {
+        return artifactBirthNumber;
     }
 
     /**
@@ -191,8 +191,8 @@ public class AnomalieList {
     /**
      * @return the classBirthNumber
      */
-    public int getClassBirthNumber() {
-        return classBirthNumber;
+    public int getParentArtifactBirthNumber() {
+        return parentArtifactBirthNumber;
     }
 
     /**
@@ -224,8 +224,8 @@ public class AnomalieList {
     /**
      * @return the afterSuperiorArtefact
      */
-    public boolean isAfterSuperiorArtefact() {
-        return afterSuperiorArtefact;
+    public boolean isBornAfterParentArtifact() {
+        return birthAfterParentArtifact;
     }
 
     /**

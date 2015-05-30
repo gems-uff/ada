@@ -6,6 +6,7 @@ package br.uff.ic.archd.db.dao;
 
 import br.uff.ic.archd.javacode.JavaAbstract;
 import br.uff.ic.archd.javacode.JavaProject;
+import java.util.List;
 
 /**
  *
@@ -14,4 +15,5 @@ import br.uff.ic.archd.javacode.JavaProject;
 public interface ExternalImportsDao {
     public void save(JavaAbstract javaAbstract, String externalImport);
     public void getExternalImports(JavaAbstract javaAbstract, JavaProject javaProject);
+    public void save(JavaAbstract javaAbstract, List<String> externalImports);
 }

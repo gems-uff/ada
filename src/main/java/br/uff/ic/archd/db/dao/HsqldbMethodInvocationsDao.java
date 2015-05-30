@@ -30,9 +30,9 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
     HsqldbMethodInvocationsDao() {
         try {
             File file = new File(Constants.DB_DIR);
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.mkdirs();
-                
+
             }
             Class.forName("org.hsqldb.jdbcDriver");
             connection = DriverManager.getConnection("jdbc:hsqldb:file:" + Constants.DB_DIR, "archd", "123");
@@ -40,7 +40,6 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
             ResultSet tables = dbData.getTables(null, null, "METHOD_INVOCATIONS", null);
             //System.out.println("NEXT "+tables.next());
             if (!tables.next()) {
-
 
                 System.out.println("NAO POSSUI TABELA METHOD_INVOCATIONS");
                 Statement stm = connection.createStatement();
@@ -60,7 +59,6 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
             }
 
             //stm.execute("SHUTDOWN");
-
         } catch (ClassNotFoundException e) {
             System.out.println("Erro ao carregar o driver JDBC. ");
         } catch (SQLException e) {
@@ -80,36 +78,36 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
                 if (javaAbstract.getClass() == JavaClass.class) {
                     if (javaMethodInvocation.getUnknowMethodName() != null) {
                         System.out.println("insert into METHOD_INVOCATIONS (method_id, class_id , unknow_method_name) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
                         stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, class_id , unknow_method_name) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
                     } else {
                         System.out.println("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
                         stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
                     }
                 } else {
                     if (javaMethodInvocation.getUnknowMethodName() != null) {
                         System.out.println("insert into METHOD_INVOCATIONS (method_id, interface_id , unknow_method_name) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
                         stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, interface_id , unknow_method_name) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + ",'" + javaMethodInvocation.getUnknowMethodName() + "');");
                     } else {
                         System.out.println("insert into METHOD_INVOCATIONS (method_id, interface_id , invocated_method) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
                         stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, interface_id , invocated_method) "
-                                + " VALUES (" +javaMethod.getId()+","+ javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
+                                + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + "," + javaMethodInvocation.getJavaMethod().getId() + ");");
                     }
                 }
             }
-            for (JavaMethod invocatedMethod : javaMethod.getInternalMethodInvocations()) {                
+            for (JavaMethod invocatedMethod : javaMethod.getInternalMethodInvocations()) {
                 System.out.println("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
-                        + " VALUES (" +javaMethod.getId()+","+ javaClass.getId() + "," + invocatedMethod.getId() + ");");
+                        + " VALUES (" + javaMethod.getId() + "," + javaClass.getId() + "," + invocatedMethod.getId() + ");");
                 stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
-                        + " VALUES (" +javaMethod.getId()+","+ javaClass.getId() + "," + invocatedMethod.getId() + ");");
+                        + " VALUES (" + javaMethod.getId() + "," + javaClass.getId() + "," + invocatedMethod.getId() + ");");
             }
-            
+
         } catch (SQLException e) {
             System.out.println("ERRO save methodinvocation: " + e.getMessage());
         }
@@ -124,50 +122,48 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
             rs = stm.executeQuery("select * from METHOD_INVOCATIONS where method_id=" + javaMethod.getId() + ";");
             //long t2 = System.currentTimeMillis();
             //System.out.println("Pegar todas as invocações de métodos de uma classe de uma revisão (somente o select) : "+(t2-t1)+"  milisegundos");
-            
+
             int i = 0;
 
             while (rs.next()) {
-                
+
                 String classId = rs.getString("class_id");
                 String interfaceId = rs.getString("interface_id");
                 String unknowMethodName = rs.getString("unknow_method_name");
                 String invocatedMethodString = rs.getString("invocated_method");
                 JavaAbstract javaAbstract = null;
-                if(classId != null){
+                if (classId != null) {
                     javaAbstract = javaProject.getClassById(Long.valueOf(classId));
-                }else{
+                } else {
                     javaAbstract = javaProject.getInterfaceById(Long.valueOf(interfaceId));
                 }
-                if(javaAbstract == javaClass){
-                    
+                if (javaAbstract == javaClass) {
+
                     /*System.out.println("Invocated Method: "+invocatedMethodString);
-                    System.out.println("Class ID: "+javaAbstract.getId());
-                    System.out.println("Class ID MY: "+javaClass.getId());
-                    System.out.println("unknow_method_name: "+unknowMethodName);
-                    System.out.println("JAVA METHOD: "+javaMethod.getMethodSignature());
-                    System.out.println("JAVA CLASS: "+javaClass.getPath());*/
-                    if(unknowMethodName != null){
+                     System.out.println("Class ID: "+javaAbstract.getId());
+                     System.out.println("Class ID MY: "+javaClass.getId());
+                     System.out.println("unknow_method_name: "+unknowMethodName);
+                     System.out.println("JAVA METHOD: "+javaMethod.getMethodSignature());
+                     System.out.println("JAVA CLASS: "+javaClass.getPath());*/
+                    if (unknowMethodName != null) {
                         JavaMethodInvocation javaInternalInvocation = new JavaMethodInvocation(javaAbstract, null);
                         javaInternalInvocation.setUnknowMethodName(unknowMethodName);
                         javaMethod.addMethodInvocation(javaInternalInvocation);
-                    }else{
+                    } else {
                         javaMethod.addInternalMethodInvocation(javaClass.getMethodById(Long.valueOf(invocatedMethodString)));
                     }
-                }else{
-                    if(unknowMethodName != null){
+                } else {
+                    if (unknowMethodName != null) {
                         JavaMethodInvocation javaInternalInvocation = new JavaMethodInvocation(javaAbstract, null);
                         javaInternalInvocation.setUnknowMethodName(unknowMethodName);
                         javaMethod.addMethodInvocation(javaInternalInvocation);
-                    }else{
+                    } else {
                         JavaMethod javaInvocatedMethod = javaAbstract.getMethodById(Long.valueOf(invocatedMethodString));
                         JavaMethodInvocation javaInternalInvocation = new JavaMethodInvocation(javaAbstract, javaInvocatedMethod);
                         javaMethod.addMethodInvocation(javaInternalInvocation);
                     }
                 }
-                
-                
-               
+
                 i++;
             }
             //stm.execute("SHUTDOWN");
@@ -176,5 +172,10 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
             System.out.println("ERRO getInvocatedMethods: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void saveMethodInvocations(List<JavaMethod> methods) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

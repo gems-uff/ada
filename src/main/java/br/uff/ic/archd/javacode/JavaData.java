@@ -11,6 +11,7 @@ package br.uff.ic.archd.javacode;
 public class JavaData {
     
     private String name;
+    private String originalSignature;
      /**
      * @return the name
      */
@@ -24,5 +25,19 @@ public class JavaData {
     
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the originalSignature
+     */
+    public String getOriginalSignature() {
+        return originalSignature;
+    }
+
+    /**
+     * @param originalSignature the originalSignature to set
+     */
+    public void setOriginalSignature(String originalSignature) {
+        this.originalSignature = originalSignature;
     }
 }

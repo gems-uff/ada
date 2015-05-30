@@ -53,6 +53,7 @@ public class CalculateMetrics {
 
             System.out.println("Number of Revisions: " + numberOfRevisions);
             rev = newProjectRevisions.getRoot();
+            String antRev = null;
             int k = 0;
             while (k < number) {
 
@@ -91,10 +92,11 @@ public class CalculateMetrics {
 
                 System.gc();
                 JavaProject jp = null;
-                jp = javaContructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+                jp = javaContructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(),  newProjectRevisions.getName());
 
                 System.out.println("Calculou: " + k);
                 k++;
+                antRev = rev.getId();
                 if (rev.getNext().size() == 0) {
                     rev = null;
                 } else {

@@ -16,5 +16,6 @@ public interface InterfaceDao {
     public void save(JavaInterface javaInterface);
     //public List<JavaInterface> getAllJavaClass();
     public List<JavaInterface> getJavaInterfacesByRevisionId(JavaProject javaProject, String id);
+    public void save(List<JavaInterface> javaInterfaces);
 
 }

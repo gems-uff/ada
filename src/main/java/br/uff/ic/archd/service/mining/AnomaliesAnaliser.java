@@ -6,8 +6,10 @@ package br.uff.ic.archd.service.mining;
 
 import br.uff.ic.archd.db.dao.AnomalieDao;
 import br.uff.ic.archd.db.dao.AnomalieItem;
+import br.uff.ic.archd.db.dao.ArtifactBirthDao;
 import br.uff.ic.archd.db.dao.Constants;
 import br.uff.ic.archd.db.dao.DataBaseFactory;
+import br.uff.ic.archd.db.dao.HsqldbArtifactBirthDao;
 import br.uff.ic.archd.javacode.JavaAbstract;
 import br.uff.ic.archd.javacode.JavaAttribute;
 import br.uff.ic.archd.javacode.JavaClass;
@@ -30,139 +32,279 @@ public class AnomaliesAnaliser {
 
     public ProjectAnomalies getAnomalies(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
 
+        System.out.println("GETANOMALIES");
         long t1 = System.currentTimeMillis();
         Revision rev = newProjectRevisions.getRoot();
+        HashMap<String,Integer> hashOfRevision = new HashMap();
         int k = 0;
         while (rev != null) {
+            hashOfRevision.put(rev.getId(), k);
             k++;
+            
             if (rev.getNext().size() == 0) {
                 rev = null;
             } else {
                 rev = rev.getNext().get(0);
             }
         }
-        ProjectAnomalies projectAnomalies = new ProjectAnomalies(k);
-        rev = newProjectRevisions.getRoot();
-        AnomalieDao anomalieDao = DataBaseFactory.getInstance().getAnomalieDao();
-        HashMap<String, Integer> birthHashMap = new HashMap();
-        HashMap<String, String> methodsAlternativeNameMap = new HashMap();
-        HashMap<String, String> classesAlternativeNameMap = new HashMap();
-        k = 0;
-        JavaProject ant = null;
-        while (rev != null) {
+        System.out.println("SETOU O HASHMAP");
 
-            JavaProject jp = null;
-            //System.out.println("REV ID: "+rev.getId());
-            System.gc();
-            System.out.println("********************************* vai pegar um projeto completo");
-            jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+        ProjectAnomalies projectAnomalies = null;
+        AnomalieFileService anomalieFileService = new AnomalieFileService();
+        System.out.println("Pegou o anomalieFileService");
+        
+        ArtifactBirthDao artifactBirthDao = DataBaseFactory.getInstance().getArtifactBirthDao();
+        //ArtifactBirthDao artifactBirthDao = new HsqldbArtifactBirthDao();
+        
+        
+        System.out.println("Pegou O artifactBirthDao");
 
-            for (JavaPackage javaPackage : jp.getPackages()) {
-                if (birthHashMap.get(javaPackage.getName()) == null) {
-                    birthHashMap.put(javaPackage.getName(), k);
-                }
-            }
+        if (anomalieFileService.anomalieIsInFile(project.getName(), k)) {
+            //pega do arquivo
+            System.out.println("Já calculado, vai pegar do arquivo");
+            projectAnomalies = anomalieFileService.getAnomalie(project.getName());
+            System.out.println("Pegou do arquivo");
+        } else {
+            //calcula desde o inciio
+            System.out.println("Não foi calculado ainda, será calculado agora");
+            projectAnomalies = new ProjectAnomalies(k);
+            rev = newProjectRevisions.getRoot();
+            AnomalieDao anomalieDao = DataBaseFactory.getInstance().getAnomalieDao();
+            //HashMap<String, Integer> birthHashMap = new HashMap();
+            //HashMap<String, String> methodsAlternativeNameMap = new HashMap();
+            //HashMap<String, String> classesAlternativeNameMap = new HashMap();
+            k = 0;
+            JavaProject ant = null;
+            while (rev != null) {
 
-            for (JavaAbstract javaAbstract : jp.getClasses()) {
-                JavaClass javaClass = (JavaClass) javaAbstract;
+                long tempo1 = System.currentTimeMillis();
+                JavaProject jp = null;
+                
+                //System.out.println("REV ID: "+rev.getId());
+                //System.gc();
+                System.out.println("********************************* vai pegar um projeto completo");
+                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
 
-                if (birthHashMap.get(javaClass.getFullQualifiedName()) == null) {
-                    birthHashMap.put(javaClass.getFullQualifiedName(), k);
-
-                    if (classesAlternativeNameMap.get(javaClass.getFullQualifiedName()) == null) {
-                        if (ant != null) {
-                            List<JavaAbstract> antClasses = ant.getClassByLastName(javaAbstract.getName());
-                            List<JavaAbstract> sameClasses = new LinkedList();
-                            for (JavaAbstract antClass : antClasses) {
-                                if (isSameJavaClass(javaClass, (JavaClass) antClass)) {
-                                    sameClasses.add(antClass);
-                                } else {
-                                    System.out.println(javaClass.getFullQualifiedName() + " - is not same - " + antClass.getFullQualifiedName());
-                                }
-                            }
-                            if (sameClasses.size() > 1) {
-                                System.out.println("********** Erro, duas classes parecidas");
-                            } else {
-                                if (sameClasses.size() == 1) {
-                                    String alternativeName = classesAlternativeNameMap.get(sameClasses.get(0).getFullQualifiedName());
-
-                                    if (alternativeName == null) {
-                                        alternativeName = sameClasses.get(0).getFullQualifiedName();
-                                    }
-                                    System.out.println("Classe mudou de nome: " + javaClass.getFullQualifiedName() + "   -    " + alternativeName);
-                                    classesAlternativeNameMap.put(javaClass.getFullQualifiedName(), alternativeName);
-
-                                }
-                            }
-
-                        }
-                    }
-
-                }
-                List<JavaMethod> newMethods = new LinkedList();
-                List<JavaMethod> newMethodsClasseAlternativeName = new LinkedList();
-
-                for (JavaMethod javaMethod : javaClass.getMethods()) {
-
-                    //ainda nao foi dito a existencia desse metodo
-                    if (birthHashMap.get(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature()) == null) {
-
-                        birthHashMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), k);
-                        if (methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature()) == null) {
-                            methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
-                            String alternativeClassName = classesAlternativeNameMap.get(javaClass.getFullQualifiedName());
-                            //o método ainda nao surgiu e a classe que ele esta mudou de nome
-                            if (alternativeClassName != null) {
-                                //ainda nao surgiu o método
-                                String alternativeMethodName = methodsAlternativeNameMap.get(alternativeClassName + ":" + javaMethod.getMethodSignature());
-                                if (alternativeMethodName == null) {
-                                    if (ant != null) {
-                                        //adiciona ao campo dos metodos novos
-                                        newMethodsClasseAlternativeName.add(javaMethod);
-
-//                                        JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
-//                                        if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//                for (JavaPackage javaPackage : jp.getPackages()) {
+//                    if (birthHashMap.get(javaPackage.getName()) == null) {
+//                        birthHashMap.put(javaPackage.getName(), k);
+//                    }
+//                }
 //
-//                                            List<JavaMethod> methodsName = new LinkedList();
-//                                            List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-//                                            List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-//                                            for (JavaMethod jm : methodsNameAnt) {
-//                                                boolean exists = false;
-//                                                for (JavaMethod auxJm : methodsNameCurrent) {
-//                                                    if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-//                                                        exists = true;
-//                                                        break;
-//                                                    }
-//                                                }
-//                                                if (!exists) {
-//                                                    methodsName.add(jm);
+//                for (JavaAbstract javaAbstract : jp.getClasses()) {
+//                    JavaClass javaClass = (JavaClass) javaAbstract;
+//
+//                    if (birthHashMap.get(javaClass.getFullQualifiedName()) == null) {
+//                        birthHashMap.put(javaClass.getFullQualifiedName(), k);
+//
+//                        if (classesAlternativeNameMap.get(javaClass.getFullQualifiedName()) == null) {
+//                            if (ant != null) {
+//                                List<JavaAbstract> antClasses = ant.getClassByLastName(javaAbstract.getName());
+//                                List<JavaAbstract> sameClasses = new LinkedList();
+//                                for (JavaAbstract antClass : antClasses) {
+//                                    if (isSameJavaClass(javaClass, (JavaClass) antClass)) {
+//                                        sameClasses.add(antClass);
+//                                    } else {
+//                                        System.out.println(javaClass.getFullQualifiedName() + " - is not same - " + antClass.getFullQualifiedName());
+//                                    }
+//                                }
+//                                if (sameClasses.size() > 1) {
+//                                    System.out.println("********** Erro, duas classes parecidas");
+//                                } else {
+//                                    if (sameClasses.size() == 1) {
+//                                        String alternativeName = classesAlternativeNameMap.get(sameClasses.get(0).getFullQualifiedName());
+//
+//                                        if (alternativeName == null) {
+//                                            alternativeName = sameClasses.get(0).getFullQualifiedName();
+//                                        }
+//                                        System.out.println("Classe mudou de nome: " + javaClass.getFullQualifiedName() + "   -    " + alternativeName);
+//                                        classesAlternativeNameMap.put(javaClass.getFullQualifiedName(), alternativeName);
+//
+//                                    }
+//                                }
+//
+//                            }
+//                        }
+//
+//                    }
+//                    List<JavaMethod> newMethods = new LinkedList();
+//                    List<JavaMethod> newMethodsClasseAlternativeName = new LinkedList();
+//
+//                    for (JavaMethod javaMethod : javaClass.getMethods()) {
+//
+//                        //ainda nao foi dito a existencia desse metodo
+//                        if (birthHashMap.get(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature()) == null) {
+//
+//                            birthHashMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), k);
+//                            if (methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature()) == null) {
+//                                methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
+//                                String alternativeClassName = classesAlternativeNameMap.get(javaClass.getFullQualifiedName());
+//                                //o método ainda nao surgiu e a classe que ele esta mudou de nome
+//                                if (alternativeClassName != null) {
+//                                    //ainda nao surgiu o método
+//                                    String alternativeMethodName = methodsAlternativeNameMap.get(alternativeClassName + ":" + javaMethod.getMethodSignature());
+//                                    if (alternativeMethodName == null) {
+//                                        if (ant != null) {
+//                                            //adiciona ao campo dos metodos novos
+//                                            newMethodsClasseAlternativeName.add(javaMethod);
+//
+////                                        JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+////                                        if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+////
+////                                            List<JavaMethod> methodsName = new LinkedList();
+////                                            List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+////                                            List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+////                                            for (JavaMethod jm : methodsNameAnt) {
+////                                                boolean exists = false;
+////                                                for (JavaMethod auxJm : methodsNameCurrent) {
+////                                                    if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+////                                                        exists = true;
+////                                                        break;
+////                                                    }
+////                                                }
+////                                                if (!exists) {
+////                                                    methodsName.add(jm);
+////                                                }
+////                                            }
+////
+////                                            if (!methodsName.isEmpty()) {
+////                                                JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+////                                                alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+////                                                if (alternativeMethodName == null) {
+////                                                    alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
+////                                                }
+////                                                System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+////                                                methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+////
+////                                            }
+////
+////                                        }
+//                                        }
+//                                    } else {
+//                                        //a classe mudou de nome e a encontramos com esse nome novo
+//                                        methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+//                                        System.out.println("Metodo mudou nome completo (por causa da mudança do nome da classe): " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+//                                    }
+//                                } else {
+//                                    // a classe nao mudou de nome
+//                                    if (ant != null) {
+//                                        //adiciona ao campo dos metodos novos
+//                                        newMethods.add(javaMethod);
+//                                        //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
+////                                    JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+////                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+////
+////                                        List<JavaMethod> methodsName = new LinkedList();
+////                                        List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+////                                        List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+////                                        for (JavaMethod jm : methodsNameAnt) {
+////                                            boolean exists = false;
+////                                            for (JavaMethod auxJm : methodsNameCurrent) {
+////                                                if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+////                                                    exists = true;
+////                                                    break;
+////                                                }
+////                                            }
+////                                            if (!exists) {
+////                                                methodsName.add(jm);
+////                                            }
+////                                        }
+////
+////                                        if (!methodsName.isEmpty()) {
+////                                            JavaMethod auxJm = closestMethod(javaMethod, methodsName);
+////                                            String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+////                                            if (alternativeMethodName == null) {
+////                                                alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
+////                                            }
+////                                            System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
+////                                            methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
+////
+////                                        }
+////
+////                                    }
+//                                    }
+//                                }
+//                            }
+//
+//                        }
+//                    }
+//                    boolean terminar = false;
+//                    if (!newMethods.isEmpty()) {
+//                        while (!terminar) {
+//                            if (newMethods.isEmpty()) {
+//                                terminar = true;
+//                            } else {
+//                                JavaMethod javaMethodFirst = newMethods.get(0);
+//                                List<JavaMethod> methodsWithSameName = new LinkedList();
+//                                methodsWithSameName.add(javaMethodFirst);
+//                                for (int i = 1; i < newMethods.size(); i++) {
+//                                    if (newMethods.get(i).getName().equals(javaMethodFirst.getName())) {
+//                                        methodsWithSameName.add(newMethods.get(i));
+//                                    }
+//                                }
+//                                for (JavaMethod jm : methodsWithSameName) {
+//                                    newMethods.remove(jm);
+//                                }
+//
+//                                for (JavaMethod javaMethod : methodsWithSameName) {
+//                                    //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
+//                                    JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
+//                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+//
+//                                        List<JavaMethod> methodsName = new LinkedList();
+//                                        List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
+//                                        List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
+//                                        for (JavaMethod jm : methodsNameAnt) {
+//                                            boolean exists = false;
+//                                            for (JavaMethod auxJm : methodsNameCurrent) {
+//                                                if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
+//                                                    exists = true;
+//                                                    break;
 //                                                }
 //                                            }
+//                                            if (!exists) {
+//                                                methodsName.add(jm);
+//                                            }
+//                                        }
 //
-//                                            if (!methodsName.isEmpty()) {
-//                                                JavaMethod auxJm = closestMethod(javaMethod, methodsName);
-//                                                alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
+//                                        if (!methodsName.isEmpty()) {
+//                                            JavaMethod auxJm = closestMethod(javaMethod, methodsWithSameName, methodsName);
+//                                            if (auxJm != null) {
+//                                                String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
 //                                                if (alternativeMethodName == null) {
-//                                                    alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
+//                                                    alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
 //                                                }
 //                                                System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
 //                                                methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-//
 //                                            }
-//
 //                                        }
-                                    }
-                                } else {
-                                    //a classe mudou de nome e a encontramos com esse nome novo
-                                    methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-                                    System.out.println("Metodo mudou nome completo (por causa da mudança do nome da classe): " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
-                                }
-                            } else {
-                                // a classe nao mudou de nome
-                                if (ant != null) {
-                                    //adiciona ao campo dos metodos novos
-                                    newMethods.add(javaMethod);
-                                    //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
+//
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    terminar = false;
+//                    if (!newMethodsClasseAlternativeName.isEmpty()) {
+//                        while (!terminar) {
+//                            if (newMethodsClasseAlternativeName.isEmpty()) {
+//                                terminar = true;
+//                            } else {
+//                                JavaMethod javaMethodFirst = newMethodsClasseAlternativeName.get(0);
+//                                List<JavaMethod> methodsWithSameName = new LinkedList();
+//                                methodsWithSameName.add(javaMethodFirst);
+//                                for (int i = 1; i < newMethodsClasseAlternativeName.size(); i++) {
+//                                    if (newMethodsClasseAlternativeName.get(i).getName().equals(javaMethodFirst.getName())) {
+//                                        methodsWithSameName.add(newMethodsClasseAlternativeName.get(i));
+//                                    }
+//                                }
+//                                for (JavaMethod jm : methodsWithSameName) {
+//                                    newMethodsClasseAlternativeName.remove(jm);
+//                                }
+//
+//                                String alternativeClassName = classesAlternativeNameMap.get(javaClass.getFullQualifiedName());
+//                                for (JavaMethod javaMethod : methodsWithSameName) {
 //                                    JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
 //                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
 //
@@ -186,7 +328,7 @@ public class AnomaliesAnaliser {
 //                                            JavaMethod auxJm = closestMethod(javaMethod, methodsName);
 //                                            String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
 //                                            if (alternativeMethodName == null) {
-//                                                alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
+//                                                alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
 //                                            }
 //                                            System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
 //                                            methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
@@ -194,255 +336,179 @@ public class AnomaliesAnaliser {
 //                                        }
 //
 //                                    }
-                                }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+
+                long i1 = System.currentTimeMillis();
+                List<AnomalieItem> items = anomalieDao.getItemsByRevisionId(rev.getId());
+                long i2 = System.currentTimeMillis();
+                System.out.println("Pegar anomalies da revisão " + rev.getId() + " : " + (i2 - i1) + " milisegundos");
+                for (AnomalieItem anomalieItem : items) {
+                    if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_PACKAGE) {
+                        JavaPackage javaPackage = jp.getPackageByName(anomalieItem.getItem());
+                        String revisionId = artifactBirthDao.getBirthIdBirth(javaPackage.getOriginalSignature());
+                        System.out.println("Revisions: "+revisionId);
+                        int i = hashOfRevision.get(revisionId);
+                        System.out.println("ANOMALIE_GOD_PACKAGE: "+i+"   "+javaPackage.getOriginalSignature());
+                        projectAnomalies.addPackageAnomalie(javaPackage.getOriginalSignature(), "GOD PACKAGE", k, i, i);
+                    } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_CLASS) {
+                        JavaAbstract javaAbstract = jp.getClassByName(anomalieItem.getItem());
+//                        String alternativeName = classesAlternativeNameMap.get(javaAbstract.getFullQualifiedName());
+//                        if (alternativeName == null) {
+//                            alternativeName = javaAbstract.getFullQualifiedName();
+//                        }
+                        String revisionId = artifactBirthDao.getBirthIdBirth(javaAbstract.getOriginalSignature());
+                        System.out.println("Revisions: "+revisionId);
+                        int i = hashOfRevision.get(revisionId);
+                        System.out.println("ANOMALIE_GOD_CLASS: "+i+"   "+javaAbstract.getOriginalSignature());
+                        projectAnomalies.addClassAnomalie(javaAbstract.getOriginalSignature(), javaAbstract.getFullQualifiedName(), "GOD CLASS", k, i, i);
+                    } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_MISPLACED_CLASS) {
+                        JavaAbstract javaAbstract = jp.getClassByName(anomalieItem.getItem());
+//                        String alternativeName = classesAlternativeNameMap.get(javaAbstract.getFullQualifiedName());
+//                        if (alternativeName == null) {
+//                            alternativeName = javaAbstract.getFullQualifiedName();
+//                        }
+                        String revisionId = artifactBirthDao.getBirthIdBirth(javaAbstract.getOriginalSignature());
+                        System.out.println("Revisions: "+revisionId);
+                        int i = hashOfRevision.get(revisionId);
+                        System.out.println("ANOMALIE_MISPLACED_CLASS: "+i+"   "+javaAbstract.getOriginalSignature());
+                        projectAnomalies.addClassAnomalie(javaAbstract.getOriginalSignature(), javaAbstract.getFullQualifiedName(), "MISPLACED CLASS", k, i, i);
+                    } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_FEATURE_ENVY) {
+                        String str[] = anomalieItem.getItem().split(":");
+                        JavaAbstract javaAbstract = jp.getClassByName(str[0]);
+                        if (javaAbstract != null && javaAbstract.getClass() == JavaClass.class) {
+                            JavaClass jc = (JavaClass) javaAbstract;
+                            JavaMethod javaMethod = jc.getMethodBySignature(str[1]);
+                            if (javaMethod != null) {
+//                                String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
+//                                if (alternativeName == null) {
+//                                    alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
+//                                }
+//                                String classAlternativeName = classesAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName());
+//                                if (classAlternativeName == null) {
+//                                    classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
+//                                }
+                                String revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getOriginalSignature());
+                                System.out.println("Revisions: "+revisionId);
+                                int i = hashOfRevision.get(revisionId);
+                                revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getJavaAbstract().getOriginalSignature());
+                                System.out.println("Revisions: "+revisionId);
+                                int j = hashOfRevision.get(revisionId);
+                                System.out.println("ANOMALIE_FEATURE_ENVY: "+i+"   "+javaAbstract.getOriginalSignature());
+                                projectAnomalies.addMethodAnomalie(javaMethod.getOriginalSignature(), javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "FEATURE ENVY", k, i, j);
                             }
                         }
-
+                    } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_SHOTGUN_SURGERY) {
+                        String str[] = anomalieItem.getItem().split(":");
+                        JavaAbstract javaAbstract = jp.getClassByName(str[0]);
+                        if (javaAbstract != null && javaAbstract.getClass() == JavaClass.class) {
+                            JavaClass jc = (JavaClass) javaAbstract;
+                            JavaMethod javaMethod = jc.getMethodBySignature(str[1]);
+                            if (javaMethod != null) {
+//                                String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
+//                                if (alternativeName == null) {
+//                                    alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
+//                                }
+//                                String classAlternativeName = classesAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName());
+//                                if (classAlternativeName == null) {
+//                                    classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
+//                                }
+                                String revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getOriginalSignature());
+                                System.out.println("Revisions: "+revisionId);
+                                int i = hashOfRevision.get(revisionId);
+                                revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getJavaAbstract().getOriginalSignature());
+                                System.out.println("Revisions: "+revisionId);
+                                int j = hashOfRevision.get(revisionId);
+                                System.out.println("ANOMALIE_SHOTGUN_SURGERY: "+i+"   "+javaAbstract.getOriginalSignature());
+                                projectAnomalies.addMethodAnomalie(javaMethod.getOriginalSignature(), javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "SHOTGUN SURGERY", k, i,j);
+                            }
+                        }
+                    } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_METHOD) {
+                        String str[] = anomalieItem.getItem().split(":");
+                        JavaAbstract javaAbstract = jp.getClassByName(str[0]);
+                        if (javaAbstract != null && javaAbstract.getClass() == JavaClass.class) {
+                            JavaClass jc = (JavaClass) javaAbstract;
+                            JavaMethod javaMethod = jc.getMethodBySignature(str[1]);
+                            if (javaMethod != null) {
+//                                String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
+//                                if (alternativeName == null) {
+//                                    alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
+//                                }
+//                                String classAlternativeName = classesAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName());
+//                                if (classAlternativeName == null) {
+//                                    classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
+//                                }
+                                String revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getOriginalSignature());
+                                System.out.println("Revisions: "+revisionId);
+                                int i = hashOfRevision.get(revisionId);
+                                revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getJavaAbstract().getOriginalSignature());
+                                System.out.println("Revisions: "+revisionId);
+                                int j = hashOfRevision.get(revisionId);
+                                System.out.println("ANOMALIE_GOD_METHOD: "+i+"   "+javaAbstract.getOriginalSignature());
+                                projectAnomalies.addMethodAnomalie(javaMethod.getOriginalSignature(), javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "GOD METHOD", k, i,j);
+                            }
+                        }
                     }
                 }
-                boolean terminar = false;
-                if (!newMethods.isEmpty()) {
-                    while (!terminar) {
-                        if (newMethods.isEmpty()) {
-                            terminar = true;
-                        } else {
-                            JavaMethod javaMethodFirst = newMethods.get(0);
-                            List<JavaMethod> methodsWithSameName = new LinkedList();
-                            methodsWithSameName.add(javaMethodFirst);
-                            for (int i = 1; i < newMethods.size(); i++) {
-                                if (newMethods.get(i).getName().equals(javaMethodFirst.getName())) {
-                                    methodsWithSameName.add(newMethods.get(i));
-                                }
-                            }
-                            for (JavaMethod jm : methodsWithSameName) {
-                                newMethods.remove(jm);
-                            }
 
-                            for (JavaMethod javaMethod : methodsWithSameName) {
-                                //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
-                                JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
-                                if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
+                /*List<JavaPackage> godPackages = transformFromTuple.getGodPackage(jp);
+                 for (JavaPackage javaPackge : godPackages) {
+                 System.out.println("GOD PACKAGE");
+                 projectAnomalies.addPackageAnomalie(javaPackge.getName(), "GOD PACKAGE", k);
+                 }
+                 List<JavaClass> godClasses = transformFromTuple.getGodClass(jp);
+                 for (JavaClass javaClass : godClasses) {
+                 System.out.println("GOD CLASS");
+                 projectAnomalies.addClassAnomalie(javaClass.getFullQualifiedName(), "GOD CLASS", k);
+                 }
+                 List<JavaClass> misplacedClasses = transformFromTuple.getMisplacedClass(jp);
+                 for (JavaClass javaClass : misplacedClasses) {
+                 projectAnomalies.addClassAnomalie(javaClass.getFullQualifiedName(), "MISPLACED CLASS", k);
+                 }
 
-                                    List<JavaMethod> methodsName = new LinkedList();
-                                    List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-                                    List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-                                    for (JavaMethod jm : methodsNameAnt) {
-                                        boolean exists = false;
-                                        for (JavaMethod auxJm : methodsNameCurrent) {
-                                            if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-                                                exists = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!exists) {
-                                            methodsName.add(jm);
-                                        }
-                                    }
+                 for (JavaAbstract javaAbstract : jp.getClasses()) {
+                 if (javaAbstract.getClass() == JavaClass.class) {
+                 JavaClass jc = (JavaClass) javaAbstract;
+                 List<JavaMethod> featureEnvyMethods = transformFromTuple.getFeatureEnvy(jc);
+                 for (JavaMethod javaMethod : featureEnvyMethods) {
+                 System.out.println("FEATURE ENVY");
+                 projectAnomalies.addMethodAnomalie(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "FEATURE ENVY", k);
+                 }
+                 List<JavaMethod> shotgunSurgeryMethods = transformFromTuple.getShotgunSurgery(jc);
+                 for (JavaMethod javaMethod : shotgunSurgeryMethods) {
+                 System.out.println("SHOTGUN SURGERY");
+                 projectAnomalies.addMethodAnomalie(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "SHOTGUN SURGERY", k);
+                 }
+                 List<JavaMethod> godMethods = transformFromTuple.getGodMethod(jc);
+                 for (JavaMethod javaMethod : godMethods) {
+                 System.out.println("GOD METHOD");
+                 projectAnomalies.addMethodAnomalie(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "GOD METHOD", k);
+                 }
+                 }
+                 }*/
+                long tempo2 = System.currentTimeMillis();
+                System.out.println("Calculou anomalies: " + k+"        tempo: "+(tempo2-tempo1));
 
-                                    if (!methodsName.isEmpty()) {
-                                        JavaMethod auxJm = closestMethod(javaMethod, methodsWithSameName, methodsName);
-                                        if (auxJm != null) {
-                                            String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
-                                            if (alternativeMethodName == null) {
-                                                alternativeMethodName = javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature();
-                                            }
-                                            System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
-                                            methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                }
-
-                terminar = false;
-                if (!newMethodsClasseAlternativeName.isEmpty()) {
-                    while (!terminar) {
-                        if (newMethodsClasseAlternativeName.isEmpty()) {
-                            terminar = true;
-                        } else {
-                            JavaMethod javaMethodFirst = newMethodsClasseAlternativeName.get(0);
-                            List<JavaMethod> methodsWithSameName = new LinkedList();
-                            methodsWithSameName.add(javaMethodFirst);
-                            for (int i = 1; i < newMethodsClasseAlternativeName.size(); i++) {
-                                if (newMethodsClasseAlternativeName.get(i).getName().equals(javaMethodFirst.getName())) {
-                                    methodsWithSameName.add(newMethodsClasseAlternativeName.get(i));
-                                }
-                            }
-                            for (JavaMethod jm : methodsWithSameName) {
-                                newMethodsClasseAlternativeName.remove(jm);
-                            }
-
-                            String alternativeClassName = classesAlternativeNameMap.get(javaClass.getFullQualifiedName());
-                            for (JavaMethod javaMethod : methodsWithSameName) {
-                                JavaAbstract antAbstract = ant.getClassByName(javaClass.getFullQualifiedName());
-                                if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
-
-                                    List<JavaMethod> methodsName = new LinkedList();
-                                    List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-                                    List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-                                    for (JavaMethod jm : methodsNameAnt) {
-                                        boolean exists = false;
-                                        for (JavaMethod auxJm : methodsNameCurrent) {
-                                            if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-                                                exists = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!exists) {
-                                            methodsName.add(jm);
-                                        }
-                                    }
-
-                                    if (!methodsName.isEmpty()) {
-                                        JavaMethod auxJm = closestMethod(javaMethod, methodsName);
-                                        String alternativeMethodName = methodsAlternativeNameMap.get(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
-                                        if (alternativeMethodName == null) {
-                                            alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
-                                        }
-                                        System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
-                                        methodsAlternativeNameMap.put(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            long i1 = System.currentTimeMillis();
-            List<AnomalieItem> items = anomalieDao.getItemsByRevisionId(rev.getId());
-            long i2 = System.currentTimeMillis();
-            System.out.println("Pegar anomalies da revisão " + rev.getId() + " : " + (i2 - i1) + " milisegundos");
-            for (AnomalieItem anomalieItem : items) {
-                if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_PACKAGE) {
-                    JavaPackage javaPackage = jp.getPackageByName(anomalieItem.getItem());
-                    projectAnomalies.addPackageAnomalie(javaPackage.getName(), "GOD PACKAGE", k, birthHashMap.get(javaPackage.getName()), birthHashMap.get(javaPackage.getName()));
-                } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_CLASS) {
-                    JavaAbstract javaAbstract = jp.getClassByName(anomalieItem.getItem());
-                    String alternativeName = classesAlternativeNameMap.get(javaAbstract.getFullQualifiedName());
-                    if (alternativeName == null) {
-                        alternativeName = javaAbstract.getFullQualifiedName();
-                    }
-                    projectAnomalies.addClassAnomalie(alternativeName, javaAbstract.getFullQualifiedName(), "GOD CLASS", k, birthHashMap.get(alternativeName), birthHashMap.get(alternativeName));
-                } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_MISPLACED_CLASS) {
-                    JavaAbstract javaAbstract = jp.getClassByName(anomalieItem.getItem());
-                    String alternativeName = classesAlternativeNameMap.get(javaAbstract.getFullQualifiedName());
-                    if (alternativeName == null) {
-                        alternativeName = javaAbstract.getFullQualifiedName();
-                    }
-                    projectAnomalies.addClassAnomalie(alternativeName, javaAbstract.getFullQualifiedName(), "MISPLACED CLASS", k, birthHashMap.get(alternativeName), birthHashMap.get(alternativeName));
-                } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_FEATURE_ENVY) {
-                    String str[] = anomalieItem.getItem().split(":");
-                    JavaAbstract javaAbstract = jp.getClassByName(str[0]);
-                    if (javaAbstract != null && javaAbstract.getClass() == JavaClass.class) {
-                        JavaClass jc = (JavaClass) javaAbstract;
-                        JavaMethod javaMethod = jc.getMethodBySignature(str[1]);
-                        if (javaMethod != null) {
-                            String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
-                            if (alternativeName == null) {
-                                alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
-                            }
-                            String classAlternativeName = classesAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName());
-                            if (classAlternativeName == null) {
-                                classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
-                            }
-                            projectAnomalies.addMethodAnomalie(alternativeName, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "FEATURE ENVY", k, birthHashMap.get(alternativeName), birthHashMap.get(classAlternativeName));
-                        }
-                    }
-                } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_SHOTGUN_SURGERY) {
-                    String str[] = anomalieItem.getItem().split(":");
-                    JavaAbstract javaAbstract = jp.getClassByName(str[0]);
-                    if (javaAbstract != null && javaAbstract.getClass() == JavaClass.class) {
-                        JavaClass jc = (JavaClass) javaAbstract;
-                        JavaMethod javaMethod = jc.getMethodBySignature(str[1]);
-                        if (javaMethod != null) {
-                            String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
-                            if (alternativeName == null) {
-                                alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
-                            }
-                            String classAlternativeName = classesAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName());
-                            if (classAlternativeName == null) {
-                                classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
-                            }
-                            projectAnomalies.addMethodAnomalie(alternativeName, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "SHOTGUN SURGERY", k, birthHashMap.get(alternativeName), birthHashMap.get(classAlternativeName));
-                        }
-                    }
-                } else if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_METHOD) {
-                    String str[] = anomalieItem.getItem().split(":");
-                    JavaAbstract javaAbstract = jp.getClassByName(str[0]);
-                    if (javaAbstract != null && javaAbstract.getClass() == JavaClass.class) {
-                        JavaClass jc = (JavaClass) javaAbstract;
-                        JavaMethod javaMethod = jc.getMethodBySignature(str[1]);
-                        if (javaMethod != null) {
-                            String alternativeName = methodsAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
-                            if (alternativeName == null) {
-                                alternativeName = javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature();
-                            }
-                            String classAlternativeName = classesAlternativeNameMap.get(javaMethod.getJavaAbstract().getFullQualifiedName());
-                            if (classAlternativeName == null) {
-                                classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
-                            }
-                            projectAnomalies.addMethodAnomalie(alternativeName, javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "GOD METHOD", k, birthHashMap.get(alternativeName), birthHashMap.get(classAlternativeName));
-                        }
-                    }
+                ant = jp;
+                k++;
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
                 }
             }
-
-            /*List<JavaPackage> godPackages = transformFromTuple.getGodPackage(jp);
-             for (JavaPackage javaPackge : godPackages) {
-             System.out.println("GOD PACKAGE");
-             projectAnomalies.addPackageAnomalie(javaPackge.getName(), "GOD PACKAGE", k);
-             }
-             List<JavaClass> godClasses = transformFromTuple.getGodClass(jp);
-             for (JavaClass javaClass : godClasses) {
-             System.out.println("GOD CLASS");
-             projectAnomalies.addClassAnomalie(javaClass.getFullQualifiedName(), "GOD CLASS", k);
-             }
-             List<JavaClass> misplacedClasses = transformFromTuple.getMisplacedClass(jp);
-             for (JavaClass javaClass : misplacedClasses) {
-             projectAnomalies.addClassAnomalie(javaClass.getFullQualifiedName(), "MISPLACED CLASS", k);
-             }
-
-             for (JavaAbstract javaAbstract : jp.getClasses()) {
-             if (javaAbstract.getClass() == JavaClass.class) {
-             JavaClass jc = (JavaClass) javaAbstract;
-             List<JavaMethod> featureEnvyMethods = transformFromTuple.getFeatureEnvy(jc);
-             for (JavaMethod javaMethod : featureEnvyMethods) {
-             System.out.println("FEATURE ENVY");
-             projectAnomalies.addMethodAnomalie(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "FEATURE ENVY", k);
-             }
-             List<JavaMethod> shotgunSurgeryMethods = transformFromTuple.getShotgunSurgery(jc);
-             for (JavaMethod javaMethod : shotgunSurgeryMethods) {
-             System.out.println("SHOTGUN SURGERY");
-             projectAnomalies.addMethodAnomalie(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "SHOTGUN SURGERY", k);
-             }
-             List<JavaMethod> godMethods = transformFromTuple.getGodMethod(jc);
-             for (JavaMethod javaMethod : godMethods) {
-             System.out.println("GOD METHOD");
-             projectAnomalies.addMethodAnomalie(javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "GOD METHOD", k);
-             }
-             }
-             }*/
-            System.out.println("Calculou anomalies: " + k);
-
-            ant = jp;
-            k++;
-            if (rev.getNext().size() == 0) {
-                rev = null;
-            } else {
-                rev = rev.getNext().get(0);
-            }
+            
+            System.out.println("Classificando anomalias");
+            projectAnomalies.classifyAnomalies();
+            System.out.println("Terminou de classificar");
+            anomalieFileService.saveAnomalie(projectAnomalies, project.getName(), k);
         }
 
         long t2 = System.currentTimeMillis();
-        System.out.println("Classificando anomalias");
-        projectAnomalies.classifyAnomalies();
-        System.out.println("Terminou de classificar");
+        
         System.out.println("Tempo pra pegar anomalias: " + ((t2 - t1) / 60000) + " minutos");
         return projectAnomalies;
 

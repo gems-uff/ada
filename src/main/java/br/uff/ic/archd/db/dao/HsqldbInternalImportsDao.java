@@ -140,4 +140,14 @@ public class HsqldbInternalImportsDao implements InternalImportsDao {
             System.out.println("ERRO internal imports: " + e.getMessage());
         }
     }
+
+    @Override
+    public void saveInternalImport(JavaAbstract javaAbstract) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void saveInternalImport(List<JavaAbstract> javaAbstracts) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

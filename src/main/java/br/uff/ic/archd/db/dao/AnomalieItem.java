@@ -12,7 +12,7 @@ public class AnomalieItem {
     private int anomalieId;
     private String item;
     
-    AnomalieItem(int anomalieId, String item){
+    public AnomalieItem(int anomalieId, String item){
         this.anomalieId = anomalieId;
         this.item = item;
     }

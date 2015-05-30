@@ -13,4 +13,5 @@ import java.util.List;
 public interface AnomalieDao {
     public void save(int anomalieId, String itemName, String revisionId);
     public List<AnomalieItem> getItemsByRevisionId(String revisionId);
+    public void save(int anomalieId, List<String> itemNames, String revisionId);
 }

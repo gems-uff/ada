@@ -11,12 +11,15 @@ package br.uff.ic.archd.javacode;
 public class JavaAttribute {
     private JavaData type;
     private String name;
+    
     private boolean isFinal;
     private boolean isStatic;
     private boolean isVolatile;
     private boolean isPrivate;
     private boolean isPublic;
     private boolean isProtected;
+    
+    private long javaClassId;
     
     
     public JavaAttribute(JavaData type, String name, boolean isFinal, boolean isStatic, boolean isVolatile, boolean isPrivate, boolean isPublic, boolean isProtected){
@@ -84,5 +87,19 @@ public class JavaAttribute {
      */
     public boolean isVolatile() {
         return isVolatile;
+    }
+
+    /**
+     * @return the javaClassId
+     */
+    public long getJavaClassId() {
+        return javaClassId;
+    }
+
+    /**
+     * @param javaClassId the javaClassId to set
+     */
+    public void setJavaClassId(long javaClassId) {
+        this.javaClassId = javaClassId;
     }
 }

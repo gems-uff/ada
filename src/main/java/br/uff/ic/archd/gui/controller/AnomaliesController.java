@@ -751,9 +751,9 @@ public class AnomaliesController implements ActionListener {
                 text = text + "ANOMALIE: " + str + "\n    Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithAnomalie()
                         + "          Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
                         + (percentagem) + " %)"
-                        + "\n    Revision Birth: " + anomalieList.getRevisionBirthNumber()
-                        + "\n    Class Birth: " + anomalieList.getClassBirthNumber()
-                        + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getRevisionBirthNumber())
+                        + "\n    Revision Birth: " + anomalieList.getArtifactBirthNumber()
+                        + "\n    Class Birth: " + anomalieList.getParentArtifactBirthNumber()
+                        + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getArtifactBirthNumber())
                         + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie()) + "\n\n";
                 System.out.println("Type: " + anomalieList.getTypeOfAnomalie());
             }
@@ -765,9 +765,9 @@ public class AnomaliesController implements ActionListener {
             text = text + "ANOMALIE: " + anomalie + "\n    Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithAnomalie()
                     + "          Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
                     + (percentagem) + " %)"
-                    + "\n    Revision Birth: " + anomalieList.getRevisionBirthNumber()
-                    + "\n    Class Birth: " + anomalieList.getClassBirthNumber()
-                    + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getRevisionBirthNumber())
+                    + "\n    Revision Birth: " + anomalieList.getArtifactBirthNumber()
+                    + "\n    Class Birth: " + anomalieList.getParentArtifactBirthNumber()
+                    + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getArtifactBirthNumber())
                     + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie())+"\n\n";
             System.out.println("Type: " + anomalieList.getTypeOfAnomalie());
 

@@ -18,8 +18,8 @@ import java.util.Set;
  */
 public class GenericAnomalies {
 
-    private int revisionBirthNumber;
-    private int classBirthNumber;
+    private int artifactBirthNumber;
+    private int parentArtifactBirthNumber;
     private String genericName;
     private String genericLastName;
     private HashSet<String> alternativeNames;
@@ -29,8 +29,8 @@ public class GenericAnomalies {
 
     public GenericAnomalies(String genericName, int numberOfRevisions, int revisionBirthNumber, int classBirthNumber) {
         this.genericName = genericName;
-        this.classBirthNumber = classBirthNumber;
-        this.revisionBirthNumber = revisionBirthNumber;
+        this.parentArtifactBirthNumber = classBirthNumber;
+        this.artifactBirthNumber = revisionBirthNumber;
         this.numberOfRevisions = numberOfRevisions;
         anomalieHashMap = new HashMap();
         alternativeNames = new HashSet();
@@ -39,7 +39,7 @@ public class GenericAnomalies {
     public void addAnomalie(String anomalie, int k) {
         AnomalieList anomalieList = anomalieHashMap.get(anomalie);
         if (anomalieList == null) {
-            anomalieList = new AnomalieList(numberOfRevisions, revisionBirthNumber, classBirthNumber);
+            anomalieList = new AnomalieList(getNumberOfRevisions(), artifactBirthNumber, getParentArtifactBirthNumber());
 
             anomalieHashMap.put(anomalie, anomalieList);
         }
@@ -113,8 +113,8 @@ public class GenericAnomalies {
     /**
      * @return the revisionBirthNumber
      */
-    public int getRevisionBirthNumber() {
-        return revisionBirthNumber;
+    public int getArtifactBirthNumber() {
+        return artifactBirthNumber;
     }
 
     /**
@@ -129,5 +129,19 @@ public class GenericAnomalies {
      */
     public void setGenericLastName(String genericLastName) {
         this.genericLastName = genericLastName;
+    }
+
+    /**
+     * @return the parentArtifactBirthNumber
+     */
+    public int getParentArtifactBirthNumber() {
+        return parentArtifactBirthNumber;
+    }
+
+    /**
+     * @return the numberOfRevisions
+     */
+    public int getNumberOfRevisions() {
+        return numberOfRevisions;
     }
 }

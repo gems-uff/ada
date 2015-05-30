@@ -185,6 +185,18 @@ public class JavaProject {
         return classes.get(name);
     }
     
+    public JavaAbstract getClassByOriginalSignature(String name) {
+        JavaAbstract javaAbstract = null;
+        
+        for(JavaAbstract jaux : getClasses()){
+            if(jaux.getOriginalSignature().equals(name)){
+                javaAbstract = jaux;
+                break;
+            }
+        }
+        return javaAbstract;
+    }
+    
     public List<JavaAbstract> getClassByLastName(String name) {
         
         List<JavaAbstract> javaClasses = new LinkedList();

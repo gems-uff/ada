@@ -131,4 +131,9 @@ public class HsqldbJavaExternalAttributeAccessDao implements JavaExternalAttribu
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void saveJavaExternalAttributeAccess(List<JavaMethod> javaMethods) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

@@ -19,4 +19,5 @@ public interface JavaMethodDao {
     public List<JavaMethod> getJavaMethodsByInterfaceId(JavaProject javaProject, long id);
     public List<JavaMethod> getJavaMethodsByClassId(JavaProject javaProject, long id);
     public void getJavaMethods(JavaProject javaProject, JavaAbstract javaAbstract);
+    public void save(List<JavaMethod> javaMethods);
 }

@@ -17,6 +17,7 @@ import java.util.List;
 public class JavaPackage {
 
     private String name;
+    private String originalSignature;
     private List<JavaAbstract> classes;
     private HashMap<String, JavaClass> clientClasses;
     private HashMap<String, JavaPackage> clientPackages;
@@ -43,6 +44,17 @@ public class JavaPackage {
      */
     public List<JavaAbstract> getClasses() {
         return classes;
+    }
+    
+    public JavaAbstract getClassByLastName(String lastName){
+        JavaAbstract javaAbstract = null;
+        for(JavaAbstract jab : getClasses()){
+            if(jab.getName().equals(lastName)){
+                javaAbstract = jab;
+                break;
+            }
+        }
+        return javaAbstract;
     }
 
     public List<JavaClass> getOnlyClasses() {
@@ -124,5 +136,19 @@ public class JavaPackage {
      */
     public void setPackageCohesion(double packageCohesion) {
         this.packageCohesion = packageCohesion;
+    }
+
+    /**
+     * @return the originalSignature
+     */
+    public String getOriginalSignature() {
+        return originalSignature;
+    }
+
+    /**
+     * @param originalSignature the originalSignature to set
+     */
+    public void setOriginalSignature(String originalSignature) {
+        this.originalSignature = originalSignature;
     }
 }

@@ -9,7 +9,12 @@ package br.uff.ic.archd.db.dao;
  * @author wallace
  */
 public class Constants {
-    public final static String DB_DIR = System.getProperty("user.home") + "/.archDB5/METRIC_VALUE_DB_DIR/";
+    public final static String DB_DIR = System.getProperty("user.home") + "/.archDB14/METRIC_VALUE_DB_DIR/";
+    //archDB10 MapDB
+    //archDB11 titan
+//    /archDB12 guava
+    //archDB13 orientdb
+    //archDB14 Neo4j
     
     public final static int ANOMALIE_GOD_PACKAGE = 1;
     public final static int ANOMALIE_GOD_CLASS = 2;

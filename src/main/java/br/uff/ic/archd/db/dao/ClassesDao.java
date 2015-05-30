@@ -18,4 +18,5 @@ public interface ClassesDao {
     public void save(JavaClass javaClass);
     public List<JavaClass> getAllJavaClass();
     public List<JavaClass> getJavaClassesByRevisionId(JavaProject javaProject, String id);
+    public void save(List<JavaClass> javaClasses);
 }
