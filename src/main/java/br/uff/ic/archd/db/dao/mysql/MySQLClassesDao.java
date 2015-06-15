@@ -5,6 +5,7 @@
 package br.uff.ic.archd.db.dao.mysql;
 
 import br.uff.ic.archd.db.dao.*;
+import br.uff.ic.archd.javacode.JavaAbstract;
 import br.uff.ic.archd.javacode.JavaClass;
 import br.uff.ic.archd.javacode.JavaInterface;
 import br.uff.ic.archd.javacode.JavaPackage;
@@ -80,6 +81,8 @@ public class MySQLClassesDao implements ClassesDao {
              }*/
             javaClass.setId(id);
             System.out.println("Classe ID: " + javaClass.getId());
+            stm.close();
+            rs.close();
 
         } catch (SQLException e) {
             System.out.println("ERRO: " + e.getMessage());
@@ -128,6 +131,9 @@ public class MySQLClassesDao implements ClassesDao {
                     //System.out.println("Classe ID i: "+i+": " + javaClass.getId());
                     i++;
                 }
+                
+                stm.close();
+                rs.close();
             }
             
             
@@ -265,6 +271,7 @@ public class MySQLClassesDao implements ClassesDao {
                         JavaPackage javaPackage = javaProject.getPackageByName(superClassPackage);
                         if (javaPackage == null) {
                             javaPackage = new JavaPackage(superClassPackage);
+                            javaPackage.setOriginalSignature(superClassPackage);
                             javaProject.addPackage(javaPackage);
                         }
                         superClass.setRevisionId(revisionId);
@@ -292,6 +299,7 @@ public class MySQLClassesDao implements ClassesDao {
                     JavaPackage javaPackage = javaProject.getPackageByName(classPackage);
                     if (javaPackage == null) {
                         javaPackage = new JavaPackage(classPackage);
+                        javaPackage.setOriginalSignature(classPackage);
                         javaProject.addPackage(javaPackage);
                     }
                     javaClass.setJavaPackage(javaPackage);
@@ -308,6 +316,9 @@ public class MySQLClassesDao implements ClassesDao {
                 javaProject.addClass(javaClass);
                 i++;
             }
+            
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

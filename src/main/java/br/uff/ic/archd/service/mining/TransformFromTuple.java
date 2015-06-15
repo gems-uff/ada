@@ -634,33 +634,33 @@ public class TransformFromTuple {
                                 List<JavaMethod> methodsFromAnt = new LinkedList();
                                 List<JavaMethod> methodsFromNow = new LinkedList();
                                 List<JavaMethod> methodsFromAntAndNow = new LinkedList();
-                                for (JavaMethod jmAuxNow : jm.getInternalMethodInvocations()) {
-                                    if (jmAuxNow != null) {
+                                for (JavaMethodInvocation jmAuxNow : jm.getInternalMethodInvocations()) {
+                                    if (jmAuxNow.getJavaMethod() != null) {
                                         boolean encontrou = false;
-                                        for (JavaMethod jmAuxAnt : antMethod.getInternalMethodInvocations()) {
-                                            if (jmAuxAnt != null && jmAuxAnt.getMethodSignature().equals(jmAuxNow.getMethodSignature())) {
+                                        for (JavaMethodInvocation jmAuxAnt : antMethod.getInternalMethodInvocations()) {
+                                            if (jmAuxAnt.getJavaMethod() != null && jmAuxAnt.getJavaMethod().getMethodSignature().equals(jmAuxNow.getJavaMethod().getMethodSignature())) {
                                                 encontrou = true;
                                                 break;
                                             }
                                         }
                                         if (encontrou) {
-                                            methodsFromAntAndNow.add(jmAuxNow);
+                                            methodsFromAntAndNow.add(jmAuxNow.getJavaMethod());
                                         } else {
-                                            methodsFromNow.add(jmAuxNow);
+                                            methodsFromNow.add(jmAuxNow.getJavaMethod());
                                         }
                                     }
                                 }
-                                for (JavaMethod jmAuxAnt : antMethod.getInternalMethodInvocations()) {
+                                for (JavaMethodInvocation jmAuxAnt : antMethod.getInternalMethodInvocations()) {
                                     if (jmAuxAnt != null) {
                                         boolean encontrou = false;
-                                        for (JavaMethod jmAuxNow : jm.getInternalMethodInvocations()) {
-                                            if (jmAuxNow != null && jmAuxAnt.getMethodSignature().equals(jmAuxNow.getMethodSignature())) {
+                                        for (JavaMethodInvocation jmAuxNow : jm.getInternalMethodInvocations()) {
+                                            if (jmAuxNow != null && jmAuxAnt.getJavaMethod().getMethodSignature().equals(jmAuxNow.getJavaMethod().getMethodSignature())) {
                                                 encontrou = true;
                                                 break;
                                             }
                                         }
                                         if (!encontrou) {
-                                            methodsFromAnt.add(jmAuxAnt);
+                                            methodsFromAnt.add(jmAuxAnt.getJavaMethod());
                                         }
                                     }
                                 }

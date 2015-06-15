@@ -803,6 +803,8 @@ public class InteractionController implements ActionListener {
                 interactionViewer.appendText("Modifie internal state by call method: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
                 interactionViewer.appendText("Size: " + ((JavaClass) javaAbstract).getMethods().get(i).getSizeInChars());
                 interactionViewer.appendText("Cyclomatic complexity: " + ((JavaClass) javaAbstract).getMethods().get(i).getCyclomaticComplexity());
+                interactionViewer.appendText("Acessor Method: " + ((JavaClass) javaAbstract).getMethods().get(i).isAnAcessorMethod());
+                interactionViewer.appendText("Number of  Internal Method Invocations: " + ((JavaClass) javaAbstract).getMethods().get(i).getInternalMethodInvocations().size());
 
                 methods[i] = ((JavaClass) javaAbstract).getMethods().get(i).getMethodSignature();
                 for (JavaMethodInvocation jmi : ((JavaClass) javaAbstract).getMethods().get(i).getMethodInvocations()) {

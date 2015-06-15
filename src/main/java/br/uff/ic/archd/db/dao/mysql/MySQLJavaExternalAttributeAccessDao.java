@@ -52,6 +52,7 @@ public class MySQLJavaExternalAttributeAccessDao implements JavaExternalAttribut
                             + " VALUES (" + javaMethod.getId() + "," + javaAbstract.getId() + ",'" + javaExternalAttributeAccess.getAttributeName() + "');");
                 }
             }
+            stm.close();
 
         } catch (SQLException e) {
             System.out.println("ERRO saveJavaExternalAttributeAccess: " + e.getMessage());
@@ -95,11 +96,13 @@ public class MySQLJavaExternalAttributeAccessDao implements JavaExternalAttribut
                 query1 = query1 +";";
                 PreparedStatement stm = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if(counter2 != 0){
                 query2 = query2 +";";
                 PreparedStatement stm = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             
 
@@ -138,6 +141,8 @@ public class MySQLJavaExternalAttributeAccessDao implements JavaExternalAttribut
 
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

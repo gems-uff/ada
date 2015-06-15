@@ -109,7 +109,6 @@ public class AstService {
         }
         return false;
 
-
     }
 
     private String readFile(String file) throws IOException {
@@ -137,8 +136,6 @@ public class AstService {
             //return compilationUnit.getPackage().getName() + "." + ((TypeDeclaration) compilationUnit.types().get(0)).getName().toString();
             return ((TypeDeclaration) compilationUnit.types().get(0)).getName().toString();
 
-
-
         } catch (Exception e) {
             System.out.println("Erro getClass Name: " + path + "     " + e.getMessage());
         }
@@ -155,8 +152,6 @@ public class AstService {
             CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
             //compilationUnit.recordModifications();
             return compilationUnit.getPackage().getName().toString();
-
-
 
         } catch (Exception e) {
             System.out.println("Erro package Name: " + e.getMessage());
@@ -187,7 +182,6 @@ public class AstService {
 
             return importationsList;
 
-
         } catch (Exception e) {
             System.out.println("Erro getImports Name: " + e.getMessage());
         }
@@ -203,7 +197,6 @@ public class AstService {
             parser.setSource(doc.get().toCharArray());
             CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 
-
             Type superType = ((TypeDeclaration) compilationUnit.types().get(0)).getSuperclassType();
             String superClass = "java.lang.Object";
             if (superType != null) {
@@ -211,8 +204,6 @@ public class AstService {
             }
 
             return superClass;
-
-
 
         } catch (Exception e) {
             System.out.println("Erro getsuperclass Name: " + e.getMessage());
@@ -243,96 +234,93 @@ public class AstService {
 
             return list;
 
-
-
         } catch (Exception e) {
             System.out.println("Erro getImplementedInterfaces " + classPath + "  Name: " + e.getMessage());
         }
         return list;
     }
-    
+
     /*
-    public void getExternalAttributeAccessFromClass(JavaClass javaClass, String classPath){
-        try {
-            String content = readFile(classPath);
-            //System.out.println("Path: "+path);
-            org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document(content);
-            ASTParser parser = ASTParser.newParser(AST.JLS3);
-            parser.setSource(doc.get().toCharArray());
-            CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+     public void getExternalAttributeAccessFromClass(JavaClass javaClass, String classPath){
+     try {
+     String content = readFile(classPath);
+     //System.out.println("Path: "+path);
+     org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document(content);
+     ASTParser parser = ASTParser.newParser(AST.JLS3);
+     parser.setSource(doc.get().toCharArray());
+     CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 
 
 
 
 
-            FieldDeclaration fields[] = ((TypeDeclaration) compilationUnit.types().get(0)).getFields();
-            for (int i = 0; i < fields.length; i++) {
+     FieldDeclaration fields[] = ((TypeDeclaration) compilationUnit.types().get(0)).getFields();
+     for (int i = 0; i < fields.length; i++) {
 
-                boolean isPublic = false;
-                boolean isPrivate = false;
-                boolean isProtected = false;
-                boolean isFinal = false;
-                boolean isStatic = false;
-                boolean isVolatile = false;
-                for (int j = 0; j < fields[i].modifiers().size(); j++) {
-                    String modifier = fields[i].modifiers().get(j).toString();
+     boolean isPublic = false;
+     boolean isPrivate = false;
+     boolean isProtected = false;
+     boolean isFinal = false;
+     boolean isStatic = false;
+     boolean isVolatile = false;
+     for (int j = 0; j < fields[i].modifiers().size(); j++) {
+     String modifier = fields[i].modifiers().get(j).toString();
 
-                    if (modifier.equals("public")) {
-                        isPublic = true;
-                    } else if (modifier.equals("private")) {
-                        isPrivate = true;
-                    } else if (modifier.equals("final")) {
-                        isFinal = true;
-                    } else if (modifier.equals("static")) {
-                        isStatic = true;
-                    } else if (modifier.equals("volatile")) {
-                        isVolatile = true;
-                    } else if (modifier.equals("protected")) {
-                        isProtected = true;
-                    }
+     if (modifier.equals("public")) {
+     isPublic = true;
+     } else if (modifier.equals("private")) {
+     isPrivate = true;
+     } else if (modifier.equals("final")) {
+     isFinal = true;
+     } else if (modifier.equals("static")) {
+     isStatic = true;
+     } else if (modifier.equals("volatile")) {
+     isVolatile = true;
+     } else if (modifier.equals("protected")) {
+     isProtected = true;
+     }
 
-                }
+     }
 
-                String returnType = fields[i].getType().toString();
+     String returnType = fields[i].getType().toString();
                 
-                MethodInvocationVisitor miv = new MethodInvocationVisitor();
-                fields[i].accept(miv);
+     MethodInvocationVisitor miv = new MethodInvocationVisitor();
+     fields[i].accept(miv);
                 
-                miv.getSimpleNames();
+     miv.getSimpleNames();
 
-                List<VariableDeclarationFragment> variables = fields[i].fragments();
-                for (VariableDeclarationFragment vdf : variables) {
-                    String variableName = vdf.getName().toString();
-                    ParameterAst parameterAst = new ParameterAst(variableName, returnType);
-                    if (isPublic) {
-                        parameterAst.setPublic(true);
-                    } else if (isPrivate) {
-                        parameterAst.setPrivate(true);
-                    } else if (isFinal) {
-                        parameterAst.setFinal(true);
-                    } else if (isStatic) {
-                        parameterAst.setFinal(true);
-                    } else if (isVolatile) {
-                        parameterAst.setVolatile(true);
-                    } else if (isProtected) {
-                        parameterAst.setProtected(true);
-                    }
+     List<VariableDeclarationFragment> variables = fields[i].fragments();
+     for (VariableDeclarationFragment vdf : variables) {
+     String variableName = vdf.getName().toString();
+     ParameterAst parameterAst = new ParameterAst(variableName, returnType);
+     if (isPublic) {
+     parameterAst.setPublic(true);
+     } else if (isPrivate) {
+     parameterAst.setPrivate(true);
+     } else if (isFinal) {
+     parameterAst.setFinal(true);
+     } else if (isStatic) {
+     parameterAst.setFinal(true);
+     } else if (isVolatile) {
+     parameterAst.setVolatile(true);
+     } else if (isProtected) {
+     parameterAst.setProtected(true);
+     }
 
-                    list.add(parameterAst);
+     list.add(parameterAst);
 
-                }
+     }
 
-            }
+     }
 
 
 
-        } catch (Exception e) {
-            System.out.println("Erro getExternalAttributeAccessFromClass Name: " + e.getMessage());
-        }
-    }
-    * 
-    * */
-
+     } catch (Exception e) {
+     System.out.println("Erro getExternalAttributeAccessFromClass Name: " + e.getMessage());
+     }
+     }
+     * 
+     * */
     public List<ParameterAst> getAttributes(String classPath) {
         List<ParameterAst> list = new ArrayList();
         try {
@@ -343,10 +331,6 @@ public class AstService {
             parser.setSource(doc.get().toCharArray());
             CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 
-
-
-
-
             FieldDeclaration fields[] = ((TypeDeclaration) compilationUnit.types().get(0)).getFields();
             for (int i = 0; i < fields.length; i++) {
 
@@ -400,7 +384,6 @@ public class AstService {
                 }
 
             }
-
 
             return list;
 
@@ -413,7 +396,7 @@ public class AstService {
     public List<JavaMethodAstBox> getMethods(String classPath) {
         List<JavaMethodAstBox> list = new ArrayList();
         String contentForJavancss = null;
-        
+
         try {
             String content = readFile(classPath);
             //System.out.println("Path: "+classPath);
@@ -426,18 +409,23 @@ public class AstService {
             List functionMetrics = new ArrayList();
             contentForJavancss = content.replace("<>", "");
             content = null;
-            
+
             if (contentForJavancss.contains("try")) {
+                System.out.println("AQUI 1");
                 contentForJavancss = removeComments(contentForJavancss);
+                System.out.println("AQUI 2");
                 //System.gc();
                 //System.out.println("Foi removecomments");
                 contentForJavancss = removeLiteralStrings(contentForJavancss);
+                System.out.println("AQUI 3");
                 //System.gc();
                 //System.out.println("Foi removeLiteralStrings");
                 contentForJavancss = removeTryWithResources(contentForJavancss);
+                System.out.println("AQUI 4");
                 //System.gc();
                 //System.out.println("Foi removeTryWithResources");
                 contentForJavancss = removeMultipleCatch(contentForJavancss);
+                System.out.println("AQUI 5");
                 //System.gc();
                 //System.out.println("Foi removeMultipleCatch");
             }
@@ -449,9 +437,9 @@ public class AstService {
                 functionMetrics = javancss.getFunctionMetrics();
                 //System.out.println("Funcion metrics: " + functionMetrics.size());
                 /*for (Object object : functionMetrics) {
-                    FunctionMetric functionMetric = (FunctionMetric) object;
-                    //System.out.println("Name: " + functionMetric.toString());
-                }*/
+                 FunctionMetric functionMetric = (FunctionMetric) object;
+                 //System.out.println("Name: " + functionMetric.toString());
+                 }*/
 
             } catch (Exception e) {
                 System.out.println("Error javancss: " + e.getMessage());
@@ -459,11 +447,10 @@ public class AstService {
 
             //System.out.println("Passou: "+classPath);
             MethodDeclaration methods[] = ((TypeDeclaration) compilationUnit.types().get(0)).getMethods();
+            System.out.println("Methods size: "+methods.length);
             for (int i = 0; i < methods.length; i++) {
 
-
                 String methodName = methods[i].getName().toString();
-
 
                 //System.out.println("Return type do "+methods[i].getName() +"   qualifiedname : "+methodName+" :"+methods[i].getReturnType2());
                 String returnTypeName = "void";
@@ -508,7 +495,6 @@ public class AstService {
                 }
 
                 list.add(javaMethodAstBox);
-
 
                 //System.out.println("Metodo: "+methodType.getOficialMethodSignature());
             }
@@ -603,10 +589,6 @@ public class AstService {
                         }
                     }
 
-
-
-
-
                     List<MethodInvocation> listmi = miv.getMethods();
                     for (MethodInvocation methinv : listmi) {
 
@@ -632,8 +614,6 @@ public class AstService {
                                     arguments.add(javaData);
                                 }
 
-
-
                                 if (returnClassType.getClass() == JavaClass.class) {
                                     javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
 
@@ -641,17 +621,52 @@ public class AstService {
                                     javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
                                 }
 
+                                if (javaAbstract.getClass() == JavaClass.class) {
+                                    JavaClass jc = (JavaClass) javaAbstract;
+                                    if (javaClass == jc || javaClass.isInheritedClass(jc)) {
 
+                                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
+                                        if (javaMethodCall == null) {
+                                            javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
+                                            //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+                                        }
+//                                        if (javaMethoInvocation.getJavaMethod() != null) {
+//                                            System.out.println(" 1 -" + javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   size: " + javaMethod.getMethodInvocations().size());
+//
+//                                            System.out.println("------" + javaMethoInvocation.getJavaMethod().getJavaAbstract().getFullQualifiedName() + ":" + javaMethoInvocation.getJavaMethod().getMethodSignature() + "    CM: " + javaMethoInvocation.getJavaMethod().getChangingMethodsMetric() + "   CC: " + javaMethoInvocation.getJavaMethod().getChangingClassesMetric()
+//                                                    + "     code: " + javaMethoInvocation.getJavaMethod() + "    " + (javaMethoInvocation.getJavaMethod().getJavaAbstract().getClass() == JavaClass.class ? "classe" : "interface"));
+//                                        }
+                                        javaMethod.addInternalMethodInvocation(javaMethoInvocation);
+                                    } else {
+                                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
+                                        if (javaMethodCall == null) {
+                                            javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
+                                            //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+                                        }
+                                        javaMethod.addMethodInvocation(javaMethoInvocation);
+                                    }
+                                } else {
+                                    JavaInterface ji = (JavaInterface) javaAbstract;
+                                    if (javaClass.implementsInterface(ji)) {
 
-                                JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
-                                if (javaMethodCall == null) {
-                                    javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
-                                    //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+                                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
+                                        if (javaMethodCall == null) {
+                                            javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
+                                            //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+                                        }
+
+                                        javaMethod.addInternalMethodInvocation(javaMethoInvocation);
+                                    } else {
+                                        JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
+                                        if (javaMethodCall == null) {
+                                            javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
+                                            //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+                                        }
+                                        javaMethod.addMethodInvocation(javaMethoInvocation);
+                                    }
                                 }
-                                javaMethod.addMethodInvocation(javaMethoInvocation);
 
                                 //System.out.println("AQUI PASSOU");
-
                             }
                         } else {
                             JavaMethod javaMethodCall = null;
@@ -663,10 +678,11 @@ public class AstService {
                                 arguments.add(javaData);
                             }
 
-
                             javaMethodCall = javaClass.getJavaMethod(methinv.getName().toString(), arguments.size(), arguments);
-                            if (javaMethodCall == null) {
-                                javaMethod.addInternalMethodInvocation(javaMethod);
+                            if (javaMethodCall != null) {
+                                JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaClass, javaMethodCall);
+
+                                javaMethod.addInternalMethodInvocation(javaMethoInvocation);
                             }
 
                         }
@@ -674,181 +690,176 @@ public class AstService {
                 }
 
             }
-
 
         } catch (Exception e) {
             System.out.println("Erro getMethodInvocations " + javaClass.getFullQualifiedName() + " Name: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
-    
+
     /*public void getMethodInvocationsOffMemory(JavaClass javaClass, JavaProject javaProject, JavaProjectFileService javaProjectFileService) {
-        try {
+     try {
 
-            List<String> javaMethods = javaProjectFileService.getMethodsSignatures(javaClass.getName(), javaClass.getJavaPackage().getName());
-            for (String javaMethod : javaMethods) {
-                //System.out.println("Classe: "+javaClass.getFullQualifiedName()+":"+javaMethod.getMethodSignature());
-                String block = javaProjectFileService.getMethodCode(javaClass.getName(), javaClass.getJavaPackage().getName(), javaMethod);
-                if (block != null) {
-                    //System.out.println("Classe: "+javaClass.getFullQualifiedName());
-                    javaMethod.setSizeInChars(block.length());
-                    javaMethod.setNumberOfLines(block.split("\n").length);
-                    BlockVariablesBox blockVariablesBox = getVariableDeclarations(block, javaClass, javaProject);
-                    MethodInvocationVisitor miv = new MethodInvocationVisitor();
-                    block.accept(miv);
-                    List<ReturnStatement> returnStatements = miv.getReturnStatements();
-                    //verificar se o método retorna algum atributo
-                    if (returnStatements.size() == 1) {
-                        ReturnStatement returnStatement = returnStatements.get(0);
-                        if (returnStatement.getExpression() != null && returnStatement.getExpression().getClass() == org.eclipse.jdt.core.dom.SimpleName.class) {
-                            if (blockVariablesBox.getJavaDataByVariableName(((SimpleName) returnStatement.getExpression()).toString(), returnStatement.getExpression().getParent()) == null) {
-                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
-                                    if (javaAttribute.getName().equals(((SimpleName) returnStatement.getExpression()).toString())) {
-                                        javaMethod.setIsAnAcessorMethod(true);
-                                        javaMethod.setAccessedAttribute(javaAttribute.getName());
-                                        break;
-                                    }
-                                }
-                            }
-                        } else if (returnStatement.getExpression() != null && returnStatement.getExpression().getClass() == org.eclipse.jdt.core.dom.FieldAccess.class) {
-                            if (((FieldAccess) returnStatement.getExpression()).getExpression().toString().equals("this")) {
-                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
-                                    if (javaAttribute.getName().equals(((SimpleName) ((FieldAccess) returnStatement.getExpression()).getName()).toString())) {
-                                        javaMethod.setIsAnAcessorMethod(true);
-                                        javaMethod.setAccessedAttribute(javaAttribute.getName());
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
+     List<String> javaMethods = javaProjectFileService.getMethodsSignatures(javaClass.getName(), javaClass.getJavaPackage().getName());
+     for (String javaMethod : javaMethods) {
+     //System.out.println("Classe: "+javaClass.getFullQualifiedName()+":"+javaMethod.getMethodSignature());
+     String block = javaProjectFileService.getMethodCode(javaClass.getName(), javaClass.getJavaPackage().getName(), javaMethod);
+     if (block != null) {
+     //System.out.println("Classe: "+javaClass.getFullQualifiedName());
+     javaMethod.setSizeInChars(block.length());
+     javaMethod.setNumberOfLines(block.split("\n").length);
+     BlockVariablesBox blockVariablesBox = getVariableDeclarations(block, javaClass, javaProject);
+     MethodInvocationVisitor miv = new MethodInvocationVisitor();
+     block.accept(miv);
+     List<ReturnStatement> returnStatements = miv.getReturnStatements();
+     //verificar se o método retorna algum atributo
+     if (returnStatements.size() == 1) {
+     ReturnStatement returnStatement = returnStatements.get(0);
+     if (returnStatement.getExpression() != null && returnStatement.getExpression().getClass() == org.eclipse.jdt.core.dom.SimpleName.class) {
+     if (blockVariablesBox.getJavaDataByVariableName(((SimpleName) returnStatement.getExpression()).toString(), returnStatement.getExpression().getParent()) == null) {
+     for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+     if (javaAttribute.getName().equals(((SimpleName) returnStatement.getExpression()).toString())) {
+     javaMethod.setIsAnAcessorMethod(true);
+     javaMethod.setAccessedAttribute(javaAttribute.getName());
+     break;
+     }
+     }
+     }
+     } else if (returnStatement.getExpression() != null && returnStatement.getExpression().getClass() == org.eclipse.jdt.core.dom.FieldAccess.class) {
+     if (((FieldAccess) returnStatement.getExpression()).getExpression().toString().equals("this")) {
+     for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+     if (javaAttribute.getName().equals(((SimpleName) ((FieldAccess) returnStatement.getExpression()).getName()).toString())) {
+     javaMethod.setIsAnAcessorMethod(true);
+     javaMethod.setAccessedAttribute(javaAttribute.getName());
+     break;
+     }
+     }
+     }
+     }
+     }
 
-                    List<Assignment> assignments = miv.getAssignments();
-                    for (Assignment assignment : assignments) {
-                        boolean changeInternalState = false;
-                        if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.SimpleName.class) {
-                            if (blockVariablesBox.getJavaDataByVariableName(((SimpleName) assignment.getLeftHandSide()).toString(), assignment.getLeftHandSide().getParent()) == null) {
-                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
-                                    if (javaAttribute.getName().equals(((SimpleName) assignment.getLeftHandSide()).toString())) {
-                                        changeInternalState = true;
-                                    }
-                                }
-                            }
-                        } else if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.FieldAccess.class) {
-                            if (((FieldAccess) assignment.getLeftHandSide()).getExpression().toString().equals("this")) {
-                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
-                                    if (javaAttribute.getName().equals(((SimpleName) ((FieldAccess) assignment.getLeftHandSide()).getName()).toString())) {
-                                        changeInternalState = true;
-                                    }
-                                }
-                            }
-                        } else if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.ArrayAccess.class) {
-                            String arrayName = assignment.getLeftHandSide().toString().substring(0, assignment.getLeftHandSide().toString().indexOf("["));
-                            if (blockVariablesBox.getJavaDataByVariableName(arrayName, assignment.getLeftHandSide().getParent()) == null) {
-                                for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
-                                    if (javaAttribute.getName().equals(arrayName)) {
-                                        changeInternalState = true;
-                                    }
-                                }
-                            }
-                        }
-                        if (assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.SimpleName.class
-                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.FieldAccess.class
-                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.ArrayAccess.class
-                                && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.QualifiedName.class) {
-                            System.out.println("Assignment: class: " + javaClass.getFullQualifiedName() + "     " + assignment.getLeftHandSide() + "    class: " + assignment.getLeftHandSide().getClass());
-                        }
-                        if (changeInternalState) {
-                            javaMethod.setChangeInternalState(true);
-                        }
-                    }
-
-
+     List<Assignment> assignments = miv.getAssignments();
+     for (Assignment assignment : assignments) {
+     boolean changeInternalState = false;
+     if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.SimpleName.class) {
+     if (blockVariablesBox.getJavaDataByVariableName(((SimpleName) assignment.getLeftHandSide()).toString(), assignment.getLeftHandSide().getParent()) == null) {
+     for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+     if (javaAttribute.getName().equals(((SimpleName) assignment.getLeftHandSide()).toString())) {
+     changeInternalState = true;
+     }
+     }
+     }
+     } else if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.FieldAccess.class) {
+     if (((FieldAccess) assignment.getLeftHandSide()).getExpression().toString().equals("this")) {
+     for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+     if (javaAttribute.getName().equals(((SimpleName) ((FieldAccess) assignment.getLeftHandSide()).getName()).toString())) {
+     changeInternalState = true;
+     }
+     }
+     }
+     } else if (assignment.getLeftHandSide().getClass() == org.eclipse.jdt.core.dom.ArrayAccess.class) {
+     String arrayName = assignment.getLeftHandSide().toString().substring(0, assignment.getLeftHandSide().toString().indexOf("["));
+     if (blockVariablesBox.getJavaDataByVariableName(arrayName, assignment.getLeftHandSide().getParent()) == null) {
+     for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
+     if (javaAttribute.getName().equals(arrayName)) {
+     changeInternalState = true;
+     }
+     }
+     }
+     }
+     if (assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.SimpleName.class
+     && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.FieldAccess.class
+     && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.ArrayAccess.class
+     && assignment.getLeftHandSide().getClass() != org.eclipse.jdt.core.dom.QualifiedName.class) {
+     System.out.println("Assignment: class: " + javaClass.getFullQualifiedName() + "     " + assignment.getLeftHandSide() + "    class: " + assignment.getLeftHandSide().getClass());
+     }
+     if (changeInternalState) {
+     javaMethod.setChangeInternalState(true);
+     }
+     }
 
 
 
-                    List<MethodInvocation> listmi = miv.getMethods();
-                    for (MethodInvocation methinv : listmi) {
-
-                        //System.out.println("METHOD INVOCATION: " + methinv.toString());
-                        //System.out.println("MI EXPRESSSION: " + methinv.getExpression());
-                        if (methinv.getExpression() != null && !methinv.getExpression().toString().equals("this")) {
-                            JavaData returnClassType = getClassReturnType(methinv.getExpression(), javaClass, javaMethod, blockVariablesBox);
-//                    if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
-//                        System.out.println("method: "+javaMethod.getName()+" expression: "+methinv.getExpression()+"    return type: "+(returnClassType == null? "nulo" : returnClassType.getName()));
-//                    }
-                            if (returnClassType != null && (returnClassType.getClass() == JavaClass.class || returnClassType.getClass() == JavaInterface.class)) {
-                                JavaMethod javaMethodCall = null;
-                                JavaAbstract javaAbstract = (JavaAbstract) returnClassType;
-                                List<JavaData> arguments = new ArrayList();
-
-                                for (int i = 0; i < methinv.arguments().size(); i++) {
-                                    Expression argument = (Expression) methinv.arguments().get(i);
-                                    JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
-//                            if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
-//                                System.out.println("javadataClass: "+(argument.getClass())+"   argument: "+argument);
-//                                System.out.println("javaData: "+(javaData ==null ? "nulo" : javaData.getName()));
-//                            }
-                                    arguments.add(javaData);
-                                }
 
 
+     List<MethodInvocation> listmi = miv.getMethods();
+     for (MethodInvocation methinv : listmi) {
 
-                                if (returnClassType.getClass() == JavaClass.class) {
-                                    javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
+     //System.out.println("METHOD INVOCATION: " + methinv.toString());
+     //System.out.println("MI EXPRESSSION: " + methinv.getExpression());
+     if (methinv.getExpression() != null && !methinv.getExpression().toString().equals("this")) {
+     JavaData returnClassType = getClassReturnType(methinv.getExpression(), javaClass, javaMethod, blockVariablesBox);
+     //                    if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
+     //                        System.out.println("method: "+javaMethod.getName()+" expression: "+methinv.getExpression()+"    return type: "+(returnClassType == null? "nulo" : returnClassType.getName()));
+     //                    }
+     if (returnClassType != null && (returnClassType.getClass() == JavaClass.class || returnClassType.getClass() == JavaInterface.class)) {
+     JavaMethod javaMethodCall = null;
+     JavaAbstract javaAbstract = (JavaAbstract) returnClassType;
+     List<JavaData> arguments = new ArrayList();
 
-                                } else if (returnClassType.getClass() == JavaInterface.class) {
-                                    javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
-                                }
+     for (int i = 0; i < methinv.arguments().size(); i++) {
+     Expression argument = (Expression) methinv.arguments().get(i);
+     JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
+     //                            if(javaClass.getFullQualifiedName().equals("org.gjt.sp.util.IOUtilities")){
+     //                                System.out.println("javadataClass: "+(argument.getClass())+"   argument: "+argument);
+     //                                System.out.println("javaData: "+(javaData ==null ? "nulo" : javaData.getName()));
+     //                            }
+     arguments.add(javaData);
+     }
 
 
 
-                                JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
-                                if (javaMethodCall == null) {
-                                    javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
-                                    //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
-                                }
-                                javaMethod.addMethodInvocation(javaMethoInvocation);
+     if (returnClassType.getClass() == JavaClass.class) {
+     javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
 
-                                //System.out.println("AQUI PASSOU");
-
-                            }
-                        } else {
-                            JavaMethod javaMethodCall = null;
-                            List<JavaData> arguments = new ArrayList();
-
-                            for (int i = 0; i < methinv.arguments().size(); i++) {
-                                Expression argument = (Expression) methinv.arguments().get(i);
-                                JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
-                                arguments.add(javaData);
-                            }
+     } else if (returnClassType.getClass() == JavaInterface.class) {
+     javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
+     }
 
 
-                            javaMethodCall = javaClass.getJavaMethod(methinv.getName().toString(), arguments.size(), arguments);
-                            if (javaMethodCall == null) {
-                                javaMethod.addInternalMethodInvocation(javaMethod);
-                            }
 
-                        }
-                    }
-                }
+     JavaMethodInvocation javaMethoInvocation = new JavaMethodInvocation(javaAbstract, javaMethodCall);
+     if (javaMethodCall == null) {
+     javaMethoInvocation.setUnknowMethodName(methinv.getName().toString() + "()");
+     //System.out.println("Java METHOD call : " + javaAbstract.getFullQualifiedName() + "   " + methinv.getName().toString() + "   _ " + methinv.arguments().size());
+     }
+     javaMethod.addMethodInvocation(javaMethoInvocation);
 
-            }
+     //System.out.println("AQUI PASSOU");
+
+     }
+     } else {
+     JavaMethod javaMethodCall = null;
+     List<JavaData> arguments = new ArrayList();
+
+     for (int i = 0; i < methinv.arguments().size(); i++) {
+     Expression argument = (Expression) methinv.arguments().get(i);
+     JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
+     arguments.add(javaData);
+     }
 
 
-        } catch (Exception e) {
-            System.out.println("Erro getMethodInvocations " + javaClass.getFullQualifiedName() + " Name: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }*/
+     javaMethodCall = javaClass.getJavaMethod(methinv.getName().toString(), arguments.size(), arguments);
+     if (javaMethodCall == null) {
+     javaMethod.addInternalMethodInvocation(javaMethod);
+     }
+
+     }
+     }
+     }
+
+     }
 
 
+     } catch (Exception e) {
+     System.out.println("Erro getMethodInvocations " + javaClass.getFullQualifiedName() + " Name: " + e.getMessage());
+     e.printStackTrace();
+     }
+     }*/
     public void getAccessDataMetrics(JavaClass javaClass, JavaProject javaProject) {
         try {
 
             HashMap<String, String> accessToForeignDataMap = new HashMap();
-
 
             HashMap<String, HashMap<String, String>> accessedAttributes = new HashMap();
 
@@ -867,7 +878,7 @@ public class AstService {
                 HashMap<String, String> accessLocalDataMap = new HashMap();
                 HashMap<String, String> foreignDataProviderMap = new HashMap();
                 Block block = javaMethod.getBlock();
-                
+
                 j++;
 
                 if (block != null) {
@@ -891,9 +902,7 @@ public class AstService {
                     numberOfLocalVariables = numberOfLocalVariables + singleVariables.size();
                     javaMethod.setNumberOfLocalVariables(numberOfLocalVariables);
 
-
                     //System.out.println("Variaveis locais:  j = "+j);
-
                     //verificar todos os simple names entretanto apenas aqueles que não são filhos de um field access externo nem uma declaração de variavel
                     // tambem vai criar os JavaExternalAttributeAccess,, ou seja verá quais atributos de classes externas esse método acessa
                     List<SimpleName> simpleNames = miv.getSimpleNames();
@@ -909,13 +918,11 @@ public class AstService {
                                     if (javaAttribute.getName().equals(simpleName.toString())) {
                                         accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
 
-
                                         HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                         hash.put(simpleName.toString(), simpleName.toString());
 
                                         continua = false;
                                         break;
-
 
                                     }
                                 }
@@ -925,7 +932,6 @@ public class AstService {
                                     for (JavaAttribute javaAttribute : javaAuxClass.getAttributes()) {
                                         if (javaAttribute.getName().equals(simpleName.toString())) {
                                             accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
-
 
                                             HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                             hash.put(simpleName.toString(), simpleName.toString());
@@ -954,10 +960,9 @@ public class AstService {
                                         foreignDataProviderMap.put(javaAbstract.getFullQualifiedName(), javaAbstract.getFullQualifiedName());
                                         accessToForeignDataMap.put(javaAbstract.getFullQualifiedName(), javaAbstract.getFullQualifiedName());
 
-
                                         JavaExternalAttributeAccess javaExternalAttributeAccess = new JavaExternalAttributeAccess(javaAbstract, simpleName.toString());
                                         javaMethod.addExternalAttributeAccess(javaExternalAttributeAccess);
-                                        
+
                                     }
                                 }
                             }
@@ -968,7 +973,6 @@ public class AstService {
                                 for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
                                     if (javaAttribute.getName().equals(simpleName.toString())) {
                                         accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
-
 
                                         HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                         hash.put(simpleName.toString(), simpleName.toString());
@@ -985,7 +989,6 @@ public class AstService {
                                         if (javaAttribute.getName().equals(simpleName.toString())) {
                                             accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
 
-
                                             HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                             hash.put(simpleName.toString(), simpleName.toString());
 
@@ -1000,9 +1003,8 @@ public class AstService {
                             }
                         }
                     }
-                    
-                    //System.out.println("simple names:  j = "+j);
 
+                    //System.out.println("simple names:  j = "+j);
                     //vendo os métodos que são chamados e se eles são 
                     List<MethodInvocation> listmi = miv.getMethods();
                     for (MethodInvocation methinv : listmi) {
@@ -1030,15 +1032,12 @@ public class AstService {
                                     arguments.add(javaData);
                                 }
 
-
-
                                 if (returnClassType.getClass() == JavaClass.class) {
                                     javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
 
                                 } else if (returnClassType.getClass() == JavaInterface.class) {
                                     javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
                                 }
-
 
                                 if (javaMethodCall != null) {
 
@@ -1050,9 +1049,7 @@ public class AstService {
                                 }
 
                                 //javaMethod.addMethodInvocation(javaMethoInvocation);
-
                                 //System.out.println("AQUI PASSOU");
-
                             }
                         } else {
                             JavaMethod javaMethodCall = null;
@@ -1063,7 +1060,6 @@ public class AstService {
                                 JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
                                 arguments.add(javaData);
                             }
-
 
                             javaMethodCall = javaClass.getJavaMethod(methinv.getName().toString(), arguments.size(), arguments);
                             if (javaMethodCall != null) {
@@ -1078,13 +1074,9 @@ public class AstService {
                     //System.out.println("method invocations:  j = "+j);
                 }
 
-
-
-
                 javaMethod.setAccessToForeignDataNumber(accessForeignDataMap.size());
                 javaMethod.setAccessToLocalDataNumber(accessLocalDataMap.size());
                 javaMethod.setForeignDataProviderNumber(foreignDataProviderMap.size());
-
 
             }
 
@@ -1093,21 +1085,17 @@ public class AstService {
             setNumberOfDirectConnections(javaClass, javaProject, accessedAttributes);
             //System.out.println("viu direct connections");
 
-
             javaClass.setAccessToForeignDataNumber(accessToForeignDataMap.size());
-
 
         } catch (Exception e) {
             System.out.println("Erro getAccessDataMetrics: " + javaClass.getFullQualifiedName() + " Name: " + e.getMessage());
         }
     }
-    
-    
+
     public void getAccessDataMetricsOffMemory(JavaClass javaClass, JavaProject javaProject) {
         try {
 
             HashMap<String, String> accessToForeignDataMap = new HashMap();
-
 
             HashMap<String, HashMap<String, String>> accessedAttributes = new HashMap();
 
@@ -1147,8 +1135,6 @@ public class AstService {
                     numberOfLocalVariables = numberOfLocalVariables + singleVariables.size();
                     javaMethod.setNumberOfLocalVariables(numberOfLocalVariables);
 
-
-
                     //verificar todos os simple names entretanto apenas aqueles que não são filhos de um field access externo nem uma declaração de variavel
                     // tambem vai criar os JavaExternalAttributeAccess,, ou seja verá quais atributos de classes externas esse método acessa
                     List<SimpleName> simpleNames = miv.getSimpleNames();
@@ -1164,13 +1150,11 @@ public class AstService {
                                     if (javaAttribute.getName().equals(simpleName.toString())) {
                                         accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
 
-
                                         HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                         hash.put(simpleName.toString(), simpleName.toString());
 
                                         continua = false;
                                         break;
-
 
                                     }
                                 }
@@ -1180,7 +1164,6 @@ public class AstService {
                                     for (JavaAttribute javaAttribute : javaAuxClass.getAttributes()) {
                                         if (javaAttribute.getName().equals(simpleName.toString())) {
                                             accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
-
 
                                             HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                             hash.put(simpleName.toString(), simpleName.toString());
@@ -1209,10 +1192,9 @@ public class AstService {
                                         foreignDataProviderMap.put(javaAbstract.getFullQualifiedName(), javaAbstract.getFullQualifiedName());
                                         accessToForeignDataMap.put(javaAbstract.getFullQualifiedName(), javaAbstract.getFullQualifiedName());
 
-
                                         JavaExternalAttributeAccess javaExternalAttributeAccess = new JavaExternalAttributeAccess(javaAbstract, simpleName.toString());
                                         javaMethod.addExternalAttributeAccess(javaExternalAttributeAccess);
-                                        
+
                                     }
                                 }
                             }
@@ -1223,7 +1205,6 @@ public class AstService {
                                 for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
                                     if (javaAttribute.getName().equals(simpleName.toString())) {
                                         accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
-
 
                                         HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                         hash.put(simpleName.toString(), simpleName.toString());
@@ -1239,7 +1220,6 @@ public class AstService {
                                     for (JavaAttribute javaAttribute : javaAuxClass.getAttributes()) {
                                         if (javaAttribute.getName().equals(simpleName.toString())) {
                                             accessLocalDataMap.put(simpleName.toString(), simpleName.toString());
-
 
                                             HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                                             hash.put(simpleName.toString(), simpleName.toString());
@@ -1283,15 +1263,12 @@ public class AstService {
                                     arguments.add(javaData);
                                 }
 
-
-
                                 if (returnClassType.getClass() == JavaClass.class) {
                                     javaMethodCall = ((JavaClass) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
 
                                 } else if (returnClassType.getClass() == JavaInterface.class) {
                                     javaMethodCall = ((JavaInterface) returnClassType).getJavaMethod(methinv.getName().toString(), methinv.arguments().size(), arguments);
                                 }
-
 
                                 if (javaMethodCall != null) {
 
@@ -1303,9 +1280,7 @@ public class AstService {
                                 }
 
                                 //javaMethod.addMethodInvocation(javaMethoInvocation);
-
                                 //System.out.println("AQUI PASSOU");
-
                             }
                         } else {
                             JavaMethod javaMethodCall = null;
@@ -1316,7 +1291,6 @@ public class AstService {
                                 JavaData javaData = getClassReturnType(argument, javaClass, javaMethod, blockVariablesBox);
                                 arguments.add(javaData);
                             }
-
 
                             javaMethodCall = javaClass.getJavaMethod(methinv.getName().toString(), arguments.size(), arguments);
                             if (javaMethodCall != null) {
@@ -1330,22 +1304,16 @@ public class AstService {
                     }
                 }
 
-
-
-
                 javaMethod.setAccessToForeignDataNumber(accessForeignDataMap.size());
                 javaMethod.setAccessToLocalDataNumber(accessLocalDataMap.size());
                 javaMethod.setForeignDataProviderNumber(foreignDataProviderMap.size());
-
 
             }
 
             //System.out.println("Calcular NumberOfDirectConnections");
             setNumberOfDirectConnections(javaClass, javaProject, accessedAttributes);
 
-
             javaClass.setAccessToForeignDataNumber(accessToForeignDataMap.size());
-
 
         } catch (Exception e) {
             System.out.println("Erro getAccessDataMetrics: " + javaClass.getFullQualifiedName() + " Name: " + e.getMessage());
@@ -1355,18 +1323,23 @@ public class AstService {
     private void setNumberOfDirectConnections(JavaClass javaClass, JavaProject javaProject, HashMap<String, HashMap<String, String>> accessedAttributes) {
         try {
 
-
             for (JavaAttribute javaAttribute : javaClass.getAttributes()) {
-                
-                //System.gc();
 
+                //System.gc();
                 List<JavaMethod> completeMethods = new ArrayList();
                 List<JavaMethod> incompleteMethods = new ArrayList();
+                //System.out.println("Metodos da classe: "+javaClass.getMethods().size());
                 for (JavaMethod javaMethod : javaClass.getMethods()) {
                     HashMap<String, String> hash = accessedAttributes.get(javaMethod.getMethodSignature());
                     if (hash.get(javaAttribute.getName()) != null || javaMethod.getInternalMethodInvocations().isEmpty()) {
                         completeMethods.add(javaMethod);
+                        if (!javaMethod.getInternalMethodInvocations().isEmpty() && hash.get(javaAttribute.getName()) != null) {
+                            //System.out.println("Metodo "+javaMethod.getMethodSignature()+"  acessa: "+javaAttribute.getName());
+                        } else {
+                            //System.out.println("Metodo completo "+javaMethod.getMethodSignature());
+                        }
                     } else {
+                        //System.out.println("Metodo incompleto: "+javaMethod.getMethodSignature());
                         incompleteMethods.add(javaMethod);
                     }
                 }
@@ -1375,26 +1348,40 @@ public class AstService {
                     List<JavaMethod> listToRemove = new ArrayList();
                     for (JavaMethod javaMethod : incompleteMethods) {
                         int completeCalls = 0;
-                        for (JavaMethod methodCall : javaMethod.getInternalMethodInvocations()) {
-                            if (completeMethods.contains(methodCall)) {
-                                completeCalls++;
-                                HashMap<String, String> hash = accessedAttributes.get(methodCall.getMethodSignature());
-                                if (hash.get(javaAttribute.getName()) != null) {
-                                    HashMap<String, String> hash2 = accessedAttributes.get(javaMethod.getMethodSignature());
-                                    hash2.put(javaAttribute.getName(), javaAttribute.getName());
+                        //System.out.println("Metodo "+javaMethod.getMethodSignature()+"   chama: ");
+                        for (JavaMethodInvocation methodCall : javaMethod.getInternalMethodInvocations()) {
+                            //System.out.println("chama: "+methodCall.getJavaMethod().getMethodSignature());
+                            if (methodCall.getJavaMethod() != null && methodCall.getJavaMethod().getJavaAbstract() == javaClass) {
+                                if (completeMethods.contains(methodCall.getJavaMethod())) {
+                                    completeCalls++;
+                                    HashMap<String, String> hash = accessedAttributes.get(methodCall.getJavaMethod().getMethodSignature());
+                                    if (hash.get(javaAttribute.getName()) != null) {
+                                        HashMap<String, String> hash2 = accessedAttributes.get(javaMethod.getMethodSignature());
+                                        hash2.put(javaAttribute.getName(), javaAttribute.getName());
+                                    }
                                 }
+                            } else {
+                                completeCalls++;
+
                             }
                         }
 
                         if (completeCalls == javaMethod.getInternalMethodInvocations().size()) {
                             listToRemove.add(javaMethod);
+                            //System.out.println("Vai remover: "+javaMethod.getMethodSignature()+"   virou completo");
                             completeMethods.add(javaMethod);
                         }
                     }
                     if (listToRemove.isEmpty()) {
                         flag = false;
                     }
-                    incompleteMethods.remove(listToRemove);
+                    //System.out.println("Imcomplete methods: "+incompleteMethods.size());
+                    //System.out.println("A remover: "+listToRemove.size());
+                    for (JavaMethod javaMethod : listToRemove) {
+                        incompleteMethods.remove(javaMethod);
+                    }
+
+                    //System.out.println("Imcomplete methods final: "+incompleteMethods.size());
                 }
             }
 
@@ -1528,14 +1515,18 @@ public class AstService {
                 for (JavaMethod javaMethod : incompleteMethods) {
                     int completeCalls = 0;
                     boolean change = false;
-                    for (JavaMethod methodCall : javaMethod.getInternalMethodInvocations()) {
-                        if (completeMethods.contains(methodCall)) {
-                            completeCalls++;
-                            if (methodCall.isChangeInternalState() || methodCall.isChangeInternalStateByMethodInvocations()) {
-                                change = true;
-                                //System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
-                                break;
+                    for (JavaMethodInvocation methodCall : javaMethod.getInternalMethodInvocations()) {
+                        if (methodCall.getJavaMethod() != null && methodCall.getJavaMethod().getJavaAbstract() == javaClass) {
+                            if (completeMethods.contains(methodCall.getJavaMethod())) {
+                                completeCalls++;
+                                if (methodCall.getJavaMethod().isChangeInternalState() || methodCall.getJavaMethod().isChangeInternalStateByMethodInvocations()) {
+                                    change = true;
+                                    //System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
+                                    break;
+                                }
                             }
+                        } else {
+                            completeCalls++;
                         }
                     }
 
@@ -1548,16 +1539,17 @@ public class AstService {
                 if (listToRemove.isEmpty()) {
                     flag = false;
                 }
-                incompleteMethods.remove(listToRemove);
+                for (JavaMethod javaMethod : listToRemove) {
+                    incompleteMethods.remove(javaMethod);
+                }
             }
-
-
 
         } catch (Exception e) {
             System.out.println("Erro setAttributeModificationMethod " + e.getMessage());
+            e.printStackTrace();
         }
     }
-    
+
     public void setAttributeModificationMethodOffMemory(JavaClass javaClass, JavaProject javaProject) {
         try {
 
@@ -1577,14 +1569,18 @@ public class AstService {
                 for (JavaMethod javaMethod : incompleteMethods) {
                     int completeCalls = 0;
                     boolean change = false;
-                    for (JavaMethod methodCall : javaMethod.getInternalMethodInvocations()) {
-                        if (completeMethods.contains(methodCall)) {
-                            completeCalls++;
-                            if (methodCall.isChangeInternalState() || methodCall.isChangeInternalStateByMethodInvocations()) {
-                                change = true;
-                                //System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
-                                break;
+                    for (JavaMethodInvocation methodCall : javaMethod.getInternalMethodInvocations()) {
+                        if (methodCall.getJavaMethod() != null && methodCall.getJavaMethod().getJavaAbstract() == javaClass) {
+                            if (completeMethods.contains(methodCall.getJavaMethod())) {
+                                completeCalls++;
+                                if (methodCall.getJavaMethod().isChangeInternalState() || methodCall.getJavaMethod().isChangeInternalStateByMethodInvocations()) {
+                                    change = true;
+                                    //System.out.println("Chnage " + javaClass.getFullQualifiedName() + "   method: " + javaMethod.getMethodSignature());
+                                    break;
+                                }
                             }
+                        } else {
+                            completeCalls++;
                         }
                     }
 
@@ -1597,10 +1593,10 @@ public class AstService {
                 if (listToRemove.isEmpty()) {
                     flag = false;
                 }
-                incompleteMethods.remove(listToRemove);
+                for (JavaMethod javaMethod : listToRemove) {
+                    incompleteMethods.remove(javaMethod);
+                }
             }
-
-
 
         } catch (Exception e) {
             System.out.println("Erro setAttributeModificationMethod " + e.getMessage());
@@ -1653,8 +1649,6 @@ public class AstService {
                 Variable variable = new Variable(frag.getName().toString(), javaData);
                 blockVariablesBox.addVariable(variable, var.getParent());
 
-
-
             }
         }
 
@@ -1685,10 +1679,8 @@ public class AstService {
             List<VariableDeclarationFragment> frags = var.fragments();
             for (VariableDeclarationFragment frag : frags) {
 
-
                 Variable variable = new Variable(frag.getName().toString(), javaData);
                 blockVariablesBox.addVariable(variable, var.getParent());
-
 
             }
         }
@@ -1722,7 +1714,6 @@ public class AstService {
 
             Variable variable = new Variable(var.getName().toString(), javaData);
             blockVariablesBox.addVariable(variable, var.getParent());
-
 
         }
 
@@ -1763,8 +1754,12 @@ public class AstService {
             }
         }
         char[] tmp = new char[chars.size()];
+        System.out.println("Size: "+chars.size());
         for (i = 0; i < tmp.length; i++) {
             tmp[i] = chars.get(i);
+            if(i%100000 == 99999){
+                System.out.println("I: "+(i+1));
+            }
         }
         newContent = new String(tmp);
         return newContent;
@@ -1799,9 +1794,13 @@ public class AstService {
                 i++;
             }
         }
+        System.out.println("chars size: "+chars.size());
         char[] tmp = new char[chars.size()];
         for (i = 0; i < tmp.length; i++) {
             tmp[i] = chars.get(i);
+            if(i%100000 == 99999){
+                System.out.println("I: "+(i+1));
+            }
         }
         newContent = new String(tmp);
         return newContent;
@@ -1834,8 +1833,12 @@ public class AstService {
             }
         }
         char[] tmp = new char[chars.size()];
+        System.out.println("Size: "+chars.size());
         for (i = 0; i < tmp.length; i++) {
             tmp[i] = chars.get(i);
+            if(i%100000 == 99999){
+                System.out.println("I: "+(i+1));
+            }
         }
         newContent = new String(tmp);
         return newContent;
@@ -1891,8 +1894,12 @@ public class AstService {
             }
         }
         char[] tmp = new char[chars.size()];
+        System.out.println("Size: "+chars.size());
         for (i = 0; i < tmp.length; i++) {
             tmp[i] = chars.get(i);
+            if(i%100000 == 99999){
+                System.out.println("I: "+(i+1));
+            }
         }
         newContent = new String(tmp);
         return newContent;

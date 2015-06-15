@@ -184,21 +184,21 @@ public class JavaProject {
     public JavaAbstract getClassByName(String name) {
         return classes.get(name);
     }
-    
+
     public JavaAbstract getClassByOriginalSignature(String name) {
         JavaAbstract javaAbstract = null;
-        
-        for(JavaAbstract jaux : getClasses()){
-            if(jaux.getOriginalSignature().equals(name)){
+
+        for (JavaAbstract jaux : getClasses()) {
+            if (jaux.getOriginalSignature().equals(name)) {
                 javaAbstract = jaux;
                 break;
             }
         }
         return javaAbstract;
     }
-    
+
     public List<JavaAbstract> getClassByLastName(String name) {
-        
+
         List<JavaAbstract> javaClasses = new LinkedList();
         Collection<JavaPackage> packageCollection = packages.values();
         Iterator it = packageCollection.iterator();
@@ -206,7 +206,7 @@ public class JavaProject {
             JavaPackage javaPackage = (JavaPackage) it.next();
             for (JavaAbstract javaAbstract : javaPackage.getClasses()) {
                 if (javaAbstract.getClass() == JavaClass.class) {
-                    if(((JavaClass) javaAbstract).getName().equals(name)){
+                    if (((JavaClass) javaAbstract).getName().equals(name)) {
                         javaClasses.add(javaAbstract);
                     }
                 }
@@ -256,7 +256,6 @@ public class JavaProject {
         for (JavaAbstract javac : list) {
             boolean using = false;
             if (javac.getClass() == JavaClass.class && javac != javaAbstract) {
-
 
                 if (!using) {
                     for (JavaAttribute javaAttribute : ((JavaClass) javac).getAttributes()) {
@@ -319,22 +318,28 @@ public class JavaProject {
     }
 
     public void setChangingMethodsAndClasses() {
+        System.out.println("********************* setchanging class");
         for (JavaAbstract javaAbstract : getClasses()) {
             //System.gc();
             JavaClass javaClass = (JavaClass) javaAbstract;
             for (JavaMethod javaMethod : javaClass.getMethods()) {
-                List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();
+                
+                List<JavaMethodInvocation> listMethodInvocation = javaMethod.getMethodInvocations();  
+                //System.out.println(javaClass.getFullQualifiedName()+":"+javaMethod.getMethodSignature()+"   size: "+listMethodInvocation.size());
                 for (JavaMethodInvocation javaMethodInvocation : listMethodInvocation) {
                     //System.gc();
                     if (javaMethodInvocation.getJavaMethod() != null) {
+                        
                         javaMethodInvocation.getJavaMethod().addChangingMethod(javaMethod);
+                        //System.out.println("------"+javaMethodInvocation.getJavaMethod().getJavaAbstract().getFullQualifiedName()+":"+javaMethodInvocation.getJavaMethod().getMethodSignature()+"    CM: "+javaMethodInvocation.getJavaMethod().getChangingMethodsMetric()+"   CC: "+javaMethodInvocation.getJavaMethod().getChangingClassesMetric()+
+                        //        "     code: "+javaMethodInvocation.getJavaMethod()+"    "+(javaMethodInvocation.getJavaMethod().getJavaAbstract().getClass() == JavaClass.class ? "classe" : "interface"));
                     }
                 }
-                List<JavaMethod> listInternalMethodInvocation = javaMethod.getInternalMethodInvocations();
-                for (JavaMethod javaInternalMethodThatCall : listInternalMethodInvocation) {
+                List<JavaMethodInvocation> listInternalMethodInvocation = javaMethod.getInternalMethodInvocations();
+                for (JavaMethodInvocation javaInternalMethodThatCall : listInternalMethodInvocation) {
                     //System.gc();
-                    if (javaInternalMethodThatCall != null) {
-                        javaInternalMethodThatCall.addInternalMethodThatCallMe(javaMethod);
+                    if (javaInternalMethodThatCall.getJavaMethod() != null) {
+                        javaInternalMethodThatCall.getJavaMethod().addInternalMethodThatCallMe(javaInternalMethodThatCall.getJavaMethod());
                     }
                 }
             }
@@ -446,13 +451,12 @@ public class JavaProject {
                             if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
                                 jc1.addClientClassViaInterface(javaClass);
                                 jc1.addClientPackageViaInterface(javaClass.getJavaPackage());
-                                
+
                                 //jc1.getJavaPackage().addClientClass(javaClass);
                                 //jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
-
                                 javaClass.addExternalDependencyClassViaInterface(jc1);
                                 javaClass.addExternalDependencyPackageViaInterface(jc1.getJavaPackage());
-                                
+
                                 javaClass.addExternalDependencyInterface(ji1);
                                 javaClass.addExternalDependencyPackageInterface(ji1.getJavaPackage());
                             } else {
@@ -461,33 +465,32 @@ public class JavaProject {
                                 jc1.addIntraPackageDependentClassViaInterface(javaClass);
 
                                 javaClass.addInternalDependencyClassViaInterface(jc1);
-                                
+
                                 javaClass.addInternalDependencyInterface(ji1);
                             }
                         }
 
-
                     }
                 }
-                
+
                 //verifica de quem JavaClass herda
                 /*JavaClass jc1 = javaClass.getSuperClass();
-                while (jc1 != null) {
-                    if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
-                        jc1.addClientClass(javaClass);
-                        jc1.addClientPackage(javaClass.getJavaPackage());
-                        jc1.getJavaPackage().addClientClass(javaClass);
-                        jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
+                 while (jc1 != null) {
+                 if (!javaClass.getJavaPackage().getName().equals(jc1.getJavaPackage().getName())) {
+                 jc1.addClientClass(javaClass);
+                 jc1.addClientPackage(javaClass.getJavaPackage());
+                 jc1.getJavaPackage().addClientClass(javaClass);
+                 jc1.getJavaPackage().addClientPackage(javaClass.getJavaPackage());
 
-                        javaClass.addExternalDependencyClass(jc1);
-                        javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
-                    } else {
-                        jc1.addIntraPackageDependentClass(javaClass);
+                 javaClass.addExternalDependencyClass(jc1);
+                 javaClass.addExternalDependencyPackage(jc1.getJavaPackage());
+                 } else {
+                 jc1.addIntraPackageDependentClass(javaClass);
 
-                        javaClass.addInternalDependencyClass(jc1);
-                    }
-                    jc1 = jc1.getSuperClass();
-                }*/
+                 javaClass.addInternalDependencyClass(jc1);
+                 }
+                 jc1 = jc1.getSuperClass();
+                 }*/
             }
         }
 

@@ -12,9 +12,11 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 /**
  *
@@ -50,6 +52,8 @@ public class MySQLImplementedInterfacesDao implements ImplementedInterfacesDao{
                 
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {
@@ -68,6 +72,37 @@ public class MySQLImplementedInterfacesDao implements ImplementedInterfacesDao{
             stm.executeUpdate("insert into IMPLEMENTED_INTERFACES (class_id, interface_id) "
                     + " VALUES (" + javaClass.getId() + ","
                     + "" + javaInterface.getId() + ");");
+            
+            stm.close();
+
+        } catch (SQLException e) {
+            System.out.println("ERRO implemented interfaces: " + e.getMessage());
+        }
+    }
+    
+    public void saveImplementedInterface(List<JavaClass> javaClasses, List<JavaInterface> javaInterfaces) {
+        connection = MysqlConnectionFactory.getConnection();
+        try {
+            if(!javaClasses.isEmpty()){
+                String query = "insert into IMPLEMENTED_INTERFACES (class_id, interface_id) "
+                    + " VALUES ";
+                JavaClass javaClass = javaClasses.get(0);
+                JavaInterface javaInterface = javaInterfaces.get(0);
+                query = query + "(" + javaClass.getId() + ","
+                    + "" + javaInterface.getId() + ")";
+                for(int i = 1; i < javaClasses.size(); i++){
+                    javaClass = javaClasses.get(i);
+                    javaInterface = javaInterfaces.get(i);
+                    query = query + ", (" + javaClass.getId() + ","
+                    + "" + javaInterface.getId() + ")";
+                }
+                query = query + ";";
+                System.out.println(query);
+                PreparedStatement stm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                stm.execute();
+                stm.close();
+            }
+            
 
         } catch (SQLException e) {
             System.out.println("ERRO implemented interfaces: " + e.getMessage());

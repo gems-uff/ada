@@ -76,6 +76,8 @@ public class MySQLJavaAttributeDao implements JavaAttributeDao {
                     + javaAttribute.getType().getFullQualifiedName() + "','"
                     + javaAttribute.getName() + "'"
                     + ");");
+            
+            stm.close();
         } catch (SQLException e) {
             System.out.println("ERRO: " + e.getMessage());
         }
@@ -124,6 +126,8 @@ public class MySQLJavaAttributeDao implements JavaAttributeDao {
                 System.out.println(query);
                 PreparedStatement stm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                
+                stm.close();
             }
             
         } catch (SQLException e) {
@@ -157,14 +161,17 @@ public class MySQLJavaAttributeDao implements JavaAttributeDao {
                     }
                 }
                 JavaAttribute javaAttribute = new JavaAttribute(javaData, rs.getString("name"),
-                        Boolean.valueOf(rs.getString("is_final")),
-                        Boolean.valueOf(rs.getString("is_static")), Boolean.valueOf(rs.getString("is_volatile")),
-                        Boolean.valueOf(rs.getString("is_private")),
-                        Boolean.valueOf(rs.getString("is_public")), Boolean.valueOf(rs.getString("is_protected")));
+                        rs.getString("is_final").equals("1"),
+                        rs.getString("is_static").equals("1"), rs.getString("is_volatile").equals("1"),
+                        rs.getString("is_private").equals("1"),
+                        rs.getString("is_public").equals("1"), rs.getString("is_protected").equals("1"));
 
                 javaClass.addAttribute(javaAttribute);
                 i++;
             }
+            
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

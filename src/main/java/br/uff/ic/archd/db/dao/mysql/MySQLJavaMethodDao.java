@@ -248,6 +248,8 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 id = rs.getLong(1);
             }
             javaMethod.setId(id);
+            stm.close();
+            rs.close();
             //System.out.println("Method ID: " + javaMethod.getId());
         } catch (SQLException e) {
             System.out.println("ERRO method: " + e.getMessage());
@@ -383,6 +385,8 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 }
                 System.out.println("METHOD QUERY SIZE: "+query.length()+"    Methods: "+javaMethods.size()+"    TAXA: "+(query.length()/javaMethods.size()));
                 //javaMethod.setId(id);
+                stm.close();
+                rs.close();
 
             }
 
@@ -403,10 +407,10 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
             while (rs.next()) {
                 JavaData javaData = JavaDataHash.getInstance().getJavaData(rs.getString("return_type"));
                 JavaMethod javaMethod = new JavaMethod(rs.getString("name"), rs.getString("original_signature"), javaData,
-                        Boolean.valueOf(rs.getString("is_final")),
-                        Boolean.valueOf(rs.getString("is_static")), Boolean.valueOf(rs.getString("is_abstract")),
-                        Boolean.valueOf(rs.getString("is_synchronized")), Boolean.valueOf(rs.getString("is_private")),
-                        Boolean.valueOf(rs.getString("is_public")), Boolean.valueOf(rs.getString("is_protected")),
+                        rs.getString("is_final").equals("1"),
+                        rs.getString("is_static").equals("1"), rs.getString("is_abstract").equals("1"),
+                        rs.getString("is_synchronized").equals("1"), rs.getString("is_private").equals("1"),
+                        rs.getString("is_public").equals("1"), rs.getString("is_protected").equals("1"),
                         Integer.valueOf(rs.getString("cyclomatic_complexity")), null);
                 javaMethod.setId(Long.parseLong(rs.getString("id")));
                 String parametersSignature = rs.getString("parameters");
@@ -434,6 +438,8 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 javaMethods.add(javaMethod);
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {
@@ -468,15 +474,15 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                     }
                 }
                 JavaMethod javaMethod = new JavaMethod(rs.getString("name"), rs.getString("original_signature"), javaData,
-                        Boolean.valueOf(rs.getString("is_final")),
-                        Boolean.valueOf(rs.getString("is_static")), Boolean.valueOf(rs.getString("is_abstract")),
-                        Boolean.valueOf(rs.getString("is_synchronized")), Boolean.valueOf(rs.getString("is_private")),
-                        Boolean.valueOf(rs.getString("is_public")), Boolean.valueOf(rs.getString("is_protected")),
+                        rs.getString("is_final").equals("1"),
+                        rs.getString("is_static").equals("1"), rs.getString("is_abstract").equals("1"),
+                        rs.getString("is_synchronized").equals("1"), rs.getString("is_private").equals("1"),
+                        rs.getString("is_public").equals("1"), rs.getString("is_protected").equals("1"),
                         Integer.valueOf(rs.getString("cyclomatic_complexity")), null);
 
                 javaMethod.setSizeInChars(Integer.valueOf(rs.getString("size_in_chars")));
-                javaMethod.setChangeInternalState(Boolean.valueOf(rs.getString("change_internal_state")));
-                javaMethod.setIsAnAcessorMethod(Boolean.valueOf(rs.getString("is_an_acessor_method")));
+                javaMethod.setChangeInternalState(rs.getString("change_internal_state").equals("1"));
+                javaMethod.setIsAnAcessorMethod(rs.getString("is_an_acessor_method").equals("1"));
                 javaMethod.setAccessedAttribute(rs.getString("accessed_attribute"));
                 javaMethod.setNumberOfLines(Integer.valueOf(rs.getString("number_of_lines")));
                 javaMethod.setAccessToForeignDataNumber(Integer.valueOf(rs.getString("access_to_foreign_data")));
@@ -484,7 +490,7 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 javaMethod.setForeignDataProviderNumber(Integer.valueOf(rs.getString("foreign_data_provider")));
                 javaMethod.setNumberOfLocalVariables(Integer.valueOf(rs.getString("number_of_local_variables")));
 
-                javaMethod.setChangeInternalStateByMethodInvocations(Boolean.valueOf(rs.getString("change_internal_state_by_method_invocation")));
+                javaMethod.setChangeInternalStateByMethodInvocations(rs.getString("change_internal_state_by_method_invocation").equals("1"));
                 String parameterString = rs.getString("parameters");
                 if (!parameterString.equals("")) {
                     String parameters[] = parameterString.split(";");
@@ -512,6 +518,8 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 javaMethods.add(javaMethod);
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {
@@ -547,15 +555,15 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                     }
                 }
                 JavaMethod javaMethod = new JavaMethod(rs.getString("name"), rs.getString("original_signature"), javaData,
-                        Boolean.valueOf(rs.getString("is_final")),
-                        Boolean.valueOf(rs.getString("is_static")), Boolean.valueOf(rs.getString("is_abstract")),
-                        Boolean.valueOf(rs.getString("is_synchronized")), Boolean.valueOf(rs.getString("is_private")),
-                        Boolean.valueOf(rs.getString("is_public")), Boolean.valueOf(rs.getString("is_protected")),
+                        rs.getString("is_final").equals("1"),
+                        rs.getString("is_static").equals("1"), rs.getString("is_abstract").equals("1"),
+                        rs.getString("is_synchronized").equals("1"), rs.getString("is_private").equals("1"),
+                        rs.getString("is_public").equals("1"), rs.getString("is_protected").equals("1"),
                         Integer.valueOf(rs.getString("cyclomatic_complexity")), null);
                 String parameterString = rs.getString("parameters");
                 javaMethod.setSizeInChars(Integer.valueOf(rs.getString("size_in_chars")));
-                javaMethod.setChangeInternalState(Boolean.valueOf(rs.getString("change_internal_state")));
-                javaMethod.setIsAnAcessorMethod(Boolean.valueOf(rs.getString("is_an_acessor_method")));
+                javaMethod.setChangeInternalState(rs.getString("change_internal_state").equals("1"));
+                javaMethod.setIsAnAcessorMethod(rs.getString("is_an_acessor_method").equals("1"));
                 javaMethod.setAccessedAttribute(rs.getString("accessed_attribute"));
                 javaMethod.setNumberOfLines(Integer.valueOf(rs.getString("number_of_lines")));
                 javaMethod.setAccessToForeignDataNumber(Integer.valueOf(rs.getString("access_to_foreign_data")));
@@ -563,7 +571,7 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 javaMethod.setForeignDataProviderNumber(Integer.valueOf(rs.getString("foreign_data_provider")));
                 javaMethod.setNumberOfLocalVariables(Integer.valueOf(rs.getString("number_of_local_variables")));
 
-                javaMethod.setChangeInternalStateByMethodInvocations(Boolean.valueOf(rs.getString("change_internal_state_by_method_invocation")));
+                javaMethod.setChangeInternalStateByMethodInvocations(rs.getString("change_internal_state_by_method_invocation").equals("1"));
                 if (!parameterString.equals("")) {
                     //System.out.println("parameter string: "+parameterString);
                     String parameters[] = parameterString.split(";");
@@ -591,6 +599,8 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
             }
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE Métodos  " + i);
+            stm.close();
+            rs.close();
         } catch (Exception e) {
             System.out.println("ERRO method: " + e.getMessage());
         }
@@ -617,10 +627,10 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                     }
                 }
                 JavaMethod javaMethod = new JavaMethod(rs.getString("name"), rs.getString("original_signature"), javaData,
-                        Boolean.valueOf(rs.getString("is_final")),
-                        Boolean.valueOf(rs.getString("is_static")), Boolean.valueOf(rs.getString("is_abstract")),
-                        Boolean.valueOf(rs.getString("is_synchronized")), Boolean.valueOf(rs.getString("is_private")),
-                        Boolean.valueOf(rs.getString("is_public")), Boolean.valueOf(rs.getString("is_protected")),
+                        rs.getString("is_final").equals("1"),
+                        rs.getString("is_static").equals("1"), rs.getString("is_abstract").equals("1"),
+                        rs.getString("is_synchronized").equals("1"), rs.getString("is_private").equals("1"),
+                        rs.getString("is_public").equals("1"), rs.getString("is_protected").equals("1"),
                         Integer.valueOf(rs.getString("cyclomatic_complexity")), null);
                 String parameterString = rs.getString("parameters");
                 if (!parameterString.equals("")) {
@@ -646,6 +656,8 @@ public class MySQLJavaMethodDao implements JavaMethodDao {
                 }
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

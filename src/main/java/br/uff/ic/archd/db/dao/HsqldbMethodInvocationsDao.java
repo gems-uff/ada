@@ -101,12 +101,12 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
                     }
                 }
             }
-            for (JavaMethod invocatedMethod : javaMethod.getInternalMethodInvocations()) {
-                System.out.println("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
-                        + " VALUES (" + javaMethod.getId() + "," + javaClass.getId() + "," + invocatedMethod.getId() + ");");
-                stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
-                        + " VALUES (" + javaMethod.getId() + "," + javaClass.getId() + "," + invocatedMethod.getId() + ");");
-            }
+//            for (JavaMethod invocatedMethod : javaMethod.getInternalMethodInvocations()) {
+//                System.out.println("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
+//                        + " VALUES (" + javaMethod.getId() + "," + javaClass.getId() + "," + invocatedMethod.getId() + ");");
+//                stm.executeUpdate("insert into METHOD_INVOCATIONS (method_id, class_id , invocated_method) "
+//                        + " VALUES (" + javaMethod.getId() + "," + javaClass.getId() + "," + invocatedMethod.getId() + ");");
+//            }
 
         } catch (SQLException e) {
             System.out.println("ERRO save methodinvocation: " + e.getMessage());
@@ -150,7 +150,7 @@ public class HsqldbMethodInvocationsDao implements MethodInvocationsDao {
                         javaInternalInvocation.setUnknowMethodName(unknowMethodName);
                         javaMethod.addMethodInvocation(javaInternalInvocation);
                     } else {
-                        javaMethod.addInternalMethodInvocation(javaClass.getMethodById(Long.valueOf(invocatedMethodString)));
+                        //javaMethod.addInternalMethodInvocation(javaClass.getMethodById(Long.valueOf(invocatedMethodString)));
                     }
                 } else {
                     if (unknowMethodName != null) {

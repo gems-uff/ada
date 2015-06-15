@@ -446,6 +446,19 @@ public class JavaClass extends JavaAbstract {
         }
         return isInheritedClass;
     }
+    
+    public boolean implementsInterface(JavaInterface javaInterface){
+        boolean implementsInterface = false;
+        for(JavaInterface ji : this.implementedInterfaces){
+            if(ji.getFullQualifiedName().equals(javaInterface.getFullQualifiedName())){
+                implementsInterface = true;
+                break;
+            }
+        }
+        
+        
+        return implementsInterface;
+    }
 
 
     /**

@@ -48,10 +48,14 @@ public class MySQLOriginalNameDao implements OriginalNameDao{
                     + " VALUES ('" + artifactName + "',"
                     + "'" + originalName + "');");
 
+            stm.close();
             
+            if(artifactName == null || originalName== null){
+                throw new SQLException("Erro insert artifactName: "+artifactName+"   originalName: "+originalName);
+            }
 
         } catch (SQLException e) {
-            System.out.println("ERRO: " + e.getMessage());
+            System.out.println("ERRO save MySQLOriginalNameDao: " + e.getMessage());
         }
     }
     
@@ -75,6 +79,7 @@ public class MySQLOriginalNameDao implements OriginalNameDao{
                 System.out.println(query);
                 PreparedStatement stm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             
             
@@ -95,7 +100,12 @@ public class MySQLOriginalNameDao implements OriginalNameDao{
             
             while(rs.next()){
                 originalName = rs.getString("original_name");
+                if(originalName.equals("null")){
+                    originalName = null;
+                }
             }
+            stm.close();
+            rs.close();
             
             //stm.execute("SHUTDOWN");
         } catch (Exception e) {
@@ -117,6 +127,8 @@ public class MySQLOriginalNameDao implements OriginalNameDao{
             while(rs.next()){
                 list.add(rs.getString("artifact_signature"));
             }
+            stm.close();
+            rs.close();
             
             //stm.execute("SHUTDOWN");
         } catch (Exception e) {

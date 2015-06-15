@@ -14,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 /**
  *
@@ -105,6 +106,11 @@ public class HsqldbImplementedInterfacesDao implements ImplementedInterfacesDao{
         } catch (SQLException e) {
             System.out.println("ERRO implemented interfaces: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void saveImplementedInterface(List<JavaClass> javaClasses, List<JavaInterface> javaInterfaces) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

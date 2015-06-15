@@ -62,6 +62,7 @@ public class MySQLInternalImportsDao implements InternalImportsDao {
                             + " VALUES (" + javaAbstract.getId() + "," + javaAbstractImport.getId() + ");");
                 }
             }
+            stm.close();
 
         } catch (SQLException e) {
             System.out.println("ERRO internal imports: " + e.getMessage());
@@ -127,22 +128,28 @@ public class MySQLInternalImportsDao implements InternalImportsDao {
                 query1 = query1 + ";";
                 PreparedStatement stm = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if (counter2 != 0) {
                 query2 = query2 + ";";
                 PreparedStatement stm = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if (counter3 != 0) {
                 query3 = query3 + ";";
                 PreparedStatement stm = connection.prepareStatement(query3, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if (counter4 != 0) {
                 query4 = query4 + ";";
                 PreparedStatement stm = connection.prepareStatement(query4, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
+            
+            
 
         } catch (SQLException e) {
             System.out.println("ERRO internal imports: " + e.getMessage());
@@ -210,22 +217,28 @@ public class MySQLInternalImportsDao implements InternalImportsDao {
                 query1 = query1 + ";";
                 PreparedStatement stm = connection.prepareStatement(query1, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if (counter2 != 0) {
                 query2 = query2 + ";";
                 PreparedStatement stm = connection.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if (counter3 != 0) {
                 query3 = query3 + ";";
                 PreparedStatement stm = connection.prepareStatement(query3, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
             if (counter4 != 0) {
                 query4 = query4 + ";";
                 PreparedStatement stm = connection.prepareStatement(query4, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                stm.close();
             }
+            
+
 
         } catch (SQLException e) {
             System.out.println("ERRO internal imports: " + e.getMessage());
@@ -263,6 +276,9 @@ public class MySQLInternalImportsDao implements InternalImportsDao {
                 i++;
             }
             javaAbstract.addImportClasses(importClasses);
+            
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

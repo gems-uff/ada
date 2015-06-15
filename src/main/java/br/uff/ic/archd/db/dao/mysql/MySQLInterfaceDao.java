@@ -61,6 +61,8 @@ public class MySQLInterfaceDao implements InterfaceDao{
             }
             javaInterface.setId(id);
             System.out.println("Interface ID: "+javaInterface.getId());
+            stm.close();
+            rs.close();
         } catch (SQLException e) {
             System.out.println("ERRO interface: " + e.getMessage());
         }
@@ -101,6 +103,8 @@ public class MySQLInterfaceDao implements InterfaceDao{
                     System.out.println("Interface ID i: "+i+": " + javaInterface.getId());
                     i++;
                 }
+                stm.close();
+                rs.close();
                     
             }
             
@@ -141,6 +145,7 @@ public class MySQLInterfaceDao implements InterfaceDao{
                     JavaPackage javaPackage = javaProject.getPackageByName(classPackage);
                     if (javaPackage == null) {
                         javaPackage = new JavaPackage(classPackage);
+                        javaPackage.setOriginalSignature(classPackage);
                         javaProject.addPackage(javaPackage);
                     }
                     javaInterface.setJavaPackage(javaPackage);
@@ -153,6 +158,8 @@ public class MySQLInterfaceDao implements InterfaceDao{
                 javaProject.addClass(javaInterface);
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

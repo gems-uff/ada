@@ -44,6 +44,7 @@ public class MySQLJavaPackageDao implements JavaPackageDao{
                     +", '" + javaPackage.getOriginalSignature() + "'"
                     + ");");
             //stm.execute("SHUTDOWN");
+            stm.close();
         } catch (SQLException e) {
             System.out.println("ERRO: " + e.getMessage());
         }
@@ -63,6 +64,8 @@ public class MySQLJavaPackageDao implements JavaPackageDao{
                 javaPackages.add(javaPackage);
                 i++;
             }
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {

@@ -260,9 +260,9 @@ public class XMLService {
         }
 
         Node methodInternalInvocationsNode = myDoc.createElement("method_internal_invocations");
-        for (JavaMethod internalInvocation : javaMethod.getInternalMethodInvocations()) {
+        for (JavaMethodInvocation internalInvocation : javaMethod.getInternalMethodInvocations()) {
             Node methodInternalInvocationNode = myDoc.createElement("method_internal_invocation_id");
-            methodInternalInvocationNode.appendChild(myDoc.createTextNode(String.valueOf(internalInvocation.getInternalID())));
+            methodInternalInvocationNode.appendChild(myDoc.createTextNode(String.valueOf(internalInvocation.getJavaMethod().getInternalID())));
             methodInternalInvocationsNode.appendChild(methodInternalInvocationNode);
         }
 

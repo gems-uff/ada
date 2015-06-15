@@ -349,8 +349,9 @@ public class AnomaliesAnaliser {
                 for (AnomalieItem anomalieItem : items) {
                     if (anomalieItem.getAnomalieId() == Constants.ANOMALIE_GOD_PACKAGE) {
                         JavaPackage javaPackage = jp.getPackageByName(anomalieItem.getItem());
+                        System.out.println("Original Signature: "+javaPackage.getOriginalSignature());
                         String revisionId = artifactBirthDao.getBirthIdBirth(javaPackage.getOriginalSignature());
-                        System.out.println("Revisions: "+revisionId);
+                        System.out.println("Revisions of god package: "+revisionId);
                         int i = hashOfRevision.get(revisionId);
                         System.out.println("ANOMALIE_GOD_PACKAGE: "+i+"   "+javaPackage.getOriginalSignature());
                         projectAnomalies.addPackageAnomalie(javaPackage.getOriginalSignature(), "GOD PACKAGE", k, i, i);
@@ -361,7 +362,7 @@ public class AnomaliesAnaliser {
 //                            alternativeName = javaAbstract.getFullQualifiedName();
 //                        }
                         String revisionId = artifactBirthDao.getBirthIdBirth(javaAbstract.getOriginalSignature());
-                        System.out.println("Revisions: "+revisionId);
+                        System.out.println("Revisions of god class: "+revisionId);
                         int i = hashOfRevision.get(revisionId);
                         System.out.println("ANOMALIE_GOD_CLASS: "+i+"   "+javaAbstract.getOriginalSignature());
                         projectAnomalies.addClassAnomalie(javaAbstract.getOriginalSignature(), javaAbstract.getFullQualifiedName(), "GOD CLASS", k, i, i);
@@ -372,7 +373,7 @@ public class AnomaliesAnaliser {
 //                            alternativeName = javaAbstract.getFullQualifiedName();
 //                        }
                         String revisionId = artifactBirthDao.getBirthIdBirth(javaAbstract.getOriginalSignature());
-                        System.out.println("Revisions: "+revisionId);
+                        System.out.println("Revisions of misplaced class: "+revisionId);
                         int i = hashOfRevision.get(revisionId);
                         System.out.println("ANOMALIE_MISPLACED_CLASS: "+i+"   "+javaAbstract.getOriginalSignature());
                         projectAnomalies.addClassAnomalie(javaAbstract.getOriginalSignature(), javaAbstract.getFullQualifiedName(), "MISPLACED CLASS", k, i, i);
@@ -392,12 +393,12 @@ public class AnomaliesAnaliser {
 //                                    classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
 //                                }
                                 String revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getOriginalSignature());
-                                System.out.println("Revisions: "+revisionId);
+                                System.out.println("Revisions of feature envy: "+revisionId);
                                 int i = hashOfRevision.get(revisionId);
                                 revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getJavaAbstract().getOriginalSignature());
-                                System.out.println("Revisions: "+revisionId);
+                                System.out.println("Revisions of feature envy: "+revisionId);
                                 int j = hashOfRevision.get(revisionId);
-                                System.out.println("ANOMALIE_FEATURE_ENVY: "+i+"   "+javaAbstract.getOriginalSignature());
+                                System.out.println("ANOMALIE_FEATURE_ENVY: "+i+"   "+javaMethod.getOriginalSignature());
                                 projectAnomalies.addMethodAnomalie(javaMethod.getOriginalSignature(), javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "FEATURE ENVY", k, i, j);
                             }
                         }
@@ -417,12 +418,12 @@ public class AnomaliesAnaliser {
 //                                    classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
 //                                }
                                 String revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getOriginalSignature());
-                                System.out.println("Revisions: "+revisionId);
+                                System.out.println("Revisions of shotgun surgery: "+revisionId);
                                 int i = hashOfRevision.get(revisionId);
                                 revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getJavaAbstract().getOriginalSignature());
-                                System.out.println("Revisions: "+revisionId);
+                                System.out.println("Revisions of shotgun surgery: "+revisionId);
                                 int j = hashOfRevision.get(revisionId);
-                                System.out.println("ANOMALIE_SHOTGUN_SURGERY: "+i+"   "+javaAbstract.getOriginalSignature());
+                                System.out.println("ANOMALIE_SHOTGUN_SURGERY: "+i+"   "+javaMethod.getOriginalSignature());
                                 projectAnomalies.addMethodAnomalie(javaMethod.getOriginalSignature(), javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "SHOTGUN SURGERY", k, i,j);
                             }
                         }
@@ -442,12 +443,12 @@ public class AnomaliesAnaliser {
 //                                    classAlternativeName = javaMethod.getJavaAbstract().getFullQualifiedName();
 //                                }
                                 String revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getOriginalSignature());
-                                System.out.println("Revisions: "+revisionId);
+                                System.out.println("Revisions of god methods: "+revisionId);
                                 int i = hashOfRevision.get(revisionId);
                                 revisionId = artifactBirthDao.getBirthIdBirth(javaMethod.getJavaAbstract().getOriginalSignature());
-                                System.out.println("Revisions: "+revisionId);
+                                System.out.println("Revisions of god methods: "+revisionId);
                                 int j = hashOfRevision.get(revisionId);
-                                System.out.println("ANOMALIE_GOD_METHOD: "+i+"   "+javaAbstract.getOriginalSignature());
+                                System.out.println("ANOMALIE_GOD_METHOD: "+i+"   "+javaMethod.getOriginalSignature());
                                 projectAnomalies.addMethodAnomalie(javaMethod.getOriginalSignature(), javaMethod.getJavaAbstract().getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), "GOD METHOD", k, i,j);
                             }
                         }

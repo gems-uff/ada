@@ -47,6 +47,8 @@ public class MySQLArtifactBirthDao implements ArtifactBirthDao{
 
                     + " VALUES ('" + artifactSignature + "',"
                     + "'" + revisionBirthNumber + "');");
+            
+            stm.close();
 
             
 
@@ -75,6 +77,8 @@ public class MySQLArtifactBirthDao implements ArtifactBirthDao{
                 System.out.println(query);
                 PreparedStatement stm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                
+                stm.close();
             }
             
 
@@ -98,6 +102,9 @@ public class MySQLArtifactBirthDao implements ArtifactBirthDao{
                 revisionbirthId = rs.getString("revision_id_birth");
             }
             
+            stm.close();
+            rs.close();
+            
             //stm.execute("SHUTDOWN");
         } catch (Exception e) {
             System.out.println("ERRO: " + e.getMessage());
@@ -119,6 +126,9 @@ public class MySQLArtifactBirthDao implements ArtifactBirthDao{
                 list.add(rs.getString("artifact_signature"));
             }
             
+            stm.close();
+            rs.close();
+            
             //stm.execute("SHUTDOWN");
         } catch (Exception e) {
             System.out.println("ERRO: " + e.getMessage());
@@ -137,6 +147,9 @@ public class MySQLArtifactBirthDao implements ArtifactBirthDao{
             while(rs.next()){
                 System.out.println("Artifact Signature: "+rs.getString("artifact_signature")+"   birth: "+rs.getString("revision_id_birth"));
             }
+            
+            stm.close();
+            rs.close();
             
             //stm.execute("SHUTDOWN");
         } catch (Exception e) {

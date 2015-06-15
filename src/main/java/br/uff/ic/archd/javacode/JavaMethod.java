@@ -5,8 +5,12 @@
 package br.uff.ic.archd.javacode;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.eclipse.jdt.core.dom.Block;
 
 /**
@@ -21,9 +25,9 @@ public class JavaMethod {
     private List<Parameter> parameters;
     private List<JavaMethodInvocation> methodInvocations;
     private List<JavaExternalAttributeAccess> javaExternalAttributeAccessList;
-    private List<JavaMethod> internalMethodInvocations;
-    private List<JavaMethod> changingMethods;
-    private List<JavaMethod> internalMethodsThatCallMe;
+    private List<JavaMethodInvocation> internalMethodInvocations;
+    private HashMap<String, JavaMethod> changingMethods;
+    private HashMap<String, JavaMethod> internalMethodsThatCallMe;
     private HashMap<String, JavaClass> changingClasses;
     private int cyclomaticComplexity;
     private int sizeInChars;
@@ -71,7 +75,7 @@ public class JavaMethod {
         methodInvocations = new ArrayList();
         internalMethodInvocations = new ArrayList();
         this.javaExternalAttributeAccessList = new ArrayList();
-        this.internalMethodsThatCallMe = new ArrayList();
+        this.internalMethodsThatCallMe = new HashMap();
         this.cyclomaticComplexity = cyclomaticComplexity;
         this.block = block;
         this.changeInternalState = false;
@@ -84,7 +88,7 @@ public class JavaMethod {
         this.numberOfLocalVariables = 0;
         this.accessedAttribute = null;
         
-        changingMethods = new ArrayList();
+        changingMethods = new HashMap();
         changingClasses = new HashMap();
     }
     
@@ -94,12 +98,12 @@ public class JavaMethod {
     }
     
     public void addChangingMethod(JavaMethod javaMethod){
-        getChangingMethods().add(javaMethod);
+        changingMethods.put(javaMethod.getJavaAbstract().getFullQualifiedName()+":"+javaMethod.getMethodSignature(), javaMethod);
         changingClasses.put(javaMethod.getJavaAbstract().getFullQualifiedName(), (JavaClass) javaMethod.getJavaAbstract());
     }
     
     public void addInternalMethodThatCallMe(JavaMethod javaMethod){
-        internalMethodsThatCallMe.add(javaMethod);
+        internalMethodsThatCallMe.put(javaMethod.getJavaAbstract().getFullQualifiedName()+":"+javaMethod.getMethodSignature(), javaMethod);
     }
 
     /**
@@ -194,7 +198,7 @@ public class JavaMethod {
         getMethodInvocations().add(javaMethodInvocation);
     }
     
-    public void addInternalMethodInvocation(JavaMethod javaMethod){
+    public void addInternalMethodInvocation(JavaMethodInvocation javaMethod){
         getInternalMethodInvocations().add(javaMethod);
     }
     
@@ -306,7 +310,7 @@ public class JavaMethod {
     /**
      * @return the internalMethodInvocations
      */
-    public List<JavaMethod> getInternalMethodInvocations() {
+    public List<JavaMethodInvocation> getInternalMethodInvocations() {
         return internalMethodInvocations;
     }
 
@@ -342,7 +346,7 @@ public class JavaMethod {
      * @return the changingMethods
      */
     public int getChangingMethodsMetric() {
-        return getChangingMethods().size();
+        return changingMethods.size();
     }
 
 
@@ -375,7 +379,14 @@ public class JavaMethod {
      * @return the changingMethods
      */
     public List<JavaMethod> getChangingMethods() {
-        return changingMethods;
+        List<JavaMethod> methods = new LinkedList();
+        Collection<JavaMethod> classCollection = changingMethods.values();
+        Iterator it = classCollection.iterator();
+        while (it.hasNext()) {
+            JavaMethod method = (JavaMethod) it.next();
+            methods.add(method);
+        }
+        return methods;
     }
 
     /**
@@ -480,7 +491,14 @@ public class JavaMethod {
      * @return the internalMethodsThatCallMe
      */
     public List<JavaMethod> getInternalMethodsThatCallMe() {
-        return internalMethodsThatCallMe;
+        List<JavaMethod> methods = new LinkedList();
+        Collection<JavaMethod> classCollection = internalMethodsThatCallMe.values();
+        Iterator it = classCollection.iterator();
+        while (it.hasNext()) {
+            JavaMethod method = (JavaMethod) it.next();
+            methods.add(method);
+        }
+        return methods;
     }
 
 

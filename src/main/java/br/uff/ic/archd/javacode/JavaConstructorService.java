@@ -116,9 +116,10 @@ public class JavaConstructorService {
                 newCodeDir = BRANCHES_HISTORY_PATH + projectName + "/" + newCodeDir;
                 newCodeDirs.add(newCodeDir);
             }
+            TerminatedDao terminatedDao = DataBaseFactory.getInstance().getTerminatedDao();
             int k = 0;
             while (rev != null) {
-                
+
                 long t1 = System.currentTimeMillis();
                 gitConnector = new GitConnector(BRANCHES_HISTORY_PATH + projectName, projectRevisions.getName());
                 git = new Git(gitConnector.getRepository());
@@ -127,11 +128,13 @@ public class JavaConstructorService {
                 checkoutCommand.setName(rev.getId());
                 checkoutCommand.call();
 
-                JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisions.getName(), rev.getId(), revisionAnt);
-                javaProject = null;
+                if (!terminatedDao.isTerminated(projectName, rev.getId())) {
+                    JavaProject javaProject = this.getProjectByRevision(projectName, newCodeDirs, BRANCHES_HISTORY_PATH + projectRevisions.getName(), rev.getId(), revisionAnt);
+                    javaProject = null;
+                }
                 long t2 = System.currentTimeMillis();
                 k++;
-                System.out.println("Calculou :"+k+"        demorou: "+(t2-t1));
+                System.out.println("Calculou :" + k + "        demorou: " + (t2 - t1));
                 revisionAnt = rev.getId();
                 if (rev.getNext().size() == 0) {
                     rev = null;
@@ -143,6 +146,7 @@ public class JavaConstructorService {
 
         } catch (Exception e) {
             System.out.println("Exception getAllProjectsRevision: " + e.getMessage() + "             class: " + e.getClass());
+            e.printStackTrace();
         }
 
     }
@@ -256,6 +260,36 @@ public class JavaConstructorService {
             interfaceDao.getJavaInterfacesByRevisionId(javaProject, revisionId);
             //t2 = System.currentTimeMillis();
             //System.out.println("Pegar todas as interfaces de uma revisão: "+(t2-t1)+"  milisegundos");
+            //set the package original signatures
+            for(JavaPackage javaPackage : javaProject.getPackages()){
+                int num = 1;
+                JavaAbstract javaAbstract = javaPackage.getClasses().get(0);
+                String classString = javaAbstract.getOriginalSignature();
+                String classSplit[] = classString.split("\\.");
+                String className = classSplit[classSplit.length - 1];
+                int n = classString.length() - (className.length() + 1);
+                if (n < 0) {
+                    n = 0;
+                }
+                String classPackageName = classString.substring(0, n);
+                for(int j = 1; j < javaPackage.getClasses().size(); j++){
+                    javaAbstract = javaPackage.getClasses().get(j);
+                    classString = javaAbstract.getOriginalSignature();
+                    classSplit = classString.split("\\.");
+                    className = classSplit[classSplit.length - 1];
+                    n = classString.length() - (className.length() + 1);
+                    if (n < 0) {
+                        n = 0;
+                    }
+                    String classPackageAux = classString.substring(0, n);
+                    if(classPackageAux.equals(classPackageName)){
+                        num++;
+                    }
+                }
+                if(num == javaPackage.getClasses().size()){
+                    javaPackage.setOriginalSignature(classPackageName);
+                }
+            }
             //complete the java abstract with imports, attributes, implements, superclasses and methods
             for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
                 //t1 = System.currentTimeMillis();
@@ -321,11 +355,10 @@ public class JavaConstructorService {
             System.out.println("Vai calcular métricas");
             javaProject = this.createProjects(codeDirs, path, revisionId);
 
-            
             //System.gc();
-
             //verificar o nascimetno dos pacotes caso eles tenham nascidos outro dia
             if (antRevision != null) {
+                System.out.println("TEM REVISAO ANTERIOR");
                 JavaProject antProject = getProjectByRevision(projectName, codeDirs, path, antRevision, null);
                 List<JavaPackage> newPackages = new LinkedList();
                 List<JavaPackage> pacotesSumidos = new LinkedList();
@@ -333,19 +366,19 @@ public class JavaConstructorService {
                     String originalName = originalNameDao.getOriginalName(javaPackage.getName());
                     if (originalName == null) {
                         newPackages.add(javaPackage);
-                    }else{
+                    } else {
                         javaPackage.setOriginalSignature(originalName);
                     }
                 }
-                for(JavaPackage javaPackage : antProject.getPackages()){
-                    if(javaProject.getPackageByName(javaPackage.getName()) == null){
+                for (JavaPackage javaPackage : antProject.getPackages()) {
+                    if (javaProject.getPackageByName(javaPackage.getName()) == null) {
                         pacotesSumidos.add(javaPackage);
                     }
-                
+
                 }
                 //salvar os novos pacotes
-                packagesSemelhanca(newPackages,pacotesSumidos,originalNameDao, artifactBirthDao, revisionId);
-                
+                packagesSemelhanca(newPackages, pacotesSumidos, originalNameDao, artifactBirthDao, revisionId);
+
                 //verificar as classes e os metodos
                 for (JavaAbstract javaAbstract : javaProject.getClasses()) {
                     JavaClass javaClass = (JavaClass) javaAbstract;
@@ -367,17 +400,16 @@ public class JavaConstructorService {
                             System.out.println("********** Erro, duas classes parecidas");
                         } else {
                             if (sameClasses.size() == 1) {
-                                originalName = originalNameDao.getOriginalName(sameClasses.get(0).getFullQualifiedName());
+                                String originalSignature = originalNameDao.getOriginalName(sameClasses.get(0).getFullQualifiedName());
 
-                                if (originalName == null) {
-                                    originalName = sameClasses.get(0).getFullQualifiedName();
+                                if (originalSignature == null) {
+                                    originalSignature = sameClasses.get(0).getFullQualifiedName();
                                 }
-                                System.out.println("Classe mudou de nome: " + javaClass.getFullQualifiedName() + "   -    " + originalName);
-                                originalNameDao.save(javaClass.getFullQualifiedName(), originalName);
-                                javaClass.setOriginalSignature(originalName);
-                                
+                                System.out.println("Classe mudou de nome: " + javaClass.getFullQualifiedName() + "   -    " + originalSignature);
+                                originalNameDao.save(javaClass.getFullQualifiedName(), originalSignature);
+                                javaClass.setOriginalSignature(originalSignature);
 
-                            }else{
+                            } else {
                                 //classe nova
                                 originalNameDao.save(javaClass.getFullQualifiedName(), javaClass.getFullQualifiedName());
                                 artifactBirthDao.save(javaClass.getFullQualifiedName(), revisionId);
@@ -385,12 +417,10 @@ public class JavaConstructorService {
                             }
                         }
 
-                            
-                    }else{
+                    } else {
                         javaClass.setOriginalSignature(originalName);
                     }
 
-                    
                     List<JavaMethod> newMethods = new LinkedList();
                     List<JavaMethod> newMethodsClasseAlternativeName = new LinkedList();
 
@@ -398,15 +428,16 @@ public class JavaConstructorService {
 
                         //ainda nao foi dito a existencia desse metodo
                         String orignalClasseSignature = originalNameDao.getOriginalName(javaClass.getFullQualifiedName());
-                        originalName = originalNameDao.getOriginalName(orignalClasseSignature+ ":" + javaMethod.getMethodSignature());
-                        if (originalName == null) {
-                            
+                        String orignalMethodSignature = originalNameDao.getOriginalName(orignalClasseSignature + ":" + javaMethod.getMethodSignature());
+                        if (orignalMethodSignature == null) {
+
+                            //System.out.println("%%%%%%%%%%%%%%%%%%% METODO NOVO: "+orignalClasseSignature+":"+javaMethod.getMethodSignature());
                             newMethods.add(javaMethod);
 
-                        
-
-                        }else{
-                            javaMethod.setOriginalSignature(originalName);
+                        } else {
+                            
+                            javaMethod.setOriginalSignature(orignalMethodSignature);
+                            //System.out.println("ZZZZZZZZZZZZZZZZZZ METODO ANTIGO: "+orignalClasseSignature+":"+javaMethod.getMethodSignature()+"          original name: "+javaMethod.getOriginalSignature());
                         }
                     }
                     boolean terminar = false;
@@ -431,7 +462,7 @@ public class JavaConstructorService {
                                 for (JavaMethod javaMethod : methodsWithSameName) {
                                     //verificaremos se algum mpetodo existia antes e sumiu depois, pode ter se transformado
                                     JavaAbstract antAbstract = antProject.getClassByOriginalSignature(javaClass.getOriginalSignature());
-                                    
+
                                     if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
 
                                         List<JavaMethod> methodsName = new LinkedList();
@@ -453,8 +484,8 @@ public class JavaConstructorService {
                                         if (!methodsName.isEmpty()) {
                                             JavaMethod auxJm = closestMethod(javaMethod, methodsWithSameName, methodsName);
                                             if (auxJm != null) {
-                                                if(javaMethod.getName().equals("HashMap2")){
-                                                    System.out.println("Entrou 1: "+javaMethod.getMethodSignature());
+                                                if (javaMethod.getName().equals("HashMap2")) {
+                                                    System.out.println("Entrou 1: " + javaMethod.getMethodSignature());
                                                 }
                                                 String alternativeMethodName = originalNameDao.getOriginalName(javaClass.getOriginalSignature() + ":" + auxJm.getMethodSignature());
                                                 if (alternativeMethodName == null) {
@@ -463,120 +494,44 @@ public class JavaConstructorService {
                                                 System.out.println("Metodo mudou de assinatura: " + javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
                                                 originalNameDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
                                                 javaMethod.setOriginalSignature(alternativeMethodName);
-                                            }else{
+                                            } else {
                                                 //nao existe ninguem proximo desse metodo, ele é novo
-                                                if(javaMethod.getName().equals("HashMap2")){
-                                                    System.out.println("Entrou 2: "+javaMethod.getMethodSignature());
+                                                if (javaMethod.getName().equals("HashMap2")) {
+                                                    System.out.println("Entrou 2: " + javaMethod.getMethodSignature());
                                                 }
                                                 originalNameDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature());
                                                 javaMethod.setOriginalSignature(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature());
                                                 artifactBirthDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), revisionId);
                                             }
-                                        }else{
-                                            if(javaMethod.getName().equals("HashMap2")){
-                                                    System.out.println("Entrou 2: "+javaMethod.getMethodSignature());
-                                                }
+                                        } else {
+                                            if (javaMethod.getName().equals("HashMap2")) {
+                                                System.out.println("Entrou 2: " + javaMethod.getMethodSignature());
+                                            }
                                             originalNameDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature());
                                             javaMethod.setOriginalSignature(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature());
                                             artifactBirthDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), revisionId);
-                                            
+
                                         }
 
-                                    }else{
+                                    } else {
                                         //metodo novo
                                         originalNameDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature());
                                         javaMethod.setOriginalSignature(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature());
                                         artifactBirthDao.save(javaClass.getOriginalSignature() + ":" + javaMethod.getMethodSignature(), revisionId);
-                                            
+
                                     }
                                 }
                             }
                         }
                     }
 
-//                    terminar = false;
-//                    if (!newMethodsClasseAlternativeName.isEmpty()) {
-//                        while (!terminar) {
-//                            if (newMethodsClasseAlternativeName.isEmpty()) {
-//                                terminar = true;
-//                            } else {
-//                                JavaMethod javaMethodFirst = newMethodsClasseAlternativeName.get(0);
-//                                List<JavaMethod> methodsWithSameName = new LinkedList();
-//                                methodsWithSameName.add(javaMethodFirst);
-//                                for (int i = 1; i < newMethodsClasseAlternativeName.size(); i++) {
-//                                    if (newMethodsClasseAlternativeName.get(i).getName().equals(javaMethodFirst.getName())) {
-//                                        methodsWithSameName.add(newMethodsClasseAlternativeName.get(i));
-//                                    }
-//                                }
-//                                for (JavaMethod jm : methodsWithSameName) {
-//                                    newMethodsClasseAlternativeName.remove(jm);
-//                                }
-//
-//                                String alternativeClassName = originalNameDao.getOriginalName(javaClass.getFullQualifiedName());
-//                                for (JavaMethod javaMethod : methodsWithSameName) {
-//                                    JavaAbstract antAbstract = antProject.getClassByName(javaClass.getFullQualifiedName());
-//                                    if (antAbstract != null && antAbstract.getClass() == JavaClass.class) {
-//
-//                                        List<JavaMethod> methodsName = new LinkedList();
-//                                        List<JavaMethod> methodsNameAnt = ((JavaClass) antAbstract).getMethodsByName(javaMethod.getName());
-//                                        List<JavaMethod> methodsNameCurrent = javaClass.getMethodsByName(javaMethod.getName());
-//                                        for (JavaMethod jm : methodsNameAnt) {
-//                                            boolean exists = false;
-//                                            for (JavaMethod auxJm : methodsNameCurrent) {
-//                                                if (auxJm.getMethodSignature().equals(jm.getMethodSignature())) {
-//                                                    exists = true;
-//                                                    break;
-//                                                }
-//                                            }
-//                                            if (!exists) {
-//                                                methodsName.add(jm);
-//                                            }
-//                                        }
-//
-//                                        if (!methodsName.isEmpty()) {
-//                                            JavaMethod auxJm = closestMethod(javaMethod, methodsName);
-//                                            String alternativeMethodName = originalNameDao.getOriginalName(javaClass.getFullQualifiedName() + ":" + auxJm.getMethodSignature());
-//                                            if (alternativeMethodName == null) {
-//                                                alternativeMethodName = alternativeClassName + ":" + auxJm.getMethodSignature();
-//                                            }
-//                                            System.out.println("Metodo mudou de assinatura: " + javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature() + "   -    " + alternativeMethodName);
-//                                            originalNameDao.save(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), alternativeMethodName);
-//                                            javaMethod.setOriginalSignature(alternativeMethodName);
-//                                        }
-//
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
+
                 }
-                
-                
-                
-                
-                
-                
+
             } else {
                 //primeira revisão, portanto todos eles nasceram agora
-//                for (JavaPackage javaPackage : javaProject.getPackages()) {
-//                    artifactBirthDao.save(javaPackage.getName(), revisionId);
-//                    originalNameDao.save(javaPackage.getName(), javaPackage.getName());
-//                    javaPackage.setOriginalSignature(javaPackage.getName());
-//                }
-//                for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
-//                    artifactBirthDao.save(javaAbstract.getFullQualifiedName(), revisionId);
-//                    originalNameDao.save(javaAbstract.getFullQualifiedName(), javaAbstract.getFullQualifiedName());
-//                    if (javaAbstract.getClass() == JavaClass.class) {
-//                        JavaClass javaClass = (JavaClass) javaAbstract;
-//                        for (JavaMethod javaMethod : javaClass.getMethods()) {
-//                            artifactBirthDao.save(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), revisionId);
-//                            originalNameDao.save(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature(), javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
-//                            javaMethod.setOriginalSignature(javaClass.getFullQualifiedName() + ":" + javaMethod.getMethodSignature());
-//                        }
-//                        javaAbstract.setOriginalSignature(javaAbstract.getFullQualifiedName());
-//                    }
-//                }
-                
+
+
                 List<String> artifactNames = new LinkedList();
                 for (JavaPackage javaPackage : javaProject.getPackages()) {
                     artifactNames.add(javaPackage.getName());
@@ -584,7 +539,7 @@ public class JavaConstructorService {
 //                    originalNameDao.save(javaPackage.getName(), javaPackage.getName());
                     javaPackage.setOriginalSignature(javaPackage.getName());
                 }
-     
+
                 for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
                     artifactNames.add(javaAbstract.getFullQualifiedName());
                     //artifactBirthDao.save(javaAbstract.getFullQualifiedName(), revisionId);
@@ -600,7 +555,7 @@ public class JavaConstructorService {
                         javaAbstract.setOriginalSignature(javaAbstract.getFullQualifiedName());
                     }
                 }
-                
+
                 //salva todos juntos
                 artifactBirthDao.save(artifactNames, revisionId);
                 originalNameDao.save(artifactNames);
@@ -612,7 +567,7 @@ public class JavaConstructorService {
                 javaClasses.add((JavaClass) javaAbstract);
             }
             classesDao.save(javaClasses);
-            
+
             List<JavaAttribute> javaAttributes = new LinkedList();
             List<JavaMethod> javaMethods = new LinkedList();
             for (JavaAbstract javaAbstract : javaProject.getClasses()) {
@@ -640,20 +595,25 @@ public class JavaConstructorService {
                 }
                 //salvar tudo de uma vez
                 externalImportsDao.save(javaAbstract, externalImports);
-                
-                if(javaAttributes.size() >= 1000){
+
+                if (javaAttributes.size() >= 1000) {
                     javaAttributeDao.save(javaAttributes);
                     javaAttributes.clear();
                 }
-                if(javaMethods.size() >= 800){
+                if (javaMethods.size() >= 800) {
                     javaMethodDao.save(javaMethods);
                     javaMethods.clear();
                 }
 
             }
-            if(!javaAttributes.isEmpty()){
+            if (!javaAttributes.isEmpty()) {
                 javaAttributeDao.save(javaAttributes);
                 javaAttributes.clear();
+            }
+            
+            if (!javaMethods.isEmpty()) {
+                javaMethodDao.save(javaMethods);
+                javaMethods.clear();
             }
             //System.gc();
             List<JavaInterface> javaInterfaces = new LinkedList();
@@ -674,25 +634,31 @@ public class JavaConstructorService {
                 }
                 //salvar de uma vez
                 //javaMethodDao.save(javaMethods, false, javaInterface.getId());
-                if(javaMethods.size() >= 800){
+                if (javaMethods.size() >= 800) {
                     javaMethodDao.save(javaMethods);
                     javaMethods.clear();
                 }
             }
-            
-            if(!javaMethods.isEmpty()){
+
+            if (!javaMethods.isEmpty()) {
                 javaMethodDao.save(javaMethods);
                 javaMethods.clear();
             }
+            
+            
 
             //System.gc();
+            List<JavaClass> implemententedInterfacesClassList = new LinkedList();
+            List<JavaInterface> implemententedInterfacesInterfaceList = new LinkedList();
             List<JavaAbstract> javaAbstracts = new LinkedList();
             for (JavaAbstract javaAbstract : javaProject.getClasses()) {
                 JavaClass javaClass = (JavaClass) javaAbstract;
                 javaAbstracts.add(javaAbstract);
                 //System.gc();
                 for (JavaInterface javaInterface : javaClass.getImplementedInterfaces()) {
-                    implementedInterfacesDao.saveImplementedInterface(javaClass, javaInterface);
+                    implemententedInterfacesClassList.add(javaClass);
+                    implemententedInterfacesInterfaceList.add(javaInterface);
+                    //implementedInterfacesDao.saveImplementedInterface(javaClass, javaInterface);
                 }
                 //System.gc();
 //                for (JavaAbstract javaAbstractImport : javaClass.getClassesImports()) {
@@ -705,37 +671,47 @@ public class JavaConstructorService {
 //                    methodInvocationDao.saveMethodInvocations(javaMethod, javaClass);
 //                    javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaMethod);
                 }
-                if(javaMethods.size() >= 500){
+                if (javaMethods.size() >= 500) {
                     methodInvocationDao.saveMethodInvocations(javaMethods);
                     javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaMethods);
                     javaMethods.clear();
                 }
-                
-                if(javaAbstracts.size() >= 1000){
+
+                if (javaAbstracts.size() >= 1000) {
                     internalImportsDao.saveInternalImport(javaAbstracts);
                     javaAbstracts.clear();
                 }
-                
+
+                if (implemententedInterfacesClassList.size() >= 4000) {
+                    implementedInterfacesDao.saveImplementedInterface(implemententedInterfacesClassList, implemententedInterfacesInterfaceList);
+                    implemententedInterfacesClassList.clear();
+                    implemententedInterfacesInterfaceList.clear();
+                }
+
                 //methodInvocationDao.saveMethodInvocations(javaClass);
                 //javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaClass);
-                
-                
             }
-            
-            if(!javaMethods.isEmpty()){
+
+            if (!javaMethods.isEmpty()) {
                 methodInvocationDao.saveMethodInvocations(javaMethods);
                 javaExternalAttributeAccessDao.saveJavaExternalAttributeAccess(javaMethods);
                 javaMethods.clear();
             }
-            
-            if(!javaAbstracts.isEmpty()){
+
+            if (!javaAbstracts.isEmpty()) {
                 internalImportsDao.saveInternalImport(javaAbstracts);
                 javaAbstracts.clear();
             }
-            
-            for(JavaAbstract javaAbstract : javaProject.getClasses()){
+
+            if (!implemententedInterfacesClassList.isEmpty()) {
+                implementedInterfacesDao.saveImplementedInterface(implemententedInterfacesClassList, implemententedInterfacesInterfaceList);
+                implemententedInterfacesClassList.clear();
+                implemententedInterfacesInterfaceList.clear();
+            }
+
+            for (JavaAbstract javaAbstract : javaProject.getClasses()) {
                 JavaClass jc = (JavaClass) javaAbstract;
-                for(JavaMethod jm : jc.getMethods()){
+                for (JavaMethod jm : jc.getMethods()) {
                     jm.removeBlock();
                 }
             }
@@ -754,7 +730,6 @@ public class JavaConstructorService {
             //colocar so design flaws
 
             //System.gc();
-            
             List<JavaPackage> godPackages = getGodPackage(javaProject);
             for (JavaPackage javaPackge : godPackages) {
                 System.out.println("GOD PACKAGE ()");
@@ -805,8 +780,7 @@ public class JavaConstructorService {
 
         return javaProject;
     }
-    
-    
+
     public boolean isSameJavaClass(JavaClass currentClass, JavaClass antClass) {
         boolean isSame = false;
         int numberOfMethods = 0;
@@ -886,7 +860,7 @@ public class JavaConstructorService {
 
         return isSame;
     }
-    
+
     public JavaMethod closestMethod(JavaMethod currentMethod, List<JavaMethod> methods) {
         boolean isSame = false;
 
@@ -1052,14 +1026,14 @@ public class JavaConstructorService {
                         }
                     }
                 }
-                if(semelhancaPacoteConcorrente > semelhanca){
+                if (semelhancaPacoteConcorrente > semelhanca) {
                     //quem ganhou foi o pacote concorrente mesmo
                     originalNameDao.save(pacoteConcorrenteVencedor.getName(), pacoteMaisSemelhante.getOriginalSignature());
                     newPackages.remove(pacoteConcorrenteVencedor);
                     pacotesConcorrentes.remove(pacoteConcorrenteVencedor);
                     pacotesDisponiveis.remove(pacoteMaisSemelhante);
                     pacoteConcorrenteVencedor.setOriginalSignature(pacoteMaisSemelhante.getOriginalSignature());
-                }else{
+                } else {
                     //eu sou o pacote mais semelhante
                     originalNameDao.save(javaPackage.getName(), pacoteMaisSemelhante.getOriginalSignature());
                     newPackages.remove(javaPackage);
@@ -1383,39 +1357,39 @@ public class JavaConstructorService {
                     }
                 }
             }
-            
+
             i++;
-            System.out.println("Get java attributes: "+i);
+            System.out.println("Get java attributes: " + i+"   for java class: "+javaAbstract.getFullQualifiedName());
 
             //get list of methods
             List<JavaMethodAstBox> list = astService.getMethods(javaAbstract.getPath());
-            System.out.println("Get java methods: "+i);
+            System.out.println("Get java methods: " + i);
             setJavaMethods(javaAbstract, list, importList, javaProject, false);
             //System.gc();
 
         }
 
         System.out.println("Get all java methods invocations");
-        i=0;
+        i = 0;
         //get calls of the methods
         for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
             //System.gc();
             if (javaAbstract.getClass() == JavaClass.class) {
-                
+
                 astService.getMethodInvocations((JavaClass) javaAbstract, javaProject);
                 System.out.println("Get method invocation");
                 //System.out.println("Calculando métricas de acesso de dados");
                 astService.getAccessDataMetrics((JavaClass) javaAbstract, javaProject);
                 System.out.println("Get data metric");
                 JavaClass jc = (JavaClass) javaAbstract;
-                for(JavaMethod jm : jc.getMethods()){
+                for (JavaMethod jm : jc.getMethods()) {
                     jm.removeBlock();
                 }
                 //System.gc();
                 i++;
-                System.out.println("Method invocations: "+i);
+                System.out.println("Method invocations: " + i);
             }
-            
+
         }
 
         System.out.println("Get all methods java assigments");
@@ -1525,7 +1499,7 @@ public class JavaConstructorService {
                     boolean isInterface = astService.isInterface(classPath);
                     if (isInterface) {
                         javaAbstract = new JavaInterface(classPath);
-                        
+
                     } else {
                         javaAbstract = new JavaClass(classPath);
                     }
@@ -1543,14 +1517,13 @@ public class JavaConstructorService {
                     //criar arquivo
                     if (isInterface) {
                         javaProjectFileService.createJavaInterface(className, packageName, path);
-                    }else{
+                    } else {
                         javaProjectFileService.createJavaClass(className, packageName, path);
                     }
                 }
             }
         }
-        
-        
+
         //complete the java abstract with imports, attributes, implements, superclasses and methods
         //1 nome do path
         //2 imports of classes
@@ -1569,13 +1542,12 @@ public class JavaConstructorService {
 //                    javaAbstract.addImportClasses(javaAbstractList);
 //                }
                 //adicionar os imports para uma lista
-                for(JavaAbstract ja :  javaAbstractList){
+                for (JavaAbstract ja : javaAbstractList) {
                     listOfImportClasses.add(ja.getFullQualifiedName());
                 }
-                
+
             }
 
-            
             if (javaAbstract.getClass() == JavaClass.class) {
                 //adicionar os imports
                 javaProjectFileService.addImportListToClass(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(), listOfImportClasses);
@@ -1600,7 +1572,6 @@ public class JavaConstructorService {
                 }
                 //adicionar interfaces
                 javaProjectFileService.addImplementedInterfaces(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(), interfacesList);
-                
 
                 //get attributes
                 List<ParameterAst> attributes = astService.getAttributes(javaAbstract.getPath());
@@ -1637,7 +1608,7 @@ public class JavaConstructorService {
                         ((JavaClass) javaAbstract).addAttribute(javaAttribute);
                     }
                 }
-            }else{
+            } else {
                 //adicionar os imports
                 javaProjectFileService.addImportListToInterface(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(), listOfImportClasses);
             }
@@ -1648,10 +1619,6 @@ public class JavaConstructorService {
             //System.gc();
 
         }
-        
-        
-
- 
 
         //get calls of the methods
         for (JavaAbstract javaAbstract : javaProject.getAllClasses()) {
@@ -1888,7 +1855,6 @@ public class JavaConstructorService {
 
             //JavaMethod javaMethod = new JavaMethod(javaMethodAstBox.getName(), null, javaDataReturnType, javaMethodAstBox.isFinal(), javaMethodAstBox.isStatic(),
             //        javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getCyclomaticComplexity(), javaMethodAstBox.getBlock());
-
             List<String> parameters = new LinkedList();
             for (ParameterAst parameterAst : javaMethodAstBox.getParameters()) {
                 String parameterTypeName = parameterAst.getType();
@@ -1942,23 +1908,23 @@ public class JavaConstructorService {
 //                }
 //            }
             //criando assinatura de metodo
-            String methodSignature = javaMethodAstBox.getName()+"(";
-            if(!parameters.isEmpty()){
-                methodSignature = methodSignature+parameters.get(0);
-                for(int i = 1; i < parameters.size(); i++){
-                    methodSignature = methodSignature+","+parameters.get(i);
+            String methodSignature = javaMethodAstBox.getName() + "(";
+            if (!parameters.isEmpty()) {
+                methodSignature = methodSignature + parameters.get(0);
+                for (int i = 1; i < parameters.size(); i++) {
+                    methodSignature = methodSignature + "," + parameters.get(i);
                 }
             }
-            methodSignature = methodSignature+")";
+            methodSignature = methodSignature + ")";
             String returnTypeStr = javaDataReturnType.getClass() == JavaClass.class || javaDataReturnType.getClass() == JavaInterface.class ? (((JavaAbstract) javaDataReturnType).getFullQualifiedName()) : javaDataReturnType.getName();
             if (javaAbstract.getClass() == JavaClass.class) {
-                javaProjectFileService.createJavaMethodFromClass(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(),methodSignature,  returnTypeStr, 
+                javaProjectFileService.createJavaMethodFromClass(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(), methodSignature, returnTypeStr,
                         javaMethodAstBox.isFinal(), javaMethodAstBox.isStatic(),
-                    javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getCyclomaticComplexity(), javaMethodAstBox.getBlock().toString());
-            }else{
-                javaProjectFileService.createJavaMethodFromInterface(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(),methodSignature,  returnTypeStr, 
+                        javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected(), javaMethodAstBox.getCyclomaticComplexity(), javaMethodAstBox.getBlock().toString());
+            } else {
+                javaProjectFileService.createJavaMethodFromInterface(javaAbstract.getName(), javaAbstract.getJavaPackage().getName(), methodSignature, returnTypeStr,
                         javaMethodAstBox.isFinal(), javaMethodAstBox.isStatic(),
-                    javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected());
+                        javaMethodAstBox.isAbstract(), javaMethodAstBox.isSynchronized(), javaMethodAstBox.isPrivate(), javaMethodAstBox.isPublic(), javaMethodAstBox.isProtected());
             }
 
         }
@@ -2014,6 +1980,7 @@ public class JavaConstructorService {
         if (!jc.getMethods().isEmpty()) {
 
             for (JavaMethod jm : jc.getMethods()) {
+                //System.out.println("VERIFICAR CC CM ########## "+jc.getFullQualifiedName()+":"+jm.getMethodSignature()+"  CC: "+jm.getChangingClassesMetric()+"    CM: "+jm.getChangingMethodsMetric()+"    code: "+jm);
                 if (jm.getChangingMethodsMetric() > 7 && jm.getChangingClassesMetric() > 5) {
                     shotgunList.add(jm);
                 }
@@ -2055,7 +2022,7 @@ public class JavaConstructorService {
             }
 
             for (JavaMethod javaMethod : topValuesMethods) {
-                if ((javaMethod.getNumberOfLines() > 70)
+                if ((javaMethod.getNumberOfLines() >= 70)
                         && (javaMethod.getParameters().size() > 4 || javaMethod.getNumberOfLocalVariables() > 4)
                         && (javaMethod.getCyclomaticComplexity() > 4)) {
                     godMethodList.add(javaMethod);

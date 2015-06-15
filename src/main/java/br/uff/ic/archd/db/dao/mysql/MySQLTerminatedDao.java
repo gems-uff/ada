@@ -37,6 +37,7 @@ public class MySQLTerminatedDao implements TerminatedDao {
                     + " VALUES ('" + projectName + "','" + revisionId + "');");
             
 
+            stm.close();
         } catch (SQLException e) {
             System.out.println("ERRO: " + e.getMessage());
         }
@@ -54,6 +55,9 @@ public class MySQLTerminatedDao implements TerminatedDao {
             while(rs.next()){
                 isTerminated = true;
             }
+            
+            stm.close();
+            rs.close();
             
             //stm.execute("SHUTDOWN");
         } catch (Exception e) {

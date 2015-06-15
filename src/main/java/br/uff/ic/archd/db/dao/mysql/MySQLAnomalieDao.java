@@ -32,7 +32,7 @@ public class MySQLAnomalieDao implements AnomalieDao {
     }
     
     public void save(int anomalieId, String itemName, String revisionId){
-        
+        connection = MysqlConnectionFactory.getConnection();
         System.out.println("insert into ANOMALIES (anomalie_id ,"
                         + "item_name ,"
                         + "revision_id )"
@@ -60,11 +60,14 @@ public class MySQLAnomalieDao implements AnomalieDao {
             }
 
             generatedKeys = prepareStatement.getGeneratedKeys();
+            
             if (generatedKeys.next()) {
                 //alert.setId(generatedKeys.getLong(1));
             } else {
                 throw new SQLException("Creating event failed, no generated key obtained.");
             }
+            prepareStatement.close();
+            generatedKeys.close();
         }catch(Exception e){
             System.out.println("MySQLAnomalieDao save: "+e.getMessage());
             e.printStackTrace();
@@ -100,6 +103,7 @@ public class MySQLAnomalieDao implements AnomalieDao {
                 System.out.println(query);
                 PreparedStatement stm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                prepareStatement.close();
             }
             
 
@@ -128,6 +132,8 @@ public class MySQLAnomalieDao implements AnomalieDao {
                 items.add(anomalieItem);
                 i++;
             }
+            stm.close();
+            rs.close();
         } catch (Exception e) {
             System.out.println("ERRO anomalie: " + e.getMessage());
         }

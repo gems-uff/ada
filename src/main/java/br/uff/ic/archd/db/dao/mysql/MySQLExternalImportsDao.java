@@ -50,6 +50,8 @@ public class MySQLExternalImportsDao implements ExternalImportsDao {
                         + " VALUES (" + javaAbstract.getId() + ",'" + externalImport + "');");
 
             }
+            
+            stm.close();
 
         } catch (SQLException e) {
             System.out.println("ERRO external imports: " + e.getMessage());
@@ -82,6 +84,8 @@ public class MySQLExternalImportsDao implements ExternalImportsDao {
                 System.out.println(query);
                 PreparedStatement stm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
                 stm.execute();
+                
+                stm.close();
             }
             
 
@@ -119,6 +123,9 @@ public class MySQLExternalImportsDao implements ExternalImportsDao {
 
                 i++;
             }
+            
+            stm.close();
+            rs.close();
             //stm.execute("SHUTDOWN");
             //System.out.println("QUANTIDADE: " + i);
         } catch (Exception e) {
