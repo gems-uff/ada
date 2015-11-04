@@ -144,89 +144,89 @@ public class MySQLClassesDao implements ClassesDao {
     }
     
     
-    public static void main(String args[]){
-        MySQLClassesDao mySQLClassesDao = new MySQLClassesDao();
-        List<JavaClass> jclasses = new LinkedList();
-        JavaPackage jp = new JavaPackage("d");
-        JavaClass jc1 = new JavaClass();
-        jc1.setName("e");
-        jc1.setJavaPackage(jp);
-        JavaClass jc2 = new JavaClass();
-        jc2.setName("f");
-        jc2.setJavaPackage(jp);
-        JavaClass jc3 = new JavaClass();
-        jc3.setName("g");
-        jc3.setJavaPackage(jp);
-        JavaClass jc4 = new JavaClass();
-        jc4.setName("h");
-        jc4.setJavaPackage(jp);
-        JavaClass jc5 = new JavaClass();
-        jc5.setName("i");
-        jc5.setJavaPackage(jp);
-        JavaClass jc6 = new JavaClass();
-        jc6.setName("j");
-        jc6.setJavaPackage(jp);
-        JavaClass jc7 = new JavaClass();
-        jc7.setName("k");
-        jc7.setJavaPackage(jp);
-        JavaClass jc8 = new JavaClass();
-        jc8.setName("l");
-        jc8.setJavaPackage(jp);
-        JavaClass jc9 = new JavaClass();
-        jc9.setName("m");
-        jc9.setJavaPackage(jp);
-        JavaClass jc10 = new JavaClass();
-        jc10.setName("n");
-        jc10.setJavaPackage(jp);
-        JavaClass jc[] = new JavaClass[100];
-        for(int i = 0 ; i < 100; i++){
-            jc[i] = new JavaClass();
-            jc[i].setName("n"+String.valueOf(i));
-            jc[i].setJavaPackage(jp);
-        }
-        
-        
-        
-        
-//        jclasses.add(jc1);
-//        jclasses.add(jc2);
-//        jclasses.add(jc3);
-//        jclasses.add(jc4);
-//        jclasses.add(jc5);
-//        jclasses.add(jc6);
-//        jclasses.add(jc7);
-//        jclasses.add(jc8);
-//        jclasses.add(jc9);
-//        jclasses.add(jc10);
-        
-        for(int i = 0 ; i < 100; i++){
-            jclasses.add(jc[i]);
-        }
-        
-        long t1 = System.currentTimeMillis();
-//        mySQLClassesDao.save(jc1);
-//        mySQLClassesDao.save(jc2);
-//        mySQLClassesDao.save(jc3);
-//        mySQLClassesDao.save(jc4);
-//        mySQLClassesDao.save(jc5);
-//        mySQLClassesDao.save(jc6);
-//        mySQLClassesDao.save(jc7);
-//        mySQLClassesDao.save(jc8);
-//        mySQLClassesDao.save(jc9);
-//        mySQLClassesDao.save(jc10);
-        
+//    public static void main(String args[]){
+//        MySQLClassesDao mySQLClassesDao = new MySQLClassesDao();
+//        List<JavaClass> jclasses = new LinkedList();
+//        JavaPackage jp = new JavaPackage("d");
+//        JavaClass jc1 = new JavaClass();
+//        jc1.setName("e");
+//        jc1.setJavaPackage(jp);
+//        JavaClass jc2 = new JavaClass();
+//        jc2.setName("f");
+//        jc2.setJavaPackage(jp);
+//        JavaClass jc3 = new JavaClass();
+//        jc3.setName("g");
+//        jc3.setJavaPackage(jp);
+//        JavaClass jc4 = new JavaClass();
+//        jc4.setName("h");
+//        jc4.setJavaPackage(jp);
+//        JavaClass jc5 = new JavaClass();
+//        jc5.setName("i");
+//        jc5.setJavaPackage(jp);
+//        JavaClass jc6 = new JavaClass();
+//        jc6.setName("j");
+//        jc6.setJavaPackage(jp);
+//        JavaClass jc7 = new JavaClass();
+//        jc7.setName("k");
+//        jc7.setJavaPackage(jp);
+//        JavaClass jc8 = new JavaClass();
+//        jc8.setName("l");
+//        jc8.setJavaPackage(jp);
+//        JavaClass jc9 = new JavaClass();
+//        jc9.setName("m");
+//        jc9.setJavaPackage(jp);
+//        JavaClass jc10 = new JavaClass();
+//        jc10.setName("n");
+//        jc10.setJavaPackage(jp);
+//        JavaClass jc[] = new JavaClass[100];
 //        for(int i = 0 ; i < 100; i++){
-//            mySQLClassesDao.save(jc[i]);
+//            jc[i] = new JavaClass();
+//            jc[i].setName("n"+String.valueOf(i));
+//            jc[i].setJavaPackage(jp);
 //        }
-        
-        mySQLClassesDao.save(jclasses);
-        
-        long t2 = System.currentTimeMillis();
-        System.out.println("Terminou tempo: "+(t2-t1));
-
-        
-        
-    }
+//        
+//        
+//        
+//        
+////        jclasses.add(jc1);
+////        jclasses.add(jc2);
+////        jclasses.add(jc3);
+////        jclasses.add(jc4);
+////        jclasses.add(jc5);
+////        jclasses.add(jc6);
+////        jclasses.add(jc7);
+////        jclasses.add(jc8);
+////        jclasses.add(jc9);
+////        jclasses.add(jc10);
+//        
+//        for(int i = 0 ; i < 100; i++){
+//            jclasses.add(jc[i]);
+//        }
+//        
+//        long t1 = System.currentTimeMillis();
+////        mySQLClassesDao.save(jc1);
+////        mySQLClassesDao.save(jc2);
+////        mySQLClassesDao.save(jc3);
+////        mySQLClassesDao.save(jc4);
+////        mySQLClassesDao.save(jc5);
+////        mySQLClassesDao.save(jc6);
+////        mySQLClassesDao.save(jc7);
+////        mySQLClassesDao.save(jc8);
+////        mySQLClassesDao.save(jc9);
+////        mySQLClassesDao.save(jc10);
+//        
+////        for(int i = 0 ; i < 100; i++){
+////            mySQLClassesDao.save(jc[i]);
+////        }
+//        
+//        mySQLClassesDao.save(jclasses);
+//        
+//        long t2 = System.currentTimeMillis();
+//        System.out.println("Terminou tempo: "+(t2-t1));
+//
+//        
+//        
+//    }
     
 
 

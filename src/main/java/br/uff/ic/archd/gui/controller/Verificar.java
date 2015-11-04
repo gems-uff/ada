@@ -12191,71 +12191,71 @@ public class Verificar {
         //System.out.println("Line Count: " + lineCount + "\t Comments Count: " + commentsCount);
     }
 
-    public static void main(String args[]) {
-        String path = System.getProperty("user.home") + "/.archd/";
-        JavaProjectsService javaprojectsService = new JavaProjectsService();
-        List<Project> projects = javaprojectsService.getProjects();
-        Project p = null;
-        for (Project project : projects) {
-            if (project.getName().equals("log4j")) {
-                p = project;
-                break;
-            }
-        }
-        if (p != null) {
-            try {
-                JavaConstructorService javaContructorService = new JavaConstructorService();
-                ProjectRevisionsService projectRevisionsService = new ProjectRevisionsService();
-                ProjectRevisions projectRevisions = projectRevisionsService.getProject(p.getPath(), p.getName());
-                System.out.println("ORIGINAL ROOT: " + projectRevisions.getRoot().getId());
-                System.out.println("ORIGINAL HEAD: " + projectRevisions.getBranchesRevisions().get(0).getHead().getId());
-                System.out.println("Vai limpar");
-                ProjectRevisions newProjectRevisions = cleanProjectRevisionsLine(projectRevisions);
-                System.out.println("Limpou");
-                Verificar verificar = new Verificar();
-                //verificar.getChanges(newProjectRevisions, p, javaContructorService);
-                //verificar.verificarClientClasses(newProjectRevisions, p, javaContructorService);
-                //verificar.verificarClientClassesViaInterface(newProjectRevisions, p, javaContructorService);
-                //verificar.getAddMethods(newProjectRevisions, p, javaContructorService);
-                //verificar.getAddMethodsToAnalizer(newProjectRevisions, p, javaContructorService);
-                //verificar.createAprioriFile();
-                //verificar.createFinalFile();
-                //verificar.getAddMethodsAdquiredToAnalizer(newProjectRevisions, p, javaContructorService);
-                //verificar.getAddMethodsEmergeAndCorrectToAnalizer(newProjectRevisions, p, javaContructorService);
-                //verificar.verificarHistogramOfValues(newProjectRevisions, p, javaContructorService);
-                //verificar.verificarCongenitalAfterClass(newProjectRevisions, p, javaContructorService);
-                //verificar.verificarAnomaliasDeMetodos(newProjectRevisions, p, javaContructorService);
-
-//                System.out.println("Vai calcular anomalias testng"
-//                        + " ");
-//                verificar.verificarAnomaliasDeMetodosPorClasseLeve(newProjectRevisions, p, javaContructorService);
-                
-                //verificar.numberOfArtifacts(newProjectRevisions, p, javaContructorService);
-                //verificar.cohesionOfPackages(newProjectRevisions, p, javaContructorService);
-                verificar.countLoc(newProjectRevisions, p, javaContructorService);
-                
-//                System.out.println("Vai verificar log4j ");
-//                verificar.verificarForeignData(newProjectRevisions, p, javaContructorService);
-//                System.out.println("Cirar mining file para titan");
-                //verificar.createMiningFile(newProjectRevisions, p, javaContructorService);
-//                verificar.createFinalMiningFile();
-                //verificar.printShotgunSurgery(newProjectRevisions, p, javaContructorService);
-                //System.out.println("IMPRIMIR NASCIMENTOS");
-                //verificar.printAll();
-//                verificar.showClassLocalityDistribution(newProjectRevisions, p, javaContructorService);
-//                verificar.showClassUndefinedLocalityClasses(newProjectRevisions, p, javaContructorService);
-//                System.out.println("calcular projetos (8G): testng ");
-//                javaContructorService.calculateAllProjectsRevision(p.getName(), p.getCodeDirs(), p.getPath(), projectRevisions);
-
-                //AnomaliesAnaliser anomaliesAnaliser = new AnomaliesAnaliser();
-                //ProjectAnomalies projectAnomalies = anomaliesAnaliser.getAnomalies(newProjectRevisions, p, javaContructorService);
-                //verificar.getAddMethodsCorrectToAnalizer(newProjectRevisions, p, javaContructorService);
-            } catch (Exception e) {
-                System.out.println("Erro: "+e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
+//    public static void main(String args[]) {
+//        String path = System.getProperty("user.home") + "/.archd/";
+//        JavaProjectsService javaprojectsService = new JavaProjectsService();
+//        List<Project> projects = javaprojectsService.getProjects();
+//        Project p = null;
+//        for (Project project : projects) {
+//            if (project.getName().equals("log4j")) {
+//                p = project;
+//                break;
+//            }
+//        }
+//        if (p != null) {
+//            try {
+//                JavaConstructorService javaContructorService = new JavaConstructorService();
+//                ProjectRevisionsService projectRevisionsService = new ProjectRevisionsService();
+//                ProjectRevisions projectRevisions = projectRevisionsService.getProject(p.getPath(), p.getName());
+//                System.out.println("ORIGINAL ROOT: " + projectRevisions.getRoot().getId());
+//                System.out.println("ORIGINAL HEAD: " + projectRevisions.getBranchesRevisions().get(0).getHead().getId());
+//                System.out.println("Vai limpar");
+//                ProjectRevisions newProjectRevisions = cleanProjectRevisionsLine(projectRevisions);
+//                System.out.println("Limpou");
+//                Verificar verificar = new Verificar();
+//                //verificar.getChanges(newProjectRevisions, p, javaContructorService);
+//                //verificar.verificarClientClasses(newProjectRevisions, p, javaContructorService);
+//                //verificar.verificarClientClassesViaInterface(newProjectRevisions, p, javaContructorService);
+//                //verificar.getAddMethods(newProjectRevisions, p, javaContructorService);
+//                //verificar.getAddMethodsToAnalizer(newProjectRevisions, p, javaContructorService);
+//                //verificar.createAprioriFile();
+//                //verificar.createFinalFile();
+//                //verificar.getAddMethodsAdquiredToAnalizer(newProjectRevisions, p, javaContructorService);
+//                //verificar.getAddMethodsEmergeAndCorrectToAnalizer(newProjectRevisions, p, javaContructorService);
+//                //verificar.verificarHistogramOfValues(newProjectRevisions, p, javaContructorService);
+//                //verificar.verificarCongenitalAfterClass(newProjectRevisions, p, javaContructorService);
+//                //verificar.verificarAnomaliasDeMetodos(newProjectRevisions, p, javaContructorService);
+//
+////                System.out.println("Vai calcular anomalias testng"
+////                        + " ");
+////                verificar.verificarAnomaliasDeMetodosPorClasseLeve(newProjectRevisions, p, javaContructorService);
+//                
+//                //verificar.numberOfArtifacts(newProjectRevisions, p, javaContructorService);
+//                //verificar.cohesionOfPackages(newProjectRevisions, p, javaContructorService);
+//                verificar.countLoc(newProjectRevisions, p, javaContructorService);
+//                
+////                System.out.println("Vai verificar log4j ");
+////                verificar.verificarForeignData(newProjectRevisions, p, javaContructorService);
+////                System.out.println("Cirar mining file para titan");
+//                //verificar.createMiningFile(newProjectRevisions, p, javaContructorService);
+////                verificar.createFinalMiningFile();
+//                //verificar.printShotgunSurgery(newProjectRevisions, p, javaContructorService);
+//                //System.out.println("IMPRIMIR NASCIMENTOS");
+//                //verificar.printAll();
+////                verificar.showClassLocalityDistribution(newProjectRevisions, p, javaContructorService);
+////                verificar.showClassUndefinedLocalityClasses(newProjectRevisions, p, javaContructorService);
+////                System.out.println("calcular projetos (8G): testng ");
+////                javaContructorService.calculateAllProjectsRevision(p.getName(), p.getCodeDirs(), p.getPath(), projectRevisions);
+//
+//                //AnomaliesAnaliser anomaliesAnaliser = new AnomaliesAnaliser();
+//                //ProjectAnomalies projectAnomalies = anomaliesAnaliser.getAnomalies(newProjectRevisions, p, javaContructorService);
+//                //verificar.getAddMethodsCorrectToAnalizer(newProjectRevisions, p, javaContructorService);
+//            } catch (Exception e) {
+//                System.out.println("Erro: "+e.getMessage());
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private static ProjectRevisions cleanProjectRevisionsLine(ProjectRevisions projectRevisions) {
         List<BranchRevisions> branches = new LinkedList();

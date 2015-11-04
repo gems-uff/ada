@@ -59,8 +59,8 @@ public class PackageInteractionController implements ActionListener {
         
     }
 
-    public static void main(String args[]) {
-        PackageInteractionController packageInteractionController = new PackageInteractionController();
-
-    }
+//    public static void main(String args[]) {
+//        PackageInteractionController packageInteractionController = new PackageInteractionController();
+//
+//    }
 }

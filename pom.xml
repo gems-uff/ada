@@ -50,7 +50,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>br.uff.ic.archd.gui.controller.Verificar</mainClass>
+                                    <mainClass>br.uff.ic.archd.gui.controller.MainController</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

@@ -14,9 +14,9 @@ public class Teste {
         
     }
     
-    public static void main(String args[]){
-        Teste teste = new Teste();
-        Classe2 classe = new Classe2();
-        teste.pegar(classe);
-    }
+//    public static void main(String args[]){
+//        Teste teste = new Teste();
+//        Classe2 classe = new Classe2();
+//        teste.pegar(classe);
+//    }
 }

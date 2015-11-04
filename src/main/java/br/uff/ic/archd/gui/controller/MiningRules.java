@@ -14,8 +14,8 @@ public class MiningRules {
     
     
     
-    public static void main(String args[]){
-        MiningRules miningRules = new MiningRules();
-    }
+//    public static void main(String args[]){
+//        MiningRules miningRules = new MiningRules();
+//    }
     
 }

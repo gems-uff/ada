@@ -192,36 +192,36 @@ public class AnomalieChart extends JPanel {
     }
 
     
-    public static void main(String args[]){
-        GenericAnomalies genericAnomalies = new GenericAnomalies("method",20, 1, 1);
-        genericAnomalies.addAnomalie("ANOMALIE_1", 3);
-        genericAnomalies.addAnomalie("ANOMALIE_1", 6);
-        genericAnomalies.addAnomalie("ANOMALIE_1", 7);
-        genericAnomalies.addAnomalie("ANOMALIE_1", 8);
-        genericAnomalies.addAnomalie("ANOMALIE_1", 9);
-        genericAnomalies.addAnomalie("ANOMALIE_1", 15);
-        
-        genericAnomalies.addAnomalie("ANOMALIE_2", 3);
-        genericAnomalies.addAnomalie("ANOMALIE_2", 6);
-        genericAnomalies.addAnomalie("ANOMALIE_2", 7);
-        genericAnomalies.addAnomalie("ANOMALIE_2", 8);
-        genericAnomalies.addAnomalie("ANOMALIE_2", 9);
-        genericAnomalies.addAnomalie("ANOMALIE_2", 12);
-        
-        genericAnomalies.addAnomalie("ANOMALIE_3", 3);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 6);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 7);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 8);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 9);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 12);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 15);
-        genericAnomalies.addAnomalie("ANOMALIE_3", 16);
-        
-        JPanel anomalieChart = new AnomalieChart(genericAnomalies, "ALL ANOMALIES");
-        
-        JFrame jframe = new JFrame();
-        jframe.setContentPane(anomalieChart);
-        jframe.setVisible(true);
-        
-    }
+//    public static void main(String args[]){
+//        GenericAnomalies genericAnomalies = new GenericAnomalies("method",20, 1, 1);
+//        genericAnomalies.addAnomalie("ANOMALIE_1", 3);
+//        genericAnomalies.addAnomalie("ANOMALIE_1", 6);
+//        genericAnomalies.addAnomalie("ANOMALIE_1", 7);
+//        genericAnomalies.addAnomalie("ANOMALIE_1", 8);
+//        genericAnomalies.addAnomalie("ANOMALIE_1", 9);
+//        genericAnomalies.addAnomalie("ANOMALIE_1", 15);
+//        
+//        genericAnomalies.addAnomalie("ANOMALIE_2", 3);
+//        genericAnomalies.addAnomalie("ANOMALIE_2", 6);
+//        genericAnomalies.addAnomalie("ANOMALIE_2", 7);
+//        genericAnomalies.addAnomalie("ANOMALIE_2", 8);
+//        genericAnomalies.addAnomalie("ANOMALIE_2", 9);
+//        genericAnomalies.addAnomalie("ANOMALIE_2", 12);
+//        
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 3);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 6);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 7);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 8);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 9);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 12);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 15);
+//        genericAnomalies.addAnomalie("ANOMALIE_3", 16);
+//        
+//        JPanel anomalieChart = new AnomalieChart(genericAnomalies, "ALL ANOMALIES");
+//        
+//        JFrame jframe = new JFrame();
+//        jframe.setContentPane(anomalieChart);
+//        jframe.setVisible(true);
+//        
+//    }
 }

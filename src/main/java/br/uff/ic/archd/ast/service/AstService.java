@@ -1905,9 +1905,9 @@ public class AstService {
         return newContent;
     }
 
-    public static void main(String args[]) {
-        AstService astService = new AstService();
-        List<JavaMethodAstBox> list = astService.getMethods("/home/wallace/mestrado/Utils.java");
-        System.out.println("Tamanho: " + list.size());
-    }
+//    public static void main(String args[]) {
+//        AstService astService = new AstService();
+//        List<JavaMethodAstBox> list = astService.getMethods("/home/wallace/mestrado/Utils.java");
+//        System.out.println("Tamanho: " + list.size());
+//    }
 }

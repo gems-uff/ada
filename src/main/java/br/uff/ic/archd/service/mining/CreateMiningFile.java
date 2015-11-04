@@ -337,10 +337,10 @@ public class CreateMiningFile {
         }
     }
 
-    public static void main(String args[]) {
-        CreateMiningFile createMiningFile = new CreateMiningFile("MapDB");
-        createMiningFile.createConfidenceFile();
-        createMiningFile.createLiftFile();
-
-    }
+//    public static void main(String args[]) {
+//        CreateMiningFile createMiningFile = new CreateMiningFile("MapDB");
+//        createMiningFile.createConfidenceFile();
+//        createMiningFile.createLiftFile();
+//
+//    }
 }

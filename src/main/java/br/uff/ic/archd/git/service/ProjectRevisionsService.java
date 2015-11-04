@@ -307,16 +307,16 @@ public class ProjectRevisionsService {
         }
     }
     
-    public static void main(String args[]){
-        try{
-            br.uff.ic.dyevc.application.branchhistory.view.ProjectService projectService = new br.uff.ic.dyevc.application.branchhistory.view.ProjectService();
-            ProjectRevisions pr = projectService.getProject("/home/wallace/projetos/teste/projeto", "projeto");
-            System.out.println("branches: "+pr.getBranchesRevisions().size());
-            System.out.println("TERMINOU");
-        }catch(Exception e){
-            System.out.println("ERRO: "+e.getMessage());
-        }
-    }
+//    public static void main(String args[]){
+//        try{
+//            br.uff.ic.dyevc.application.branchhistory.view.ProjectService projectService = new br.uff.ic.dyevc.application.branchhistory.view.ProjectService();
+//            ProjectRevisions pr = projectService.getProject("/home/wallace/projetos/teste/projeto", "projeto");
+//            System.out.println("branches: "+pr.getBranchesRevisions().size());
+//            System.out.println("TERMINOU");
+//        }catch(Exception e){
+//            System.out.println("ERRO: "+e.getMessage());
+//        }
+//    }
     
      
 }

@@ -259,10 +259,10 @@ public class AstParser {
         return stringBuilder.toString();
     }
 
-    public static void main(String args[]) {
-        AstParser astParser = new AstParser();
-        //astParser.parser("/home/wallace/mestrado/jEdit/org/jedit/core/FileOpenerService.java");
-        astParser.parser("/home/wallace/mestrado/jEdit/org/jedit/io/Native2ASCIIEncoding.java");
-        //System.out.println("NOme da classe: "+astParser.getClassName("/home/wallace/mestrado/jEdit/org/jedit/io/Native2ASCIIEncoding.java"));
-    }
+//    public static void main(String args[]) {
+//        AstParser astParser = new AstParser();
+//        //astParser.parser("/home/wallace/mestrado/jEdit/org/jedit/core/FileOpenerService.java");
+//        astParser.parser("/home/wallace/mestrado/jEdit/org/jedit/io/Native2ASCIIEncoding.java");
+//        //System.out.println("NOme da classe: "+astParser.getClassName("/home/wallace/mestrado/jEdit/org/jedit/io/Native2ASCIIEncoding.java"));
+//    }
 }

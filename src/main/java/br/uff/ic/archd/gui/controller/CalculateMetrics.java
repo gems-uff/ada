@@ -166,22 +166,22 @@ public class CalculateMetrics {
         return newProjectRevisions;
     }
 
-    public static void main(String args[]) {
-        JavaProjectsService javaprojectsService = new JavaProjectsService();
-        List<Project> projects = javaprojectsService.getProjects();
-        Project p = null;
-        for (Project project : projects) {
-            if (project.getName().equals("titan")) {
-                p = project;
-                break;
-            }
-        }
-        if (p != null) {
-
-            CalculateMetrics calculateMetrics = new CalculateMetrics();
-            //calculateMetrics.calculateMetrics(p, 382);
-            calculateMetrics.calculateMetrics(p, 0);
-
-        }
-    }
+//    public static void main(String args[]) {
+//        JavaProjectsService javaprojectsService = new JavaProjectsService();
+//        List<Project> projects = javaprojectsService.getProjects();
+//        Project p = null;
+//        for (Project project : projects) {
+//            if (project.getName().equals("titan")) {
+//                p = project;
+//                break;
+//            }
+//        }
+//        if (p != null) {
+//
+//            CalculateMetrics calculateMetrics = new CalculateMetrics();
+//            //calculateMetrics.calculateMetrics(p, 382);
+//            calculateMetrics.calculateMetrics(p, 0);
+//
+//        }
+//    }
 }

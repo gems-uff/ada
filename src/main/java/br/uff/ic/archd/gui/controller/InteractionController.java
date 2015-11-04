@@ -1579,18 +1579,18 @@ public class InteractionController implements ActionListener {
         }
     }
 
-    public static void main(String args[]) {
-        JavaProjectsService javaprojectsService = new JavaProjectsService();
-        List<Project> projects = javaprojectsService.getProjects();
-        Project p = null;
-        for (Project project : projects) {
-            if (project.getName().equals("MapDB")) {
-                p = project;
-                break;
-            }
-        }
-        if (p != null) {
-            InteractionController interactionController = new InteractionController(p);
-        }
-    }
+//    public static void main(String args[]) {
+//        JavaProjectsService javaprojectsService = new JavaProjectsService();
+//        List<Project> projects = javaprojectsService.getProjects();
+//        Project p = null;
+//        for (Project project : projects) {
+//            if (project.getName().equals("MapDB")) {
+//                p = project;
+//                break;
+//            }
+//        }
+//        if (p != null) {
+//            InteractionController interactionController = new InteractionController(p);
+//        }
+//    }
 }
