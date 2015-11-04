@@ -33,8 +33,13 @@ public class InteractionViewer extends JFrame{
     public final static String ACTION_ANT_REVISION = "ACTION_ANT_REVISION";
     public final static String ACTION_CODE_CLASS = "ACTION_CODE_CLASS";
     public final static String ACTION_CODE_INTERFACE = "ACTION_CODE_INTERFACE";
+    public final static String ACTION_VIEW_GRAPH = "ACTION_VIEW_GRAPH";
+    public final static String ACTION_VIEW_PACKAGE_GRAPH = "ACTION_VIEW_PACKAGE_GRAPH";
+
     private JComboBox comboClasses;
     private JButton buttonClass;
+    private JButton viewGraphButton;
+    private JButton viewPackageGraphButton;
     private JComboBox comboInterfaces;
     private JButton buttonInterface;
     private JLabel classLabel;
@@ -53,12 +58,14 @@ public class InteractionViewer extends JFrame{
     private JScrollPane codeScrollPane;
     
     private JTextField revisionTextField;
+    private JLabel searchRevisionLabel;
     private JButton searchRevisionButton;
     
     
     
     public InteractionViewer( String branchesItemsClasses[], String branchesItemsInterfaces[]){
         createWidgets(branchesItemsClasses, branchesItemsInterfaces);
+        this.setTitle("Project Structure");
         this.setPreferredSize(new Dimension(1400, 800));
         this.setSize(new Dimension(1400, 800));
         this.setMaximumSize(new Dimension(1400, 800));
@@ -68,25 +75,29 @@ public class InteractionViewer extends JFrame{
     
     private void createWidgets( String branchesItemsClasses[], String branchesItemsInterfaces[]) {
         comboClasses = new JComboBox(branchesItemsClasses);
-        buttonClass = new JButton("PROCURAR");
+        buttonClass = new JButton("Search");
         
         buttonClass.setActionCommand(ACTION_UPDATE_CLASS);
         
         comboInterfaces = new JComboBox(branchesItemsInterfaces);
-        buttonInterface = new JButton("PROCURAR");
+        buttonInterface = new JButton("Search");
+        viewGraphButton = new JButton("Class Graph");
+        viewPackageGraphButton = new JButton("Package Graph");
         
         buttonInterface.setActionCommand(ACTION_UPDATE_INTERFACE);
+        viewGraphButton.setActionCommand(ACTION_VIEW_GRAPH);
+        viewPackageGraphButton.setActionCommand(ACTION_VIEW_PACKAGE_GRAPH);
         
         classLabel = new JLabel("Classes:");
         interfaceLabel = new JLabel("Interfaces:");
         
-                
+        searchRevisionLabel = new JLabel("Revision:");
         
         classCodeButton = new JButton("Code of Class");
         interfaceCodeButton = new JButton("Code of Interface");
         revisionLabel = new JLabel("");
-        proxRevisionButton = new JButton("prox");
-        antRevisionButton = new JButton("ant");
+        proxRevisionButton = new JButton("Next");
+        antRevisionButton = new JButton("Previous");
         codeTextArea = new JTextArea();
     
         revisionTextField = new JTextField();
@@ -105,6 +116,7 @@ public class InteractionViewer extends JFrame{
         antRevisionButton.setActionCommand(ACTION_ANT_REVISION);
         classCodeButton.setActionCommand(ACTION_CODE_CLASS);
         interfaceCodeButton.setActionCommand(ACTION_CODE_INTERFACE);
+        viewGraphButton.setActionCommand(ACTION_VIEW_GRAPH);
         
         
         
@@ -125,12 +137,20 @@ public class InteractionViewer extends JFrame{
         
         JTabbedPane tabbedPane = new JTabbedPane();
         
+        gridBagConstraints = new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
+        p.add(searchRevisionLabel, gridBagConstraints);
         
-        gridBagConstraints = new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 10, 20, 10), 0, 0);
+        gridBagConstraints = new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(20, 10, 20, 10), 0, 0);
         p.add(revisionTextField, gridBagConstraints);
         
-        gridBagConstraints = new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
+        gridBagConstraints = new GridBagConstraints(2, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
         p.add(searchRevisionButton, gridBagConstraints);
+        
+        gridBagConstraints = new GridBagConstraints(3, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
+        p.add(viewGraphButton, gridBagConstraints);
+        
+        gridBagConstraints = new GridBagConstraints(4, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
+        p.add(viewPackageGraphButton, gridBagConstraints);
         
         
         gridBagConstraints = new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
@@ -172,8 +192,8 @@ public class InteractionViewer extends JFrame{
         p.add(interfaceCodeButton, gridBagConstraints);
         
         
-        tabbedPane.add("Dados", dadosProjetoScrollPane);
-        tabbedPane.add("Classe", projectsScrollPane);
+        //tabbedPane.add("Informations", dadosProjetoScrollPane);
+        tabbedPane.add("Information", projectsScrollPane);
         tabbedPane.add("Code", codeScrollPane);
         
         
@@ -251,6 +271,8 @@ public class InteractionViewer extends JFrame{
         antRevisionButton.addActionListener(actionListener);
         classCodeButton.addActionListener(actionListener);
         interfaceCodeButton.addActionListener(actionListener);
+        viewGraphButton.addActionListener(actionListener);
+        viewPackageGraphButton.addActionListener(actionListener);
         
     }
     

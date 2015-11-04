@@ -28,13 +28,14 @@ public class MainView extends JFrame {
     public final static String ACTION_VIEW_ANOMALIES = "ACTION_VIEW_ANOMALIES";
     private JButton createProjectButton;
     private JButton viewProjectButton;
-    private JButton viewRulesButton;
+    //private JButton viewRulesButton;
     private JButton viewAnomaliesButton;
     private JScrollPane projectsScrollPane;
     private JTable projectsTable;
 
     public MainView(String projectsItems[][]) {
         createWidgets(projectsItems);
+        this.setTitle("ADA");
         this.setPreferredSize(new Dimension(800, 600));
         this.setSize(new Dimension(800, 600));
         this.setMaximumSize(new Dimension(800, 600));
@@ -42,13 +43,13 @@ public class MainView extends JFrame {
     }
 
     private void createWidgets(String projectsItems[][]) {
-        createProjectButton = new JButton("Create New Project");
-        viewProjectButton = new JButton("View Project");
-        viewRulesButton = new JButton("Rules");
+        createProjectButton = new JButton("Add New Project");
+        viewProjectButton = new JButton("Project Structure");
+        //viewRulesButton = new JButton("Rules");
         viewAnomaliesButton = new JButton("Anomalies");
         createProjectButton.setActionCommand(ACTION_CREATE_PROJECT);
         viewProjectButton.setActionCommand(ACTION_VIEW_PROJECT);
-        viewRulesButton.setActionCommand(ACTION_VIEW_RULES);
+        //viewRulesButton.setActionCommand(ACTION_VIEW_RULES);
         viewAnomaliesButton.setActionCommand(ACTION_VIEW_ANOMALIES);
         String columns[] = {"Name", "Path"};
         if(projectsItems != null){
@@ -70,14 +71,14 @@ public class MainView extends JFrame {
         gridBagConstraints = new GridBagConstraints(0, 0, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0);
         p.add(createProjectButton, gridBagConstraints);
 
+        //gridBagConstraints = new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
+        //p.add(viewRulesButton, gridBagConstraints);
         gridBagConstraints = new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
-        p.add(viewRulesButton, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
         p.add(viewProjectButton, gridBagConstraints);
-        gridBagConstraints = new GridBagConstraints(2, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
+        gridBagConstraints = new GridBagConstraints(0, 2, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
         p.add(viewAnomaliesButton, gridBagConstraints);
         
-        gridBagConstraints = new GridBagConstraints(0, 2, 2, 2, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
+        gridBagConstraints = new GridBagConstraints(0, 3, 2, 2, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 0, 0, 0), 0, 0);
         p.add(projectsScrollPane, gridBagConstraints);
                 
         this.add(p, BorderLayout.CENTER);
@@ -93,7 +94,7 @@ public class MainView extends JFrame {
     public void setController(ActionListener actionListener) {
         createProjectButton.addActionListener(actionListener);
         viewProjectButton.addActionListener(actionListener);
-        viewRulesButton.addActionListener(actionListener);
+        //viewRulesButton.addActionListener(actionListener);
         viewAnomaliesButton.addActionListener(actionListener);
         
     }

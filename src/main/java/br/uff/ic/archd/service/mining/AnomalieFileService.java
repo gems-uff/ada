@@ -57,6 +57,7 @@ public class AnomalieFileService {
             if (new File(fileStr).exists()) {
                 FileUtils.deleteDirectory(new File(fileStr));
             }
+            new File(fileStr).mkdirs();
         } catch (Exception e) {
             System.out.println("");
         }

@@ -518,7 +518,7 @@ public class AstService {
                 if (block != null) {
                     //System.out.println("Classe: "+javaClass.getFullQualifiedName());
                     javaMethod.setSizeInChars(block.getLength());
-                    javaMethod.setNumberOfLines(block.toString().split("\n").length);
+                    javaMethod.setNumberOfLines(block.toString().split("\r\n|\r|\n").length);
                     BlockVariablesBox blockVariablesBox = getVariableDeclarations(block, javaClass, javaProject);
                     MethodInvocationVisitor miv = new MethodInvocationVisitor();
                     block.accept(miv);

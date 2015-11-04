@@ -52,6 +52,7 @@ public class JavaMethod {
     //numero de dados externos a classe que este metodo acessa, diretamente ou via metodos acessores
     private int accessToForeignDataNumber;
     private int accessToLocalDataNumber;
+    //numero de classes externas cujos dados a classe que este metodo acessa, diretamente ou via metodos acessores
     private int foreignDataProviderNumber;
     
     private long itemId;

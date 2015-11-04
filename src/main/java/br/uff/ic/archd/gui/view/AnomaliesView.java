@@ -59,6 +59,7 @@ public class AnomaliesView extends JFrame{
 
     public AnomaliesView(String anomalies[], String packages[], String classes[], String methods[]) {
         createWidgets(anomalies, packages, classes, methods);
+        this.setTitle("Anomalies");
         this.setPreferredSize(new Dimension(1600, 800));
         this.setSize(new Dimension(1600, 800));
         this.setMaximumSize(new Dimension(1600, 800));

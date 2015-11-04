@@ -20,6 +20,8 @@ import br.uff.ic.archd.javacode.JavaMethodInvocation;
 import br.uff.ic.archd.javacode.JavaPackage;
 import br.uff.ic.archd.javacode.JavaPrimitiveType;
 import br.uff.ic.archd.javacode.JavaProject;
+import br.uff.ic.archd.javacode.ProjectAuthors;
+import br.uff.ic.archd.javacode.RevisionAuthor;
 import br.uff.ic.archd.model.Project;
 import br.uff.ic.dyevc.application.branchhistory.model.BranchRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.LineRevisions;
@@ -31,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -50,6 +54,7 @@ public class InteractionController implements ActionListener {
     List<JavaProject> javaProjects;
     private Project project;
     private Revision currentRevision;
+    private ProjectAuthors projectAuthors;
 
     InteractionController(Project project) {
 
@@ -60,6 +65,7 @@ public class InteractionController implements ActionListener {
         newProjectRevisions = null;
         try {
             projectRevisions = projectRevisionsService.getProject(project.getPath(), project.getName());
+            projectAuthors = projectRevisionsService.getProjectAuthors();
             System.out.println("ORIGINAL ROOT: " + projectRevisions.getRoot().getId());
             System.out.println("ORIGINAL HEAD: " + projectRevisions.getBranchesRevisions().get(0).getHead().getId());
             System.out.println("Vai limpar");
@@ -72,11 +78,24 @@ public class InteractionController implements ActionListener {
             System.out.println("Ultima revisão: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getId() + "    next: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getNext().size()
                     + "     prev: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getPrev().size());
             System.out.println("penultima revisão: " + newProjectRevisions.getBranchesRevisions().get(0).getHead().getPrev().get(0).getId());
+
+            System.out.println("Numero total de autores: " + projectAuthors.getAuthors().size());
+            Collection<Revision> collRevision = newProjectRevisions.getRevisionsBucket().getRevisionCollection();
+            for (String author : projectAuthors.getAuthors()) {
+                Iterator<Revision> it = collRevision.iterator();
+                int numOfRevisions = 0;
+                while (it.hasNext()) {
+                    RevisionAuthor autAux = projectAuthors.getRevisionAuthor(it.next().getId());
+                    if (autAux.getAuthor().equals(author)) {
+                        numOfRevisions++;
+                    }
+                }
+                System.out.println("Author: " + author + "    numero: " + numOfRevisions);
+            }
+
         } catch (Exception e) {
             System.out.println("Erro Revisions: " + e.getMessage());
         }
-
-
 
         //javaProject = javaConstructorService.createProjects(project.getCodeDirs(), project.getPath());
         /*List<String> newCodeDirs = new LinkedList();
@@ -90,11 +109,8 @@ public class InteractionController implements ActionListener {
          }*/
         //javaProject = javaConstructorService.getProjectByRevision(project.getName(), project.getCodeDirs(), project.getPath(), "revisionteste");
         //javaProjects = javaConstructorService.getAllProjectsRevision(project.getName(), project.getCodeDirs(), project.getPath(), newProjectRevisions);
-
         //javaProject = javaProjects.get(javaProjects.size() - 1);
         //System.out.println("Revision do projeto: " + javaProject.getRevisionId());
-
-
         this.project = project;
         //javaProject = javaConstructorService.createProjectsFromXML("/home/wallace/.archd/HISTORY/1/");
         currentRevision = newProjectRevisions.getBranchesRevisions().get(0).getHead();
@@ -117,7 +133,6 @@ public class InteractionController implements ActionListener {
 
         showDados();
 
-
         //showStatistics();
         //******** parte de baixo comente e descometne a vontade
         //writeInFilesStatistics();
@@ -125,17 +140,8 @@ public class InteractionController implements ActionListener {
         //CreateMiningFile createMiningFile = new CreateMiningFile(project.getName());
         //createMiningFile.createMethodsFileMiningByFile(newProjectRevisions, project, javaConstructorService);
         //createMiningFile.createClassesFileMining(newProjectRevisions, project, javaConstructorService);
-
-
-
-
-
-
-
-
         javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), currentRevision.getId(), newProjectRevisions.getName());
         interactionViewer.setRevisionLabel(currentRevision.getId());
-
 
         long proxTime = System.currentTimeMillis();
         System.out.println("ROOT: " + newProjectRevisions.getRoot().getId());
@@ -147,6 +153,7 @@ public class InteractionController implements ActionListener {
 
     private void showDados() {
         //interactionViewer
+
         interactionViewer.cleanText();
         interactionViewer.appendDadosText("******************* Número total de classes: " + javaProject.getClasses().size());
         interactionViewer.appendDadosText("******************* Número total de interfaces: " + javaProject.getInterfaces().size());
@@ -194,7 +201,6 @@ public class InteractionController implements ActionListener {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n***************************8 ESTATISTICA ***************************");
         int count = 0;
 
-
         Revision rev = newProjectRevisions.getRoot();
         JavaProject aux = null;
         int revs = 0;
@@ -233,10 +239,8 @@ public class InteractionController implements ActionListener {
             revs++;
         }
 
-
         System.out.println("REVISOES VISTAS: " + revs);
         System.out.println("COUNT: " + count);
-
 
         rev = newProjectRevisions.getRoot();
         revs = 0;
@@ -277,7 +281,6 @@ public class InteractionController implements ActionListener {
 
         System.out.println("***************************************************************************8");
 
-
         rev = newProjectRevisions.getRoot();
         revs = 0;
         k = 0;
@@ -303,9 +306,7 @@ public class InteractionController implements ActionListener {
                     System.out.println("CLASS: " + jc.getFullQualifiedName() + "      Class using: " + ctu + "   class call: " + ctc);
                 }
 
-
             }
-
 
             if (rev.getNext().size() == 0) {
                 rev = null;
@@ -315,10 +316,7 @@ public class InteractionController implements ActionListener {
             revs++;
         }
 
-
-
         System.out.println("***************************************************************************8");
-
 
         rev = newProjectRevisions.getRoot();
         revs = 0;
@@ -641,6 +639,24 @@ public class InteractionController implements ActionListener {
             showCode(interactionViewer.getClassSelected());
         } else if (e.getActionCommand().equals(InteractionViewer.ACTION_CODE_INTERFACE)) {
             showCode(interactionViewer.getInterfaceSelected());
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_VIEW_GRAPH)) {
+            showGraph();
+        } else if (e.getActionCommand().equals(InteractionViewer.ACTION_VIEW_PACKAGE_GRAPH)) {
+            showPackageGraph();
+        }
+    }
+
+    public void showGraph() {
+        if (javaProject != null) {
+            GraphCreator graph = new GraphCreator();
+            graph.createSimpleGraph(javaProject);
+        }
+    }
+    
+    public void showPackageGraph(){
+        if (javaProject != null) {
+            GraphPackageCreator graph = new GraphPackageCreator();
+            graph.createSimpleGraph(javaProject);
         }
     }
 
@@ -648,7 +664,7 @@ public class InteractionController implements ActionListener {
         Integer revisionNumber = null;
         try {
             revisionNumber = Integer.parseInt(revisionId);
-            System.out.println("O numero é: "+revisionNumber);
+            System.out.println("O numero é: " + revisionNumber);
         } catch (Exception e) {
             System.out.println("Não é numero");
         }
@@ -669,13 +685,22 @@ public class InteractionController implements ActionListener {
             aux = rev;
         }
         if (aux != null) {
-            System.out.println("Revision: "+aux.getId());
+            System.out.println("Revision: " + aux.getId());
             javaProject = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), aux.getId(), newProjectRevisions.getName());
             currentRevision = aux;
             interactionViewer.setRevisionLabel(revisionId);
             showDados();
             updateClassesAndInterfaces();
             //mostrar os novos dados
+        }
+
+        System.out.println("&&&&&&&&&&&&&&&&&&&&&&& INFORMACOES DO AUTOR &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        RevisionAuthor revisionAuthor = projectAuthors.getRevisionAuthor(javaProject.getRevisionId());
+        if (revisionAuthor != null) {
+            System.out.println("Revision Author: " + revisionAuthor.getAuthor());
+            System.out.println("Revision Commiter: " + revisionAuthor.getCommiter());
+            System.out.println("Revision Short Message: " + revisionAuthor.getShortMessage());
+            System.out.println("Revision Date: " + revisionAuthor.getCommitDate());
         }
     }
 
@@ -729,7 +754,6 @@ public class InteractionController implements ActionListener {
         String methods[] = null;
         String invocations[] = null;
 
-
         if (javaAbstract.getClass() == JavaClass.class) {
             System.out.println("\n\n ********** Classe: " + className);
             interactionViewer.appendText("\n\n ********** Classe: " + className);
@@ -778,6 +802,36 @@ public class InteractionController implements ActionListener {
                 System.out.println("");
                 interactionViewer.appendText("");
             }
+            interactionViewer.appendText("\n********* EXTERNAL DEPENDENCY CLASSES: ");
+            for (JavaClass jc : ((JavaClass) javaAbstract).getExternalDependencyClasses()) {
+                interactionViewer.appendText("ED: "+jc.getFullQualifiedName());
+            }
+            interactionViewer.appendText("\n**************** PACKAGE DEPENDENCY");
+            for (JavaPackage jc : ((JavaClass) javaAbstract).getExternalDependencyPackages()) {
+                interactionViewer.appendText("DP: "+jc.getName());
+            }
+            interactionViewer.appendText("\n********* INTERNAL DEPENDENCY CLASSES: ");
+            for (JavaClass jc : ((JavaClass) javaAbstract).getInternalDependencyClasses()) {
+                interactionViewer.appendText("ID: "+jc.getFullQualifiedName());
+            }
+            interactionViewer.appendText("\n********* CLIENT CLASSES: ");
+            for (JavaClass jc : ((JavaClass) javaAbstract).getClientClasses()) {
+                interactionViewer.appendText("ID: "+jc.getFullQualifiedName());
+            }
+            interactionViewer.appendText("\nACCES TO FOREIGN DATA: "+((JavaClass) javaAbstract).getAccessToForeignDataNumber());
+            int weigth = 0;
+            int atofdn = 0;
+            for(JavaMethod jm : ((JavaClass) javaAbstract).getMethods()){
+                weigth = weigth + jm.getCyclomaticComplexity();
+                atofdn = atofdn + jm.getAccessToForeignDataNumber();
+            }
+            interactionViewer.appendText("ACCES TO FOREIGN DATA BY COUNT: "+atofdn);
+            interactionViewer.appendText("WEIGHT METHOD COUNT: "+weigth);
+            double tcc = ((JavaClass) javaAbstract).getNumberOfDirectConnections();
+            int n = ((JavaClass) javaAbstract).getMethods().size();
+            tcc = tcc / ((n * (n - 1)) / 2);
+            interactionViewer.appendText("CLASS COHESION: "+tcc);
+            interactionViewer.appendText("\n\n");
             methods = new String[((JavaClass) javaAbstract).getMethods().size()];
             System.out.println("Métodos: ");
             interactionViewer.appendText("Métodos: ");
@@ -797,7 +851,10 @@ public class InteractionController implements ActionListener {
                 interactionViewer.appendText("Number Of Local Variables: " + ((JavaClass) javaAbstract).getMethods().get(i).getNumberOfLocalVariables());
                 interactionViewer.appendText("Number Of Parameters: " + ((JavaClass) javaAbstract).getMethods().get(i).getParameters().size());
                 interactionViewer.appendText("Number Of Lines: " + ((JavaClass) javaAbstract).getMethods().get(i).getNumberOfLines());
-                
+                interactionViewer.appendText("Acces to foreign data number: " + ((JavaClass) javaAbstract).getMethods().get(i).getAccessToForeignDataNumber());
+                interactionViewer.appendText("Foreign Data Provider Number: " + ((JavaClass) javaAbstract).getMethods().get(i).getForeignDataProviderNumber());
+                interactionViewer.appendText("Access to local data number: " + ((JavaClass) javaAbstract).getMethods().get(i).getAccessToLocalDataNumber());
+
                 interactionViewer.appendText("Diff (in - out): " + ((JavaClass) javaAbstract).getMethods().get(i).getDiff());
                 interactionViewer.appendText("Modifie internal state: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
                 interactionViewer.appendText("Modifie internal state by call method: " + ((JavaClass) javaAbstract).getMethods().get(i).isChangeInternalState());
@@ -812,7 +869,7 @@ public class InteractionController implements ActionListener {
                     //System.out.println("JMI JAVA METHOD: "+jmi.getJavaAbstract().getFullQualifiedName());
                     if (jmi.getJavaMethod() != null) {
                         System.out.println("------ " + jmi.getJavaAbstract().getFullQualifiedName() + ":" + jmi.getJavaMethod().getMethodSignature());
-                        interactionViewer.appendText("------ " + jmi.getJavaAbstract().getFullQualifiedName() + ":" + jmi.getJavaMethod().getMethodSignature());
+                        interactionViewer.appendText("------ " + jmi.getJavaAbstract().getFullQualifiedName() + ":" + jmi.getJavaMethod().getMethodSignature() + "    is accessor: " + jmi.getJavaMethod().isAnAcessorMethod());
                     } else {
                         System.out.println("----um " + jmi.getJavaAbstract().getFullQualifiedName() + ":" + jmi.getUnknowMethodName());
                         interactionViewer.appendText("----um " + jmi.getJavaAbstract().getFullQualifiedName() + ":" + jmi.getUnknowMethodName());
@@ -840,6 +897,46 @@ public class InteractionController implements ActionListener {
                 interactionViewer.appendText("- " + javaAbs.getFullQualifiedName());
             }
 
+            System.out.println("Dependencia Interna");
+            interactionViewer.appendText("Dependencia Interna");
+            for (JavaClass javaClass : ((JavaClass) javaAbstract).getInternalDependencyClasses()) {
+                System.out.println("----- " + javaClass.getFullQualifiedName());
+                interactionViewer.appendText("----- " + javaClass.getFullQualifiedName());
+            }
+
+            System.out.println("Dependencia Externa");
+            interactionViewer.appendText("Dependencia Externa");
+            for (JavaClass javaClass : ((JavaClass) javaAbstract).getExternalDependencyClasses()) {
+                System.out.println("----- " + javaClass.getFullQualifiedName());
+                interactionViewer.appendText("----- " + javaClass.getFullQualifiedName());
+            }
+
+            System.out.println("Dependencia de pacotes");
+            interactionViewer.appendText("Dependencia de pacotes");
+            for (JavaPackage javaPackage : ((JavaClass) javaAbstract).getExternalDependencyPackages()) {
+                System.out.println("----- " + javaPackage.getName());
+                interactionViewer.appendText("----- " + javaPackage.getName());
+            }
+            interactionViewer.appendText("Classe do mesmo pacote, dependencia externa: ");
+            for(JavaClass jc : ((JavaClass) javaAbstract).getJavaPackage().getOnlyClasses()){
+                interactionViewer.appendText("----- " + jc.getFullQualifiedName()+"  NOED: "+jc.getExternalDependencyClasses().size());
+            }
+            
+            interactionViewer.appendText("\n\n PACKAGE INFORMATION: ");
+            interactionViewer.appendText(" PACKAGE COHESION: "+((JavaClass) javaAbstract).getJavaPackage().getPackageCohesion());
+            interactionViewer.appendText(" PACKAGE SIZE: "+((JavaClass) javaAbstract).getJavaPackage().getOnlyClasses().size());
+            interactionViewer.appendText(" PACKAGE CLIENT CLASSES SIZE: "+((JavaClass) javaAbstract).getJavaPackage().getOnlyClasses().size());
+            interactionViewer.appendText(" PACKAGE CLIENT PACKAGE SIZE: "+((JavaClass) javaAbstract).getJavaPackage().getClientPackages().size());
+            interactionViewer.appendText(" PACKAGE CLIENT CLASSES: ");
+            for(JavaClass jc : ((JavaClass) javaAbstract).getJavaPackage().getClientClasses()){
+                interactionViewer.appendText("**** "+jc.getFullQualifiedName());
+            }
+            interactionViewer.appendText(" PACKAGE CLIENT PACKAGES: ");
+            for(JavaPackage jp : ((JavaClass) javaAbstract).getJavaPackage().getClientPackages()){
+                interactionViewer.appendText("**** "+jp.getName());
+            }
+            
+
 //            for(int i = 0; i < ((JavaClass) javaAbstract).getMethods().size(); i++){
 //                invocations[i] = ((JavaClass) javaAbstract).getMethods().get(i).getMethodInvocations();
 //            }
@@ -859,7 +956,6 @@ public class InteractionController implements ActionListener {
                 methods[i] = ((JavaInterface) javaAbstract).getMethods().get(i).getMethodSignature();
             }
         }
-
 
     }
 
@@ -978,7 +1074,6 @@ public class InteractionController implements ActionListener {
                                         removeMethods.add(antMethod);
                                     }
 
-
                                     //writer8.println("----- " + antMethod.getMethodSignature());
                                 }
                             }
@@ -1018,8 +1113,6 @@ public class InteractionController implements ActionListener {
                             mc++;
                         }
 
-
-
                         if (antClass != null) {
                             JavaMethod antMethod = antClass.getMethodBySignature(jm.getMethodSignature());
                             if (antMethod != null) {
@@ -1035,7 +1128,6 @@ public class InteractionController implements ActionListener {
                                     writer4.println("Método: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars()
                                             + "     diff complexity: " + (jm.getCyclomaticComplexity() - antMethod.getCyclomaticComplexity()) + "      diff size: " + (jm.getSizeInChars() - antMethod.getSizeInChars()));
                                 }
-
 
                                 //ver changes methods call
                                 //ver adição de métodos
@@ -1099,7 +1191,6 @@ public class InteractionController implements ActionListener {
                                     }
                                 }
 
-
                             } else {
                                 if (!flag) {
                                     flag = true;
@@ -1112,8 +1203,6 @@ public class InteractionController implements ActionListener {
                                 writer1.println("############# Método novo criado: " + jm.getMethodSignature() + "     Complexity: " + jm.getCyclomaticComplexity() + "         size: " + jm.getSizeInChars());
 
                             }
-
-
 
                         } else {
                             if (!flag) {
@@ -1139,10 +1228,6 @@ public class InteractionController implements ActionListener {
                             writer6.println("Método: " + jm.getMethodSignature() + "       CM: " + jm.getChangingMethodsMetric() + "       CC: " + jm.getChangingClassesMetric());
                         }
 
-
-
-
-
                     }
                     int ctc = jp.getClassesThatCall(javaAbstract).size();
                     int ctu = jp.getClassesThatUsing(javaAbstract).size();
@@ -1155,7 +1240,6 @@ public class InteractionController implements ActionListener {
                     }
                     writer5.print("******* CLASS: " + jc.getFullQualifiedName() + "         Total Complexity: " + jc.getTotalCyclomaticComplexity());
                     totalCyclomaticComplexity = totalCyclomaticComplexity + jc.getTotalCyclomaticComplexity();
-
 
                     //feature envy
                     if (!jc.getMethods().isEmpty()) {
@@ -1261,9 +1345,7 @@ public class InteractionController implements ActionListener {
                             }
                         }
 
-
                     }
-
 
                 }
 
@@ -1327,9 +1409,6 @@ public class InteractionController implements ActionListener {
 //                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
 //                        }
 //                    }
-
-
-
                 }
 
                 //GOD Package
@@ -1389,9 +1468,6 @@ public class InteractionController implements ActionListener {
 //                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
 //                        }
 //                    }
-
-
-
                 }
 
                 //MisplacedClass
@@ -1452,14 +1528,7 @@ public class InteractionController implements ActionListener {
 //                            writer10.println("******* CLASS: " + javaClass.getFullQualifiedName() + "        AFDN: " + javaClass.getAccessToForeignDataNumber() + "    WMC: " + javaClass.getTotalCyclomaticComplexity() + "     TCC: " + tcc);
 //                        }
 //                    }
-
-
-
                 }
-
-
-
-
 
                 writer5.println("TOTAL COMPLEXITY: " + totalCyclomaticComplexity);
 
@@ -1491,19 +1560,17 @@ public class InteractionController implements ActionListener {
             writer13.close();
             //writer8.close();
 
-
         } catch (Exception e) {
             System.out.println("Exception writefile: " + e.getMessage());
             e.printStackTrace();
         }
 
-
     }
-    
-    private void orderByName(List<JavaAbstract> list){
-        for(int i =0; i < list.size(); i++){
-            for(int j = i+1; j < list.size(); j++){
-                if(list.get(i).getFullQualifiedName().compareTo(list.get(j).getFullQualifiedName()) > 0){
+
+    private void orderByName(List<JavaAbstract> list) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i + 1; j < list.size(); j++) {
+                if (list.get(i).getFullQualifiedName().compareTo(list.get(j).getFullQualifiedName()) > 0) {
                     JavaAbstract aux = list.get(i);
                     list.set(i, list.get(j));
                     list.set(j, aux);

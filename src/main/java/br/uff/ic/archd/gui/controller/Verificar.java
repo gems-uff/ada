@@ -17,6 +17,7 @@ import br.uff.ic.archd.javacode.JavaClass;
 import br.uff.ic.archd.javacode.JavaConstructorService;
 import br.uff.ic.archd.javacode.JavaInterface;
 import br.uff.ic.archd.javacode.JavaMethod;
+import br.uff.ic.archd.javacode.JavaMethodInvocation;
 import br.uff.ic.archd.javacode.JavaPackage;
 import br.uff.ic.archd.javacode.JavaProject;
 import br.uff.ic.archd.model.Project;
@@ -39,6 +40,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  *
@@ -12004,6 +12007,189 @@ public class Verificar {
             e.printStackTrace();
         }
     }
+    
+    public void verificarForeignData(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
+        String path = System.getProperty("user.home") + "/.archd/";
+
+        Revision rev = newProjectRevisions.getRoot();
+        int k = 0;
+
+        int max = 0;
+        
+
+        try {
+            while (rev != null) {
+
+                JavaProject jp = null;
+                //System.out.println("REV ID: "+rev.getId());
+                System.out.println("********************************* vai pegar um projeto completo");
+                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+
+                
+                for (JavaAbstract ja : jp.getClasses()) {
+                    JavaClass jc = (JavaClass) ja;
+                    if(jc.getAccessToForeignDataNumber() > 4){
+                        System.out.println("ABAIXO UMA CLASSE QUE PODE SER GOD: ");
+                    }
+                    if(jc.getAccessToForeignDataNumber() > max){
+                        max = jc.getAccessToForeignDataNumber();
+                    }
+                    System.out.println("Class: "+jc.getFullQualifiedName()+"  ATFD: "+jc.getAccessToForeignDataNumber());
+                    for (JavaMethod javaMethod : jc.getMethods()) {
+                        if(javaMethod.getForeignDataProviderNumber() > jc.getAccessToForeignDataNumber()){
+                            System.out.println("------- ERRO abaixo");
+                        }
+                        System.out.println("--------- method: "+jc.getFullQualifiedName()+":"+javaMethod.getMethodSignature()+"  ATFD: "+javaMethod.getForeignDataProviderNumber());
+//                        for(JavaMethodInvocation javaMethodInvocation : javaMethod.getMethodInvocations()){
+//                            System.out.println("---------------------- classe chamada: "+javaMethodInvocation.getJavaAbstract().getFullQualifiedName());
+//                        }
+                        
+
+                    }
+                }
+
+                //list.add(hashMap);
+                k++;
+
+                System.out.println("k: " + k + "   rev: " + rev.getId());
+
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+            
+            
+            System.out.println("****** MAX: "+max);
+
+        } catch (Exception e) {
+            System.out.println("Erro: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    
+    public void cohesionOfPackages(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService) {
+        Revision rev = newProjectRevisions.getRoot();
+        int k = 0;
+
+        int max = 0;
+        
+
+        try {
+            while (rev != null) {
+
+                JavaProject jp = null;
+                //System.out.println("REV ID: "+rev.getId());
+                System.out.println("********************************* vai pegar um projeto completo");
+                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+
+                
+
+                //list.add(hashMap);
+                k++;
+
+                System.out.println("\n\n\n***************** REVISION: "+ k);
+                for(JavaPackage javaPackage : jp.getPackages()){
+                    System.out.println("pakcage: "+javaPackage.getName()+"    Cohesion: "+javaPackage.getPackageCohesion()+"    NOCC: "+javaPackage.getClientClasses().size()+"    NOCP: "+javaPackage.getClientPackages().size()
+                    +"  package size: "+javaPackage.getOnlyClasses().size());
+                
+                }
+                
+                System.out.println("k: " + k + "   rev: " + rev.getId());
+
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+            
+            
+            System.out.println("****** MAX: "+max);
+
+        } catch (Exception e) {
+            System.out.println("Erro: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void countLoc(ProjectRevisions newProjectRevisions, Project project, JavaConstructorService javaConstructorService){
+        Revision rev = newProjectRevisions.getRoot();
+        int k = 0;
+
+        int max = 0;
+        
+        long menorKLOC = 0;
+        long maiorKLOC = 0;
+        
+        long kLoc = 0;
+
+        try {
+            while (rev != null) {
+
+                JavaProject jp = null;
+                //System.out.println("REV ID: "+rev.getId());
+                System.out.println("********************************* vai pegar um projeto completo");
+                jp = javaConstructorService.getProjectByRevisionAndSetRevision(project.getName(), project.getCodeDirs(), project.getPath(), rev.getId(), newProjectRevisions.getName());
+
+                
+
+                //list.add(hashMap);
+                k++;
+                
+                
+                kLoc = 0;
+                System.out.println("\n\n\n***************** REVISION: "+ k);
+                for(JavaAbstract javaAbstract : jp.getAllClasses()){
+                    System.out.println("Java Abstract: "+javaAbstract.getPath());
+                    kLoc = kLoc + lineCounter(javaAbstract.getPath());
+                
+                }
+                System.out.println("KLOC ATUAL: "+kLoc);
+                if(kLoc > maiorKLOC){
+                    maiorKLOC = kLoc;
+                }
+                if(kLoc < menorKLOC){
+                    menorKLOC = kLoc;
+                }
+                
+                System.out.println("k: " + k + "   rev: " + rev.getId());
+
+                if (rev.getNext().size() == 0) {
+                    rev = null;
+                } else {
+                    rev = rev.getNext().get(0);
+                }
+            }
+            
+            System.out.println("***************** MAX KLOC: "+ maiorKLOC);
+            System.out.println("***************** MIN KLOC: "+ menorKLOC);
+            //System.out.println("****** MAX: "+max);
+
+        } catch (Exception e) {
+            System.out.println("Erro: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private int lineCounter (String path) throws IOException {
+
+        int lineCount = 0, commentsCount = 0;
+
+        Scanner input = new Scanner(new File(path));
+        while (input.hasNextLine()) {
+            String data = input.nextLine();
+
+            //if (data.startsWith("//")) commentsCount++;
+
+            lineCount++;
+        }
+        return lineCount;
+
+        //System.out.println("Line Count: " + lineCount + "\t Comments Count: " + commentsCount);
+    }
 
     public static void main(String args[]) {
         String path = System.getProperty("user.home") + "/.archd/";
@@ -12011,7 +12197,7 @@ public class Verificar {
         List<Project> projects = javaprojectsService.getProjects();
         Project p = null;
         for (Project project : projects) {
-            if (project.getName().equals("storm")) {
+            if (project.getName().equals("log4j")) {
                 p = project;
                 break;
             }
@@ -12040,8 +12226,16 @@ public class Verificar {
                 //verificar.verificarCongenitalAfterClass(newProjectRevisions, p, javaContructorService);
                 //verificar.verificarAnomaliasDeMetodos(newProjectRevisions, p, javaContructorService);
 
-                System.out.println("Vai calcular anomalias storm");
-                verificar.verificarAnomaliasDeMetodosPorClasseLeve(newProjectRevisions, p, javaContructorService);
+//                System.out.println("Vai calcular anomalias testng"
+//                        + " ");
+//                verificar.verificarAnomaliasDeMetodosPorClasseLeve(newProjectRevisions, p, javaContructorService);
+                
+                //verificar.numberOfArtifacts(newProjectRevisions, p, javaContructorService);
+                //verificar.cohesionOfPackages(newProjectRevisions, p, javaContructorService);
+                verificar.countLoc(newProjectRevisions, p, javaContructorService);
+                
+//                System.out.println("Vai verificar log4j ");
+//                verificar.verificarForeignData(newProjectRevisions, p, javaContructorService);
 //                System.out.println("Cirar mining file para titan");
                 //verificar.createMiningFile(newProjectRevisions, p, javaContructorService);
 //                verificar.createFinalMiningFile();
@@ -12050,13 +12244,15 @@ public class Verificar {
                 //verificar.printAll();
 //                verificar.showClassLocalityDistribution(newProjectRevisions, p, javaContructorService);
 //                verificar.showClassUndefinedLocalityClasses(newProjectRevisions, p, javaContructorService);
-//                System.out.println("calcular projetos (8G): storm ");
+//                System.out.println("calcular projetos (8G): testng ");
 //                javaContructorService.calculateAllProjectsRevision(p.getName(), p.getCodeDirs(), p.getPath(), projectRevisions);
 
                 //AnomaliesAnaliser anomaliesAnaliser = new AnomaliesAnaliser();
                 //ProjectAnomalies projectAnomalies = anomaliesAnaliser.getAnomalies(newProjectRevisions, p, javaContructorService);
                 //verificar.getAddMethodsCorrectToAnalizer(newProjectRevisions, p, javaContructorService);
             } catch (Exception e) {
+                System.out.println("Erro: "+e.getMessage());
+                e.printStackTrace();
             }
         }
     }

@@ -4,6 +4,8 @@
  */
 package br.uff.ic.archd.git.service;
 
+import br.uff.ic.archd.javacode.ProjectAuthors;
+import br.uff.ic.archd.javacode.RevisionAuthor;
 import br.uff.ic.dyevc.application.branchhistory.model.BranchRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.LineRevisions;
 import br.uff.ic.dyevc.application.branchhistory.model.ProjectRevisions;
@@ -38,7 +40,16 @@ public class ProjectRevisionsService {
     
     private String BRANCHES_HISTORY_PATH = System.getProperty("user.home")+"/.archd/BRANCHES_HISTORY/";
     
+    private ProjectAuthors projectAuthors;
+    
+    public ProjectAuthors getProjectAuthors(){
+        return projectAuthors;
+    }
+    
     public ProjectRevisions getProject(String path, String projectName) throws Exception{
+        
+        projectAuthors = new ProjectAuthors();
+        
         RevisionsBucket revisionsBucket = new RevisionsBucket();
         String novoPath = BRANCHES_HISTORY_PATH+projectName;
         //System.out.println("AQUI");
@@ -101,6 +112,17 @@ public class ProjectRevisionsService {
         while(commitRelationshipIt.hasNext()){
             CommitRelationship commitRelationship = commitRelationshipIt.next();
             String child = commitRelationship.getChild().getId();
+            
+            RevisionAuthor revisionAuthor = new RevisionAuthor(commitRelationship.getChild().getId(),
+            commitRelationship.getChild().getAuthor(), commitRelationship.getChild().getCommitter(), 
+            commitRelationship.getChild().getShortMessage(), commitRelationship.getChild().getCommitDate());
+            projectAuthors.addRevisionAuthor(revisionAuthor);
+            
+            revisionAuthor = new RevisionAuthor(commitRelationship.getParent().getId(),
+            commitRelationship.getParent().getAuthor(), commitRelationship.getParent().getCommitter(), 
+            commitRelationship.getParent().getShortMessage(), commitRelationship.getParent().getCommitDate());
+            projectAuthors.addRevisionAuthor(revisionAuthor);
+            
             Date childCommitDate = commitRelationship.getChild().getCommitDate();
             String parent = commitRelationship.getParent().getId();
             Revision revisionChild = revisionsBucket.getRevisionById(child);

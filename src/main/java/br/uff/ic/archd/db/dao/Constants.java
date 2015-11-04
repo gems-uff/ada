@@ -15,6 +15,8 @@ public class Constants {
 //    /archDB12 guava
     //archDB13 orientdb
     //archDB14 Neo4j
+    //storm
+    //log4j
     
     public final static int ANOMALIE_GOD_PACKAGE = 1;
     public final static int ANOMALIE_GOD_CLASS = 2;

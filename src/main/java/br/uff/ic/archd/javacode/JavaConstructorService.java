@@ -175,6 +175,7 @@ public class JavaConstructorService {
             checkoutCommand = git.checkout();
             checkoutCommand.setName(revisionId);
             checkoutCommand.call();
+            
 
             long tempoclone2 = System.currentTimeMillis();
             System.out.println("TEMPO PRA FAZER UM CLONE: " + (tempoclone2 - tempoclone1) + " milisegundos");
@@ -380,7 +381,11 @@ public class JavaConstructorService {
                 packagesSemelhanca(newPackages, pacotesSumidos, originalNameDao, artifactBirthDao, revisionId);
 
                 //verificar as classes e os metodos
+                System.out.println("Verificar todas as "+javaProject.getClasses().size()+" classes para colocar seus originals signatures");
+                int verificado = 0;
                 for (JavaAbstract javaAbstract : javaProject.getClasses()) {
+                    System.out.println("Verificando classe "+verificado);
+                    verificado++;
                     JavaClass javaClass = (JavaClass) javaAbstract;
 
                     String originalName = originalNameDao.getOriginalName(javaClass.getFullQualifiedName());
@@ -2068,8 +2073,8 @@ public class JavaConstructorService {
                 int n = javaClass.getMethods().size();
                 tcc = tcc / ((n * (n - 1)) / 2);
                 if ((javaClass.getAccessToForeignDataNumber() > 4)
-                        && (javaClass.getTotalCyclomaticComplexity() > 20)
-                        && (tcc < 0.33)) {
+                        && ((javaClass.getTotalCyclomaticComplexity() > 20)
+                        || (tcc < 0.33))) {
                     godClassList.add(javaClass);
                 }
             }

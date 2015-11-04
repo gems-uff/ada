@@ -749,7 +749,7 @@ public class AnomaliesController implements ActionListener {
                 percentagem = percentagem * 100;
 
                 text = text + "ANOMALIE: " + str + "\n    Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithAnomalie()
-                        + "          Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
+                        + "          Number Of Revisions Without Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
                         + (percentagem) + " %)"
                         + "\n    Revision Birth: " + anomalieList.getArtifactBirthNumber()
                         + "\n    Class Birth: " + anomalieList.getParentArtifactBirthNumber()
@@ -763,7 +763,7 @@ public class AnomaliesController implements ActionListener {
             percentagem = percentagem / (anomalieList.getNumberOfRevisionsWithAnomalie() + anomalieList.getNumberOfRevisionsWithoutAnomalie());
             percentagem = percentagem * 100;
             text = text + "ANOMALIE: " + anomalie + "\n    Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithAnomalie()
-                    + "          Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
+                    + "          Number Of Revisions Without Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
                     + (percentagem) + " %)"
                     + "\n    Revision Birth: " + anomalieList.getArtifactBirthNumber()
                     + "\n    Class Birth: " + anomalieList.getParentArtifactBirthNumber()
@@ -837,15 +837,59 @@ public class AnomaliesController implements ActionListener {
     private void showClass(int index) {
         String anomalie = anomalies.get(anomalieIndex);
         String className = classes.get(index);
-        GenericAnomalies genericAnomalies = projectAnomalies.getMethodAnomalies(className);
+        GenericAnomalies genericAnomalies = projectAnomalies.getClassAnomalies(className);
         JPanel chartPanel = new AnomalieChart(genericAnomalies, anomalie);
+        
+        String text = "CLASS: " + className +"      last name: "+genericAnomalies.getGenericLastName()+"\n";
+        if(!genericAnomalies.getAlternativeNames().isEmpty()){
+            text = text+"Alternative Names: ";
+        }
+        for (String aux : genericAnomalies.getAlternativeNames()) {
+            text = text+" " + aux + "   ,  ";
+        }
+        text = text+"\n";
+        if (anomalie.equals("ALL ANOMALIES")) {
+            List<String> anomaliesNames = genericAnomalies.getAnomalies();
+            for (String str : anomaliesNames) {
+                AnomalieList anomalieList = genericAnomalies.getAnomalieList(str);
+                double percentagem = anomalieList.getNumberOfRevisionsWithAnomalie();
+                percentagem = percentagem / (anomalieList.getNumberOfRevisionsWithAnomalie() + anomalieList.getNumberOfRevisionsWithoutAnomalie());
+                percentagem = percentagem * 100;
+
+                text = text + "ANOMALIE: " + str + "\n    Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithAnomalie()
+                        + "          Number Of Revisions Without Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
+                        + (percentagem) + " %)"
+                        + "\n    Revision Birth: " + anomalieList.getArtifactBirthNumber()
+                        + "\n    Class Birth: " + anomalieList.getParentArtifactBirthNumber()
+                        + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getArtifactBirthNumber())
+                        + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie()) + "\n\n";
+                System.out.println("Type: " + anomalieList.getTypeOfAnomalie());
+            }
+        } else {
+            AnomalieList anomalieList = genericAnomalies.getAnomalieList(anomalie);
+            double percentagem = anomalieList.getNumberOfRevisionsWithAnomalie();
+            percentagem = percentagem / (anomalieList.getNumberOfRevisionsWithAnomalie() + anomalieList.getNumberOfRevisionsWithoutAnomalie());
+            percentagem = percentagem * 100;
+            text = text + "ANOMALIE: " + anomalie + "\n    Number Of Revisions With Problem: " + anomalieList.getNumberOfRevisionsWithAnomalie()
+                    + "          Number Of Revisions Without Problem: " + anomalieList.getNumberOfRevisionsWithoutAnomalie() + "          ("
+                    + (percentagem) + " %)"
+                    + "\n    Revision Birth: " + anomalieList.getArtifactBirthNumber()
+                    + "\n    Class Birth: " + anomalieList.getParentArtifactBirthNumber()
+                    + "\n    Anomalie Birth: " + (anomalieList.getAnomalieBirthNumber() + anomalieList.getArtifactBirthNumber())
+                    + "\n    Type: " + getTypeOfAnomalie(anomalieList.getTypeOfAnomalie())+"\n\n";
+            System.out.println("Type: " + anomalieList.getTypeOfAnomalie());
+
+        }
+
+        anomaliesView.setInformation(text);
+        
         anomaliesView.setChartPanel(chartPanel);
     }
 
     private void showPackage(int index) {
         String anomalie = anomalies.get(anomalieIndex);
         String packageName = packages.get(index);
-        GenericAnomalies genericAnomalies = projectAnomalies.getMethodAnomalies(packageName);
+        GenericAnomalies genericAnomalies = projectAnomalies.getPackageAnomalies(packageName);
         JPanel chartPanel = new AnomalieChart(genericAnomalies, anomalie);
         anomaliesView.setChartPanel(chartPanel);
     }
