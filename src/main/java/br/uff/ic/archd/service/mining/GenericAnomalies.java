@@ -45,6 +45,16 @@ public class GenericAnomalies {
         }
         anomalieList.setAnomalieOcurrence(k);
     }
+    
+    public void addNotAnomalie(String anomalie, int k) {
+        AnomalieList anomalieList = anomalieHashMap.get(anomalie);
+        if (anomalieList == null) {
+            anomalieList = new AnomalieList(getNumberOfRevisions(), artifactBirthNumber, getParentArtifactBirthNumber());
+
+            anomalieHashMap.put(anomalie, anomalieList);
+        }
+        anomalieList.setNotAnomalieOcurrence(k);
+    }
 
     public void addAlternativeName(String name) {
         alternativeNames.add(name);

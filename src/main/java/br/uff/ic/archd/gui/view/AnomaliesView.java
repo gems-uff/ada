@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -98,7 +99,7 @@ public class AnomaliesView extends JFrame{
         informationPane.setViewportView(informationTextArea);
         informationPane.setPreferredSize(new Dimension(750,160));
         
-        
+        JTabbedPane tabbedPane = new JTabbedPane();
         
         //informationPanel = new JPanel();
         chartPanel = new JPanel();
@@ -141,11 +142,17 @@ public class AnomaliesView extends JFrame{
         panel.add(packagesButton, gridBagConstraints);
         
         
-        gridBagConstraints = new GridBagConstraints(3, 0, 1, 4, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(25, 20, 0, 20), 0, 0);
-        panel.add(informationPane, gridBagConstraints);
+        tabbedPane.add("Information", informationPane);
+        tabbedPane.add("Chart", chartPane);
         
-        gridBagConstraints = new GridBagConstraints(0, 4, 4, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(25, 20, 0, 0), 0, 0);
-        panel.add(chartPane, gridBagConstraints);
+        gridBagConstraints = new GridBagConstraints(0, 4, 3, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(25, 20, 0, 20), 0, 0);
+        panel.add(tabbedPane, gridBagConstraints);
+        
+//        gridBagConstraints = new GridBagConstraints(3, 0, 1, 4, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(25, 20, 0, 20), 0, 0);
+//        panel.add(informationPane, gridBagConstraints);
+//        
+//        gridBagConstraints = new GridBagConstraints(0, 4, 4, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(25, 20, 0, 0), 0, 0);
+//        panel.add(chartPane, gridBagConstraints);
         
         this.add(panel, BorderLayout.CENTER);
         

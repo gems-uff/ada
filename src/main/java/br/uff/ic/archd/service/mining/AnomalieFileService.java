@@ -357,6 +357,14 @@ public class AnomalieFileService {
                                 } else if (type == METHOD_TYPE) {
                                     projectAnomalies.addMethodAnomalie(artifactName, artifactName, anomalieName, j + artifactBirthNumber, artifactBirthNumber, parentArtifactBirthNumber);
                                 }
+                            }else{
+                                if (type == PACKAGE_TYPE) {
+                                    projectAnomalies.addPackageNotAnomalie(artifactName, anomalieName, j + artifactBirthNumber, artifactBirthNumber, parentArtifactBirthNumber);
+                                } else if (type == CLASS_TYPE) {
+                                    projectAnomalies.addClassNotAnomalie(artifactName, artifactName, anomalieName, j + artifactBirthNumber, artifactBirthNumber, parentArtifactBirthNumber);
+                                } else if (type == METHOD_TYPE) {
+                                    projectAnomalies.addMethodNotAnomalie(artifactName, artifactName, anomalieName, j + artifactBirthNumber, artifactBirthNumber, parentArtifactBirthNumber);
+                                }
                             }
                         }
 

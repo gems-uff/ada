@@ -185,10 +185,10 @@ public class InteractionViewer extends JFrame{
         p.add(buttonInterface, gridBagConstraints);
         
         
-        gridBagConstraints = new GridBagConstraints(0, 4, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
+        gridBagConstraints = new GridBagConstraints(1, 3, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
         p.add(classCodeButton, gridBagConstraints);
         
-        gridBagConstraints = new GridBagConstraints(2, 4, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
+        gridBagConstraints = new GridBagConstraints(3, 3, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 10, 20, 10), 0, 0);
         p.add(interfaceCodeButton, gridBagConstraints);
         
         

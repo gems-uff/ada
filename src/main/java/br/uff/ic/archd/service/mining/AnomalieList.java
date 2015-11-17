@@ -25,6 +25,7 @@ public class AnomalieList {
     private boolean isCorrected;
     private boolean birthAfterParentArtifact;
     private int recurrenceLevel;
+    private int last;
 
     AnomalieList(int numberOfRevisions, int artifactBirthNumber, int parentArtifactBirthNumber) {
         this.parentArtifactBirthNumber = parentArtifactBirthNumber;
@@ -33,6 +34,7 @@ public class AnomalieList {
         for (int i = 0; i < numberOfRevisions; i++) {
             list.add(false);
         }
+        last = 0;
     }
 
     /**
@@ -44,6 +46,16 @@ public class AnomalieList {
 
     public void setAnomalieOcurrence(int k) {
         list.set(k, Boolean.TRUE);
+        if(k > last){
+            last = k;
+        }
+    }
+    
+    public void setNotAnomalieOcurrence(int k) {
+        list.set(k, Boolean.FALSE);
+        if(k > last){
+            last = k;
+        }
     }
 
     public void classifyAnomalie() {
@@ -51,6 +63,7 @@ public class AnomalieList {
         //System.out.println("Revision Birth: "+getRevisionBirthNumber());
         //System.out.println("Size: "+list.size());
         list = list.subList(getArtifactBirthNumber(), list.size());
+        last = last - getArtifactBirthNumber();
         //System.out.println("Size depois: "+list.size());
         boolean congenital = false;
         boolean bornWithTheClass = false;
@@ -115,7 +128,7 @@ public class AnomalieList {
             }
         }
         //se o ultimo tem erro então não foi corrigido
-        if (list.get(list.size() - 1)) {
+        if (list.get(last)) {
             if (numOfCorrectness == 0) {
                 typeOfAnomalie = aux + 1;
             } else if (numOfCorrectness == 1) {
